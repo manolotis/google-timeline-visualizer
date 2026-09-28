@@ -40,6 +40,8 @@ export interface Visit {
   totalHours: number;
   firstVisit: string;
   lastVisit: string;
+  city?: string;
+  country?: string;
 }
 
 export interface NightEntry {
@@ -120,6 +122,8 @@ export interface TopPlace {
   visitCount: number;
   totalHours: number;
   semanticType: string;
+  city?: string;
+  country?: string;
 }
 
 export interface Stats {

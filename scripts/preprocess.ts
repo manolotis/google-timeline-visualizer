@@ -613,7 +613,7 @@ async function main() {
   }
 
   // Flatten and sort by visit count descending
-  const visits = [...visitMap.values()]
+  const visitsBase = [...visitMap.values()]
     .map((v) => {
       const arrivals = [...v.arrivals].sort();
       return {
@@ -629,8 +629,7 @@ async function main() {
     })
     .sort((a, b) => b.visitCount - a.visitCount);
 
-  console.log(`  ${visits.length} unique places`);
-  fs.writeFileSync(path.join(OUT, 'visits.json'), JSON.stringify(visits));
+  console.log(`  ${visitsBase.length} unique places`);
 
   console.log('Loading offline city database…');
   const cityDb = readOfflineCityDb(CITY_DB_PATH, CITY_BUCKET_DEG);
@@ -647,8 +646,29 @@ async function main() {
 
   console.log('Prefilling offline city database from timeline locations…');
   await cityResolver.prefill(
-    visits.map((v) => ({ lat: v.lat, lng: v.lng })),
+    visitsBase.map((v) => ({ lat: v.lat, lng: v.lng })),
   );
+
+  // The raw Timeline export carries no human-readable place name (only
+  // placeId + coordinates), so resolve each visit's city/country via the
+  // same offline city DB used elsewhere. The prefill step above already
+  // populated the resolver's cache for every visit coordinate, so these
+  // are cache hits — no additional online lookups are triggered here.
+  console.log('Resolving place names for visits…');
+  const visits: (typeof visitsBase[number] & {
+    city?: string;
+    country?: string;
+  })[] = [];
+  for (const v of visitsBase) {
+    const resolved = await cityResolver.resolve(v.lat, v.lng);
+    visits.push({
+      ...v,
+      city: resolved?.name,
+      country: resolved?.country,
+    });
+  }
+
+  fs.writeFileSync(path.join(OUT, 'visits.json'), JSON.stringify(visits));
 
   // ========================================================================
   // 3. Extract flights
@@ -1186,6 +1206,8 @@ async function main() {
       visitCount: v.visitCount,
       totalHours: v.totalHours,
       semanticType: v.semanticType,
+      city: v.city,
+      country: v.country,
     }));
 
   // Day-of-week activity distribution

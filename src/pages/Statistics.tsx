@@ -233,8 +233,7 @@ export default function Statistics() {
             <thead>
               <tr className="text-left text-gray-400 border-b border-gray-800">
                 <th className="px-3 py-2">#</th>
-                <th className="px-3 py-2">Place ID</th>
-                <th className="px-3 py-2">Coordinates</th>
+                <th className="px-3 py-2">Place</th>
                 <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Visits</th>
                 <th className="px-3 py-2">Total Hours</th>
@@ -247,11 +246,21 @@ export default function Statistics() {
                   className="border-b border-gray-800/50 hover:bg-gray-800/30"
                 >
                   <td className="px-3 py-2 text-gray-500">{i + 1}</td>
-                  <td className="px-3 py-2 text-gray-300 font-mono text-xs">
-                    {p.placeId.slice(0, 25)}…
-                  </td>
-                  <td className="px-3 py-2 text-gray-400 font-mono text-xs">
-                    {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
+                  <td className="px-3 py-2">
+                    {p.city ? (
+                      <>
+                        <span className="text-gray-200">
+                          {p.city}{p.country ? `, ${p.country}` : ''}
+                        </span>
+                        <span className="block text-[10px] text-gray-500 font-mono">
+                          {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-gray-400 font-mono text-xs">
+                        {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${

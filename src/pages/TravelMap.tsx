@@ -242,7 +242,11 @@ export default function TravelMap() {
             >
               <Tooltip>
                 <div className="text-xs">
-                  <div>{v.placeId.slice(0, 20)}</div>
+                  <div>
+                    {v.city
+                      ? `${v.city}${v.country ? `, ${v.country}` : ''}`
+                      : `${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}`}
+                  </div>
                   <div>{v.visitCount} visits · {v.totalHours}h</div>
                 </div>
               </Tooltip>

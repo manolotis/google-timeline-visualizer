@@ -32,7 +32,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
 - Year range filter (derived from your data) to explore specific time periods
-- Place markers (top 500 visited locations) sized by visit frequency
+- Place markers (top 500 visited locations) sized by visit frequency, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
 - Home marker with permanent label
 
 ### 📈 Statistics
@@ -40,7 +40,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Yearly distance traveled (line chart) and unique places per year (bar chart)
 - Day-of-week radar chart showing activity distribution
 - Hour-of-day bar chart for movement patterns
-- Top 20 most visited places table with coordinates, semantic type, visit count, and hours spent
+- Top 20 most visited places table showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
 
 ### 🧭 Geography
 - Countries and cities ranked by total away-days, with summary cards and full share-of-total tables
@@ -69,7 +69,7 @@ Timeline.json (raw Google export)
 |---|---|
 | `home.json` | Auto-detected home coordinates (from `INFERRED_HOME` / `HOME` visits) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
-| `visits.json` | Deduplicated places with visit counts and total time spent |
+| `visits.json` | Deduplicated places with visit counts, total time spent, and resolved city/country name |
 | `nights-away.json` | Per-date home/away classification with distance from home |
 | `geography.json` | Countries/cities ranked by away-days spent there |
 | `trips.json` | Consecutive away-nights grouped into trips |
@@ -211,7 +211,6 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 - **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
 - **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
-- **Place name resolution** — show resolved city names (via the offline city DB) instead of raw place IDs in top-places tables and map tooltips
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Multi-home support** — home periods over time instead of a single static home, for people who have moved
 - **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
