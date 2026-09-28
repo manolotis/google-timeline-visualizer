@@ -32,7 +32,101 @@ function Chip({
 }
 
 const DATE_INPUT_CLASS =
-  'mt-1 w-full bg-gray-800 border border-gray-700 rounded-md px-2 py-1 text-xs text-gray-200 [color-scheme:dark] focus:outline-none focus:border-orange-500/60';
+  'w-full bg-gray-800 border border-gray-700 rounded-md pl-2 pr-7 py-1 text-xs text-gray-200 [color-scheme:dark] focus:outline-none focus:border-orange-500/60';
+
+/** "2024-03-31" → "31/03/2024" */
+function formatEuDate(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return d ? `${d}/${m}/${y}` : '';
+}
+
+/** "31/03/2024" (also 31.03.2024, 31-3-2024) → "2024-03-31"; null unless a real, complete date. */
+function parseEuDate(text: string): string | null {
+  const m = text.trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
+  if (!m) return null;
+  const [day, month] = [Number(m[1]), Number(m[2])];
+  const iso = `${m[3]}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const date = new Date(`${iso}T00:00:00Z`);
+  // new Date() rolls impossible dates over (31/02 → 02/03); reject those
+  return date.getUTCMonth() + 1 === month && date.getUTCDate() === day ? iso : null;
+}
+
+/**
+ * A date field in European day/month/year order. The native date input can't
+ * be used directly for this: browsers format it by the browser's UI language
+ * (a US-English browser shows mm/dd/yyyy) and ignore the `lang` attribute.
+ * So the visible field is a text input showing dd/mm/yyyy, and a hidden
+ * native input behind the 📅 button still provides the calendar popup.
+ */
+function DateField({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  min: string;
+  max: string;
+  onChange: (iso: string) => void;
+}) {
+  // What's being typed, shown verbatim until blur so partial dates don't jump
+  const [draft, setDraft] = useState<string | null>(null);
+  const pickerRef = useRef<HTMLInputElement>(null);
+  const edit = (text: string) => {
+    setDraft(text);
+    if (text.trim() === '') onChange(''); // an empty side keeps the range open-ended
+    else {
+      const iso = parseEuDate(text);
+      if (iso) onChange(iso);
+    }
+  };
+  return (
+    <label className="text-xs text-gray-400">
+      {label}
+      <div className="relative mt-1">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="dd/mm/yyyy"
+          value={draft ?? formatEuDate(value)}
+          onChange={(e) => edit(e.target.value)}
+          onBlur={() => setDraft(null)}
+          className={DATE_INPUT_CLASS}
+        />
+        <input
+          ref={pickerRef}
+          type="date"
+          tabIndex={-1}
+          aria-hidden="true"
+          value={value}
+          min={min}
+          max={max}
+          onChange={(e) => {
+            setDraft(null);
+            onChange(e.target.value);
+          }}
+          className="absolute inset-0 -z-10 opacity-0"
+        />
+        <button
+          type="button"
+          aria-label={`${label} date from calendar`}
+          onClick={() => {
+            try {
+              pickerRef.current?.showPicker();
+            } catch {
+              /* no gesture / unsupported: the text input still works */
+            }
+          }}
+          className="absolute right-1 top-1/2 -translate-y-1/2 px-0.5 rounded text-sm leading-none opacity-70 hover:opacity-100"
+        >
+          <span aria-hidden="true">📅</span>
+        </button>
+      </div>
+    </label>
+  );
+}
 
 export default function TimeRangeControl() {
   const { selection, setSelection, range, bounds, label, valid } = useTimeRange();
@@ -147,28 +241,20 @@ export default function TimeRangeControl() {
           <div>
             <div className="text-xs text-gray-500 mb-2">Custom range</div>
             <div className="grid grid-cols-2 gap-2">
-              <label className="text-xs text-gray-400">
-                From
-                <input
-                  type="date"
-                  value={startValue}
-                  min={bounds.start}
-                  max={bounds.end}
-                  onChange={(e) => setSelection({ kind: 'custom', start: e.target.value, end: endValue })}
-                  className={DATE_INPUT_CLASS}
-                />
-              </label>
-              <label className="text-xs text-gray-400">
-                To
-                <input
-                  type="date"
-                  value={endValue}
-                  min={bounds.start}
-                  max={bounds.end}
-                  onChange={(e) => setSelection({ kind: 'custom', start: startValue, end: e.target.value })}
-                  className={DATE_INPUT_CLASS}
-                />
-              </label>
+              <DateField
+                label="From"
+                value={startValue}
+                min={bounds.start}
+                max={bounds.end}
+                onChange={(start) => setSelection({ kind: 'custom', start, end: endValue })}
+              />
+              <DateField
+                label="To"
+                value={endValue}
+                min={bounds.start}
+                max={bounds.end}
+                onChange={(end) => setSelection({ kind: 'custom', start: startValue, end })}
+              />
             </div>
             {!valid && (
               <p className="text-xs text-red-400 mt-2">The start date is after the end date.</p>
@@ -177,7 +263,9 @@ export default function TimeRangeControl() {
 
           <p className="text-[11px] leading-relaxed text-gray-500 border-t border-gray-800 pt-3">
             Applies to every page. Your data covers{' '}
-            <span className="whitespace-nowrap">{bounds.start} → {bounds.end}</span>.
+            <span className="whitespace-nowrap">
+              {formatEuDate(bounds.start)} → {formatEuDate(bounds.end)}
+            </span>.
           </p>
         </div>
       )}
