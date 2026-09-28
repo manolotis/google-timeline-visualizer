@@ -30,7 +30,7 @@
 import { useSyncExternalStore } from 'react';
 import { RANGE_PARAM_KEYS, isIsoDate } from './timeRange';
 
-export const PAGES = ['overview', 'flights', 'nights', 'map', 'statistics', 'geography', 'trip'] as const;
+export const PAGES = ['overview', 'flights', 'nights', 'map', 'statistics', 'geography', 'compare', 'trip'] as const;
 
 export type Page = (typeof PAGES)[number];
 

@@ -20,6 +20,7 @@ import NightsAway from './pages/NightsAway';
 import TravelMap from './pages/TravelMap';
 import Statistics from './pages/Statistics';
 import Geography from './pages/Geography';
+import Compare from './pages/Compare';
 import TripDetail from './pages/TripDetail';
 
 /** Pages outside the nav, and the tab they belong under. */
@@ -32,6 +33,7 @@ const NAV_ITEMS: { id: Page; label: string; icon: string }[] = [
   { id: 'map', label: 'Travel Map', icon: '🗺️' },
   { id: 'statistics', label: 'Statistics', icon: '📈' },
   { id: 'geography', label: 'Geography', icon: '🧭' },
+  { id: 'compare', label: 'Compare', icon: '⚖️' },
 ];
 
 /**
@@ -111,6 +113,7 @@ export default function App() {
           {page === 'map' && <TravelMap />}
           {page === 'statistics' && <Statistics />}
           {page === 'geography' && <Geography />}
+          {page === 'compare' && <Compare />}
           {page === 'trip' && <TripDetail />}
         </main>
 
