@@ -274,6 +274,7 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
 - **Firsts & streaks** — new countries/cities per year, longest travel streak, longest home streak
+- **Family-home option** — mark a place (e.g. a family home you visit every year) as never "away", so recurring stays there don't count as trips; complements home periods
 - **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates
 - **Animated playback** — scrub through time and watch your travel history draw itself
 - **Year-vs-year comparison** view
