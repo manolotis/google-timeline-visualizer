@@ -501,7 +501,8 @@ function FlightList({ flights }: { flights: Flight[] }) {
             {flights.map((f) => (
               <tr key={f.startTime} className="border-b border-gray-800/50 hover:bg-gray-800/30">
                 <td className="px-4 py-2 text-gray-200 whitespace-nowrap">
-                  {f.date} <span className="text-gray-500">{f.startTime.slice(11, 16)}</span>
+                  {f.date}{' '}
+                  <span className="text-gray-500" title="Local departure time">{f.startTime.slice(11, 16)}</span>
                 </td>
                 <FlightEndCell city={f.startCity} country={f.startCountry} lat={f.startLat} lng={f.startLng} />
                 <FlightEndCell city={f.endCity} country={f.endCountry} lat={f.endLat} lng={f.endLng} />

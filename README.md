@@ -12,6 +12,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - The selection persists while you switch pages and is kept in the URL (see [Shareable Links & History](#-shareable-links--history)); the ✕ next to the picker resets to All time
 - Trend charts adapt their granularity: per year for long ranges, **per month** for ranges up to three years
 - Day-precise: every number is recomputed from dated per-record data, so a custom range is exact rather than rounded to whole months, and All time reproduces the unfiltered totals exactly
+- Time-zone aware: every date is the local date wherever you were, not your phone's clock (see [Local Time](#local-time))
 - A "no data in this range" hint (with a one-click reset) instead of empty charts when a period has nothing recorded
 
 ### 🔗 Shareable Links & History
@@ -37,7 +38,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Longest and furthest trip highlights, each opening its [trip detail page](#-trip-detail)
 
 ### ✈️ Flights
-- Full log of every flight detected in the selected range
+- Full log of every flight detected in the selected range, dated by local departure date
 - Sortable table by date, distance, or duration
 - Interactive world map with **great-circle arcs** for each flight route
 - Origin/destination coordinate markers with resolved city names
@@ -48,6 +49,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
   - Every night, trip distance and away-night country is measured against the home of that night's period
   - The page header lists the homes that apply to the selected range, e.g. "Eindhoven, Netherlands (2014–2026) → Tres Cantos, Spain (since 2026)"
 - **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
+- **Time-zone aware nights** — each night is dated by the local evening it begins and placed where you spent that local night (20:00–08:00), wherever in the world you were, and a night spent on a plane counts as a night away (see [Local Time](#local-time))
 - Year-by-year selector (years within the selected range) with per-year count and percentage
 - Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it); click a trip (or Tab to it and press Enter) to open its [detail page](#-trip-detail)
 - Range stats: total nights away, total trips, longest trip, furthest trip
@@ -58,7 +60,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home; the legend lists the distance covered per mode
 - **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
 - **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
-- **Flights** taken during the trip, in order, with departure time, cities, distance, and duration
+- **Flights** taken during the trip, in order, with local departure time, cities, distance, and duration
 - Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
 
 ### 🗺️ Travel Map
@@ -72,7 +74,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
 - Distance traveled (line chart) and unique places visited (bar chart) per year, or per month for shorter ranges
 - Day-of-week radar chart showing activity distribution
-- Hour-of-day bar chart for movement patterns
+- Hour-of-day bar chart for movement patterns, in local time wherever you were
 - Top 20 most visited places in the range, showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
 
 ### 🧭 Geography
@@ -98,7 +100,16 @@ Timeline.json (raw Google export)
  React + Vite SPA        ← Static site, loads JSON via fetch
 ```
 
-Because every page respects the global time range, the preprocessor emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Record dates are the event-local calendar date taken from the export's timestamps; nights use the per-night key from `nights-away.json`, and days present (see [World Country Geometry](#world-country-geometry)) use UTC calendar dates.
+Because every page respects the global time range, the preprocessor emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Every date is a **local calendar date**: where you were at the time, not where your phone's clock was set (see [Local Time](#local-time)).
+
+### Local Time
+
+The export writes all its timestamps in your phone's time zone, so a flight leaving San Francisco at 13:35 can read `22:35+01:00`. It also records the real UTC offset where every visit and every movement started and ended, and the preprocessor uses those offsets throughout:
+
+- Stays, activities (including the hour-of-day and day-of-week statistics), routes, and flights are dated by the local date and time where they started; a flight's date is its local departure date, and the trip detail page shows local departure times
+- Days present count each local calendar date a visit spans
+- **Nights** are dated by the local evening they begin: the night of 14 March is 20:00 on the 14th to 08:00 on the 15th, local time wherever you were, spent at the place you were during most of that window. A night spent on a plane counts as a night away, at the airport you left from, so an overnight flight home still ends the trip the next morning
+- Trips therefore run from the day you leave (the first night's date) to the day you get back (the morning after the last night)
 
 ### Generated Data Files
 
@@ -107,7 +118,7 @@ Because every page respects the global time range, the preprocessor emits **date
 | `home.json` | Detected home periods, oldest first: `{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods)) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
 | `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
-| `nights-away.json` | Per-date home/away classification, with distance from the home of that night's period |
+| `nights-away.json` | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period |
 | `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
 | `trips.json` | Consecutive away-nights grouped into trips (distances from the home at the time) |
 | `routes.json` | All movement segments with polyline points and transport mode |
@@ -137,7 +148,7 @@ npx mapshaper ne_50m_admin_0_countries.geojson -simplify 12% weighted keep-shape
 
 Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The preprocessor matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `scripts/preprocess.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and warns about any country it can't place on the map.
 
-Days present counts every calendar day (UTC) with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries. `geography.json` stores which countries were present on each date, so the map and the Geography table count days present for whatever time range is selected.
+Days present counts every local calendar day with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries. `geography.json` stores which countries were present on each date, so the map and the Geography table count days present for whatever time range is selected.
 
 ### Offline City Database
 
@@ -283,7 +294,6 @@ timeline-visualizer/
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
-- **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
 - **Firsts & streaks** — new countries/cities per year, longest travel streak, longest home streak
 - **Family-home option** — mark a place (e.g. a family home you visit every year) as never "away", so recurring stays there don't count as trips; complements home periods
 - **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates

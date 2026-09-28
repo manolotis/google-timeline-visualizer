@@ -22,8 +22,8 @@
  * Everything the dashboard shows depends on the global time-range filter, so
  * this script emits dated per-record data rather than all-time totals; the
  * frontend (src/aggregate.ts) sums whatever falls inside the selected range.
- * Record dates are the event-local calendar date, i.e. the 'YYYY-MM-DD'
- * prefix of the export's ISO timestamps.
+ * Every date is a local calendar date where the user was at the time, taken
+ * from the export's per-segment UTC offsets (see "Local time" below).
  *
  * Usage: npm run preprocess
  */
@@ -98,15 +98,76 @@ function durationSec(start: string, end: string): number {
   return Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000);
 }
 
-function dateStr(iso: string): string {
-  return iso.slice(0, 10);
-}
-
 const DAY_MS = 86_400_000;
 
 /** Days since 1970-01-01 for a 'YYYY-MM-DD' key (calendar arithmetic, no timezone). */
 function dayNumber(date: string): number {
   return Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / DAY_MS;
+}
+
+/** Inverse of dayNumber. */
+function dayString(day: number): string {
+  return new Date(day * DAY_MS).toISOString().slice(0, 10);
+}
+
+// ---------------------------------------------------------------------------
+// Local time
+// ---------------------------------------------------------------------------
+// The export writes every ISO timestamp in the exporting phone's time zone
+// (a flight leaving San Francisco at 13:35 reads "…T22:35:57.000+01:00"), so
+// a timestamp's own date prefix is not the local date where things happened.
+// Each visit and activity also records the UTC offset where it started and
+// ended (start/endTimeTimezoneUtcOffsetMinutes), and those are the source of
+// truth for local time here. One convention everywhere:
+//
+//   - Every timestamp this script emits is re-expressed in the offset where
+//     it happened (localStart / localEnd), so its 'YYYY-MM-DD' prefix is the
+//     local calendar date and its hour the local hour. Stays, activities,
+//     flights (departure), routes and home samples are dated by that prefix.
+//   - Days present (geography.json) count each local date a visit spans.
+//   - Nights are keyed by the local date of the evening they begin (§4).
+//
+// Segments without the offset fields (timelinePath-only ones) fall back to
+// the offset written in the timestamp itself.
+
+/** UTC offset in minutes written in an ISO timestamp ('+01:00' → 60, 'Z' → 0). */
+function isoOffsetMinutes(iso: string): number {
+  const m = /([+-])(\d\d):(\d\d)$/.exec(iso);
+  return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : 0;
+}
+
+/** The same instant written in another UTC offset: ('…T22:35:57.000+01:00', -480) → '…T13:35:57.000-08:00'. */
+function withOffset(iso: string, offsetMinutes: number): string {
+  const wallClock = new Date(Date.parse(iso) + offsetMinutes * 60_000).toISOString().slice(0, 23);
+  const abs = Math.abs(offsetMinutes);
+  const hh = String(Math.floor(abs / 60)).padStart(2, '0');
+  const mm = String(abs % 60).padStart(2, '0');
+  return `${wallClock}${offsetMinutes < 0 ? '-' : '+'}${hh}:${mm}`;
+}
+
+/** UTC offset (minutes) where a segment started. */
+function startOffsetMinutes(s: RawSegment): number {
+  return s.startTimeTimezoneUtcOffsetMinutes ?? isoOffsetMinutes(s.startTime);
+}
+
+/** UTC offset (minutes) where a segment ended. */
+function endOffsetMinutes(s: RawSegment): number {
+  return s.endTimeTimezoneUtcOffsetMinutes ?? isoOffsetMinutes(s.endTime);
+}
+
+/** A segment's start in local time, e.g. '2024-12-10T13:35:57.000-08:00'. */
+function localStart(s: RawSegment): string {
+  return withOffset(s.startTime, startOffsetMinutes(s));
+}
+
+/** A segment's end in local time. */
+function localEnd(s: RawSegment): string {
+  return withOffset(s.endTime, endOffsetMinutes(s));
+}
+
+/** The 'YYYY-MM-DD' prefix: the local date, for a timestamp from localStart / localEnd. */
+function dateStr(iso: string): string {
+  return iso.slice(0, 10);
 }
 
 function median(values: number[]): number {
@@ -150,7 +211,7 @@ interface HomeSample {
   lng: number;
   /** Raw "lat°, lng°" string, used to group identical coordinates */
   latLng: string;
-  /** Event-local start date */
+  /** Local start date */
   date: string;
 }
 
@@ -898,7 +959,7 @@ async function main() {
     const latLng = s.visit?.topCandidate?.placeLocation?.latLng;
     if ((st === 'INFERRED_HOME' || st === 'HOME') && latLng) {
       const [lat, lng] = parseLatLng(latLng);
-      homeSamples.push({ lat, lng, latLng, date: dateStr(s.startTime) });
+      homeSamples.push({ lat, lng, latLng, date: dateStr(localStart(s)) });
     }
   }
   console.log(`  ${homeSamples.length} HOME / INFERRED_HOME visits`);
@@ -912,11 +973,12 @@ async function main() {
     lat: number;
     lng: number;
     semanticType: string;
+    /** Local timestamps (mixed UTC offsets, so sort by instant, not as strings) */
     arrivals: string[];
     departures: string[];
     totalMinutes: number;
     visitCount: number;
-    /** [event-local start date, duration in seconds] for every stay */
+    /** [local start date, duration in seconds] for every stay */
     stays: [string, number][];
   }
   const visitMap = new Map<string, Visit>();
@@ -928,11 +990,12 @@ async function main() {
     const [lat, lng] = parseLatLng(tc.placeLocation.latLng);
     const key = tc.placeId;
     const dur = durationMin(s.startTime, s.endTime);
-    const stay: [string, number] = [dateStr(s.startTime), durationSec(s.startTime, s.endTime)];
+    const arrival = localStart(s);
+    const stay: [string, number] = [dateStr(arrival), durationSec(s.startTime, s.endTime)];
     const existing = visitMap.get(key);
     if (existing) {
-      existing.arrivals.push(s.startTime);
-      existing.departures.push(s.endTime);
+      existing.arrivals.push(arrival);
+      existing.departures.push(localEnd(s));
       existing.totalMinutes += dur;
       existing.visitCount++;
       existing.stays.push(stay);
@@ -942,8 +1005,8 @@ async function main() {
         lat,
         lng,
         semanticType: tc.semanticType ?? 'UNKNOWN',
-        arrivals: [s.startTime],
-        departures: [s.endTime],
+        arrivals: [arrival],
+        departures: [localEnd(s)],
         totalMinutes: dur,
         visitCount: 1,
         stays: [stay],
@@ -954,7 +1017,7 @@ async function main() {
   // Flatten and sort by visit count descending
   const visitsBase = [...visitMap.values()]
     .map((v) => {
-      const arrivals = [...v.arrivals].sort();
+      const arrivals = [...v.arrivals].sort((a, b) => Date.parse(a) - Date.parse(b));
       return {
         placeId: v.placeId,
         lat: v.lat,
@@ -1015,8 +1078,11 @@ async function main() {
   // ========================================================================
   console.log('Extracting flights…');
   interface Flight {
+    /** Local departure date */
     date: string;
+    /** Local departure time, in the departure's UTC offset */
     startTime: string;
+    /** Local arrival time, in the arrival's UTC offset */
     endTime: string;
     startLat: number;
     startLng: number;
@@ -1043,10 +1109,11 @@ async function main() {
       }
     }
 
+    const departure = localStart(s);
     flights.push({
-      date: dateStr(s.startTime),
-      startTime: s.startTime,
-      endTime: s.endTime,
+      date: dateStr(departure),
+      startTime: departure,
+      endTime: localEnd(s),
       startLat: sLat,
       startLng: sLng,
       endLat: eLat,
@@ -1135,17 +1202,52 @@ async function main() {
   // 4. Home periods and nights away from home
   // ========================================================================
   console.log('Locating nights…');
-  // For each calendar date, find the visit overlapping midnight (or nearest);
-  // home periods are detected from these, then each night is checked against
-  // the home of its period (>HOME_RADIUS_KM away = a night away)
+  // One night per local date the export covers, keyed by the date of the
+  // evening it begins: night D is 20:00 on D to 08:00 on D+1, local time. It
+  // was spent at the visit overlapping that window most, each visit judged in
+  // its own local time (the UTC offset recorded at its start; a stay spanning
+  // a DST change is off by that hour after it, which never moves a date). So
+  // a night in San Francisco is the San Francisco evening's date and hours,
+  // whatever zone the phone was set to. Home periods are detected from these,
+  // then each night is checked against the home of its period
+  // (>HOME_RADIUS_KM away = a night away).
+  const NIGHT_BEFORE_MIDNIGHT_MS = 4 * 3_600_000;
+  const NIGHT_AFTER_MIDNIGHT_MS = 8 * 3_600_000;
+  // A "flight" longer than this is a gap-filling artifact (phone off), not a flight
+  const MAX_FLIGHT_MS = 20 * 3_600_000;
 
-  // Build a sorted list of visit segments with coordinates
-  interface NightVisit {
-    start: number; // epoch ms
+  /** Epoch-ms interval plus the UTC offset (ms) of local time during it */
+  interface LocalSpan {
+    start: number;
     end: number;
+    offsetMs: number;
+  }
+
+  /** Where a night was spent */
+  interface NightPlace {
     lat: number;
     lng: number;
     placeId: string;
+  }
+
+  /** Epoch ms of the midnight ending `date`, in the local time of a UTC offset. */
+  function localMidnight(date: string, offsetMs: number): number {
+    return (dayNumber(date) + 1) * DAY_MS - offsetMs;
+  }
+
+  /** How long a span overlaps night `date`'s window, measured in the span's local time. */
+  function nightOverlap(date: string, span: LocalSpan): number {
+    const midnight = localMidnight(date, span.offsetMs);
+    return (
+      Math.min(span.end, midnight + NIGHT_AFTER_MIDNIGHT_MS) -
+      Math.max(span.start, midnight - NIGHT_BEFORE_MIDNIGHT_MS)
+    );
+  }
+
+  // Build a sorted list of visit segments with coordinates
+  interface NightVisit extends LocalSpan, NightPlace {
+    /** UTC offset (ms) where the visit ended */
+    endOffsetMs: number;
     semanticType: string;
   }
   const visitSegments: NightVisit[] = [];
@@ -1153,8 +1255,10 @@ async function main() {
     if (!s.visit?.topCandidate?.placeLocation?.latLng) continue;
     const [lat, lng] = parseLatLng(s.visit.topCandidate.placeLocation.latLng);
     visitSegments.push({
-      start: new Date(s.startTime).getTime(),
-      end: new Date(s.endTime).getTime(),
+      start: Date.parse(s.startTime),
+      end: Date.parse(s.endTime),
+      offsetMs: startOffsetMinutes(s) * 60_000,
+      endOffsetMs: endOffsetMinutes(s) * 60_000,
       lat,
       lng,
       placeId: s.visit.topCandidate.placeId ?? '',
@@ -1163,63 +1267,55 @@ async function main() {
   }
   visitSegments.sort((a, b) => a.start - b.start);
 
-  // Determine date range
-  const firstDate = new Date(segments[0].startTime);
-  const lastDate = new Date(segments[segments.length - 1].endTime);
-  const startDate = new Date(
-    firstDate.getFullYear(),
-    firstDate.getMonth(),
-    firstDate.getDate(),
-  );
-  const endDate = new Date(
-    lastDate.getFullYear(),
-    lastDate.getMonth(),
-    lastDate.getDate(),
-  );
+  // Nights on a plane: when no visit overlaps a night but you were in the air
+  // at its midnight (in the departure's local time), the night was spent
+  // flying away from where the flight left, and counts as spent there.
+  // Without this an overnight flight home would count as a night at home.
+  interface NightFlight extends LocalSpan {
+    /** Departure point */
+    origin: NightPlace;
+  }
+  const nightFlights: NightFlight[] = [];
+  for (const s of segments) {
+    if (s.activity?.topCandidate?.type !== 'FLYING') continue;
+    const start = Date.parse(s.startTime);
+    const end = Date.parse(s.endTime);
+    if (end - start > MAX_FLIGHT_MS) continue;
+    const [lat, lng] = parseLatLng(s.activity.start.latLng);
+    nightFlights.push({ start, end, offsetMs: startOffsetMinutes(s) * 60_000, origin: { lat, lng, placeId: '' } });
+  }
 
-  const nightVisits: { date: string; visit: NightVisit | null }[] = [];
+  const firstNight = dayNumber(dateStr(localStart(segments[0])));
+  const lastNight = dayNumber(dateStr(localEnd(segments[segments.length - 1])));
+  const nightVisits: { date: string; visit: NightPlace | null }[] = [];
   let visitIdx = 0;
+  let flightIdx = 0;
+  for (let day = firstNight; day <= lastNight; day++) {
+    const date = dayString(day);
+    // UTC offsets span −12…+14 h, so every local window of this night lies
+    // within a day of the UTC midnight after `date`
+    const windowsFrom = day * DAY_MS;
+    const windowsUntil = (day + 2) * DAY_MS;
 
-  for (
-    let d = new Date(startDate);
-    d <= endDate;
-    d.setDate(d.getDate() + 1)
-  ) {
-    const dateString = d.toISOString().slice(0, 10);
-    // Midnight of this date in UTC (approximate — good enough)
-    const midnightMs = d.getTime();
-
-    // Find the closest visit segment to this midnight
-    // Advance index to keep up
-    while (
-      visitIdx < visitSegments.length - 1 &&
-      visitSegments[visitIdx].end < midnightMs
-    ) {
-      visitIdx++;
-    }
-
-    // Search nearby segments for the best overlap
-    let bestVisit: NightVisit | null = null;
-    let bestOverlap = -Infinity;
-    for (
-      let j = Math.max(0, visitIdx - 3);
-      j < Math.min(visitSegments.length, visitIdx + 5);
-      j++
-    ) {
-      const v = visitSegments[j];
-      // Check if visit overlaps with the night window (midnight ± 4h)
-      const nightStart = midnightMs - 4 * 3600000;
-      const nightEnd = midnightMs + 8 * 3600000;
-      const overlapStart = Math.max(v.start, nightStart);
-      const overlapEnd = Math.min(v.end, nightEnd);
-      const overlap = overlapEnd - overlapStart;
+    while (visitIdx < visitSegments.length - 1 && visitSegments[visitIdx].end < windowsFrom) visitIdx++;
+    let place: NightPlace | null = null;
+    let bestOverlap = 0;
+    for (let j = visitIdx; j < visitSegments.length && visitSegments[j].start < windowsUntil; j++) {
+      const overlap = nightOverlap(date, visitSegments[j]);
       if (overlap > bestOverlap) {
         bestOverlap = overlap;
-        bestVisit = v;
+        place = visitSegments[j];
       }
     }
 
-    nightVisits.push({ date: dateString, visit: bestVisit && bestOverlap > 0 ? bestVisit : null });
+    while (flightIdx < nightFlights.length - 1 && nightFlights[flightIdx].end < windowsFrom) flightIdx++;
+    for (let j = flightIdx; !place && j < nightFlights.length && nightFlights[j].start < windowsUntil; j++) {
+      const flight = nightFlights[j];
+      const midnight = localMidnight(date, flight.offsetMs);
+      if (flight.start <= midnight && midnight < flight.end) place = flight.origin;
+    }
+
+    nightVisits.push({ date, visit: place });
   }
 
   console.log('Detecting home periods…');
@@ -1383,16 +1479,19 @@ async function main() {
     geoNights.push({ date: night.date, city });
   }
 
-  // Days present: every UTC date a visit was recorded in a country. Unlike
-  // away nights this includes home time, day trips and layovers; a travel day
-  // counts for both countries. Visit coordinates are already in the city DB
-  // from the prefill, so resolve() only runs for rare placeId-less visits.
+  // Days present: every local date a visit was recorded in a country, from
+  // the visit's local start date to its local end date. Unlike away nights
+  // this includes home time, day trips and layovers; a travel day counts for
+  // both countries. Visit coordinates are already in the city DB from the
+  // prefill, so resolve() only runs for rare placeId-less visits.
   const countriesByDay = new Map<number, Set<number>>();
   for (const v of visitSegments) {
     const city = cityResolver.peek(v.lat, v.lng) ?? (await cityResolver.resolve(v.lat, v.lng));
     if (!city) continue;
     const country = countryId(city.country);
-    for (let day = Math.floor(v.start / DAY_MS); day * DAY_MS <= v.end; day++) {
+    const firstDay = Math.floor((v.start + v.offsetMs) / DAY_MS);
+    const lastDay = Math.max(firstDay, Math.floor((v.end + v.endOffsetMs) / DAY_MS));
+    for (let day = firstDay; day <= lastDay; day++) {
       let present = countriesByDay.get(day);
       if (!present) {
         present = new Set();
@@ -1403,10 +1502,7 @@ async function main() {
   }
   const presence: [string, number[]][] = [...countriesByDay.entries()]
     .sort((a, b) => a[0] - b[0])
-    .map(([day, present]) => [
-      new Date(day * DAY_MS).toISOString().slice(0, 10),
-      [...present].sort((a, b) => a - b),
-    ]);
+    .map(([day, present]) => [dayString(day), [...present].sort((a, b) => a - b)]);
 
   const unmappedCountries = geoCountries.filter((c) => !c.iso3).map((c) => c.country);
   if (unmappedCountries.length > 0) {
@@ -1547,9 +1643,10 @@ async function main() {
       modes.push(type);
       modeIndex.set(type, m);
     }
-    activities.date.push(dateStr(s.startTime));
-    // Event-local hour, straight from the ISO timestamp ("…T17:08:24…")
-    activities.hour.push(parseInt(s.startTime.slice(11, 13), 10));
+    const start = localStart(s);
+    activities.date.push(dateStr(start));
+    // Local hour, straight from the local timestamp ("…T17:08:24…")
+    activities.hour.push(parseInt(start.slice(11, 13), 10));
     activities.mode.push(m);
     activities.meters.push(s.activity.distanceMeters);
     activities.seconds.push(durationSec(s.startTime, s.endTime));
@@ -1557,9 +1654,10 @@ async function main() {
   }
 
   const stats = {
+    // Local, so the date prefixes are the first and last nights' dates
     dateRange: {
-      start: segments[0].startTime,
-      end: segments[segments.length - 1].endTime,
+      start: localStart(segments[0]),
+      end: localEnd(segments[segments.length - 1]),
     },
     modes,
     activities,
@@ -1573,6 +1671,7 @@ async function main() {
   // ========================================================================
   console.log('Extracting route data…');
   interface RouteSegment {
+    /** Local start time */
     startTime: string;
     mode: string;
     points: [number, number][];
@@ -1611,7 +1710,7 @@ async function main() {
     }
 
     routes.push({
-      startTime: s.startTime,
+      startTime: localStart(s),
       mode,
       points,
     });
