@@ -100,13 +100,17 @@ export default function Geography() {
           icon="🥇"
           label="Top Country"
           value={topCountry?.country ?? '—'}
-          sub={topCountry ? `${topCountry.days} days` : noAwayText}
+          sub={
+            topCountry
+              ? `${topCountry.days} away days · ${topCountry.totalDays.toLocaleString()} present`
+              : noAwayText
+          }
         />
         <StatCard
           icon="📌"
           label="Top City"
           value={topCity?.city ?? '—'}
-          sub={topCity ? `${topCity.days} days in ${topCity.country}` : noAwayText}
+          sub={topCity ? `${topCity.days} away days in ${topCity.country}` : noAwayText}
         />
       </div>
 
@@ -123,7 +127,7 @@ export default function Geography() {
       {data.matchedDays > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <h2 className="text-lg font-semibold text-white mb-4">Top Countries by Days</h2>
+            <h2 className="text-lg font-semibold text-white mb-4">Top Countries by Away Days</h2>
             <ResponsiveContainer width="100%" height={360}>
               <BarChart data={topCountries} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -151,7 +155,7 @@ export default function Geography() {
           </div>
 
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <h2 className="text-lg font-semibold text-white mb-4">Top Cities by Days</h2>
+            <h2 className="text-lg font-semibold text-white mb-4">Top Cities by Away Days</h2>
             <ResponsiveContainer width="100%" height={360}>
               <BarChart data={topCities} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -220,7 +224,7 @@ export default function Geography() {
                   <th className="px-3 py-2">#</th>
                   <th className="px-3 py-2">City</th>
                   <th className="px-3 py-2">Country</th>
-                  <th className="px-3 py-2">Days</th>
+                  <th className="px-3 py-2">Away days</th>
                   <th className="px-3 py-2">Share</th>
                 </tr>
               </thead>

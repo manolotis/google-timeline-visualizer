@@ -234,8 +234,11 @@ export default function Overview() {
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
+                {/* Pie slices carry no series color (fills live on the Cells), so
+                    Recharts' tooltip item text falls back to black without this */}
                 <Tooltip
                   {...CHART_TOOLTIP_STYLE}
+                  itemStyle={{ color: '#f9fafb' }}
                   formatter={(value: number) => `${value.toLocaleString()} km`}
                 />
               </PieChart>
