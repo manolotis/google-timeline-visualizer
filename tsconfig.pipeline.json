@@ -1,0 +1,15 @@
+{
+  // Type-checks src/pipeline/ with neither DOM nor Node types, proving the
+  // shared pipeline runs in both the browser (Web Worker) and Node (CLI).
+  // Run by `npm run typecheck` next to the main tsconfig.json.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/pipeline"],
+  // Tests import the vitest package (fine at runtime under Vitest's own
+  // esbuild transform) but are checked by the main tsconfig instead, which
+  // has DOM lib and can resolve vitest's ambient types cleanly.
+  "exclude": ["src/pipeline/**/*.test.ts"]
+}

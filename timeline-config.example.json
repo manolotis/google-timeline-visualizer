@@ -1,0 +1,6 @@
+{
+  "familyHomes": [
+    { "lat": 48.8584, "lng": 2.2945, "label": "Parents' house" },
+    { "lat": 43.2965, "lng": 5.3698, "label": "Grandma's", "radiusKm": 2 }
+  ]
+}

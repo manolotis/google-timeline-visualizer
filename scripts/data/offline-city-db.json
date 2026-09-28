@@ -1,0 +1,6288 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-28T12:07:06.056Z",
+  "entries": [
+    {
+      "key": "41.300,19.800",
+      "lat": 41.300000000000004,
+      "lng": 19.8,
+      "name": "Tirana",
+      "country": "Albania",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:05.182Z"
+    },
+    {
+      "key": "42.500,1.700",
+      "lat": 42.5,
+      "lng": 1.7000000000000002,
+      "name": "Encamp",
+      "country": "Andorra",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:15.771Z"
+    },
+    {
+      "key": "-34.600,-58.400",
+      "lat": -34.6037,
+      "lng": -58.3816,
+      "name": "Buenos Aires",
+      "country": "Argentina",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-27.500,153.000",
+      "lat": -27.4698,
+      "lng": 153.0251,
+      "name": "Brisbane",
+      "country": "Australia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-37.800,145.000",
+      "lat": -37.8136,
+      "lng": 144.9631,
+      "name": "Melbourne",
+      "country": "Australia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-32.000,115.900",
+      "lat": -31.9505,
+      "lng": 115.8605,
+      "name": "Perth",
+      "country": "Australia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-33.900,151.200",
+      "lat": -33.8688,
+      "lng": 151.2093,
+      "name": "Sydney",
+      "country": "Australia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "48.100,16.600",
+      "lat": 48.1,
+      "lng": 16.6,
+      "name": "Fischamend",
+      "country": "Austria",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:23.771Z"
+    },
+    {
+      "key": "46.800,17.500",
+      "lat": 46.800000000000004,
+      "lng": 17.5,
+      "name": "Vienna",
+      "country": "Austria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.400,16.900",
+      "lat": 47.400000000000006,
+      "lng": 16.900000000000002,
+      "name": "Vienna",
+      "country": "Austria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.700,16.700",
+      "lat": 47.7,
+      "lng": 16.7,
+      "name": "Vienna",
+      "country": "Austria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "48.200,16.400",
+      "lat": 48.2082,
+      "lng": 16.3738,
+      "name": "Vienna",
+      "country": "Austria",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.000,-77.400",
+      "lat": 25.0343,
+      "lng": -77.3963,
+      "name": "Nassau",
+      "country": "Bahamas",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "26.200,50.600",
+      "lat": 26.2285,
+      "lng": 50.586,
+      "name": "Manama",
+      "country": "Bahrain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "23.800,90.400",
+      "lat": 23.8103,
+      "lng": 90.4125,
+      "name": "Dhaka",
+      "country": "Bangladesh",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.200,4.400",
+      "lat": 51.2,
+      "lng": 4.4,
+      "name": "Antwerp",
+      "country": "Belgium",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:12.211Z"
+    },
+    {
+      "key": "51.300,3.100",
+      "lat": 51.300000000000004,
+      "lng": 3.1,
+      "name": "Blankenberge",
+      "country": "Belgium",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:36.183Z"
+    },
+    {
+      "key": "50.800,4.300",
+      "lat": 50.800000000000004,
+      "lng": 4.3,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "50.800,4.400",
+      "lat": 50.800000000000004,
+      "lng": 4.4,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:17.273Z"
+    },
+    {
+      "key": "50.900,4.400",
+      "lat": 50.8503,
+      "lng": 4.3517,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.100,4.400",
+      "lat": 51.1,
+      "lng": 4.4,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.200,4.500",
+      "lat": 51.2,
+      "lng": 4.5,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "51.500,4.300",
+      "lat": 51.5,
+      "lng": 4.3,
+      "name": "Brussels",
+      "country": "Belgium",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "-17.400,-66.200",
+      "lat": -17.400000000000002,
+      "lng": -66.2,
+      "name": "Cochabamba",
+      "country": "Bolivia",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:41.738Z"
+    },
+    {
+      "key": "-16.500,-68.100",
+      "lat": -16.5,
+      "lng": -68.10000000000001,
+      "name": "La Paz",
+      "country": "Bolivia",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:00.735Z"
+    },
+    {
+      "key": "-17.700,-63.200",
+      "lat": -17.7,
+      "lng": -63.2,
+      "name": "Santa Cruz de la Sierra",
+      "country": "Bolivia",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:06.168Z"
+    },
+    {
+      "key": "-17.800,-63.200",
+      "lat": -17.8,
+      "lng": -63.2,
+      "name": "Santa Cruz de la Sierra",
+      "country": "Bolivia",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:41.101Z"
+    },
+    {
+      "key": "-20.500,-66.800",
+      "lat": -20.5,
+      "lng": -66.8,
+      "name": "Uyuni",
+      "country": "Bolivia",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:07.190Z"
+    },
+    {
+      "key": "43.900,18.400",
+      "lat": 43.8563,
+      "lng": 18.4131,
+      "name": "Sarajevo",
+      "country": "Bosnia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-8.100,-34.900",
+      "lat": -8.1,
+      "lng": -34.9,
+      "name": "Recife",
+      "country": "Brazil",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:06.735Z"
+    },
+    {
+      "key": "-22.800,-43.200",
+      "lat": -22.8,
+      "lng": -43.2,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.724Z"
+    },
+    {
+      "key": "-22.800,-43.300",
+      "lat": -22.8,
+      "lng": -43.300000000000004,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-22.900,-43.200",
+      "lat": -22.9068,
+      "lng": -43.1729,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-23.000,-43.200",
+      "lat": -23,
+      "lng": -43.2,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:49.388Z"
+    },
+    {
+      "key": "-23.000,-43.300",
+      "lat": -23,
+      "lng": -43.300000000000004,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "-8.000,-34.800",
+      "lat": -8,
+      "lng": -34.800000000000004,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "-8.000,-34.900",
+      "lat": -8,
+      "lng": -34.9,
+      "name": "Rio de Janeiro",
+      "country": "Brazil",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "-23.600,-46.600",
+      "lat": -23.5505,
+      "lng": -46.6333,
+      "name": "São Paulo",
+      "country": "Brazil",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "42.300,23.600",
+      "lat": 42.300000000000004,
+      "lng": 23.6,
+      "name": "Samokov",
+      "country": "Bulgaria",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:46.101Z"
+    },
+    {
+      "key": "41.300,19.900",
+      "lat": 41.300000000000004,
+      "lng": 19.900000000000002,
+      "name": "Sofia",
+      "country": "Bulgaria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.400,19.700",
+      "lat": 41.400000000000006,
+      "lng": 19.700000000000003,
+      "name": "Sofia",
+      "country": "Bulgaria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "42.200,23.600",
+      "lat": 42.2,
+      "lng": 23.6,
+      "name": "Sofia",
+      "country": "Bulgaria",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "42.700,23.300",
+      "lat": 42.6977,
+      "lng": 23.3219,
+      "name": "Sofia",
+      "country": "Bulgaria",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "42.700,23.400",
+      "lat": 42.7,
+      "lng": 23.400000000000002,
+      "name": "Sofia",
+      "country": "Bulgaria",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:44.747Z"
+    },
+    {
+      "key": "45.500,-73.600",
+      "lat": 45.5017,
+      "lng": -73.5673,
+      "name": "Montreal",
+      "country": "Canada",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "43.700,-79.400",
+      "lat": 43.6532,
+      "lng": -79.3832,
+      "name": "Toronto",
+      "country": "Canada",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "49.300,-123.100",
+      "lat": 49.2827,
+      "lng": -123.1207,
+      "name": "Vancouver",
+      "country": "Canada",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-33.400,-70.700",
+      "lat": -33.4489,
+      "lng": -70.6693,
+      "name": "Santiago",
+      "country": "Chile",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "39.500,116.400",
+      "lat": 39.5,
+      "lng": 116.4,
+      "name": "Beijing",
+      "country": "China",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.900,116.400",
+      "lat": 39.9042,
+      "lng": 116.4074,
+      "name": "Beijing",
+      "country": "China",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "22.300,114.200",
+      "lat": 22.3193,
+      "lng": 114.1694,
+      "name": "Hong Kong",
+      "country": "China",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "31.100,121.800",
+      "lat": 31.1,
+      "lng": 121.80000000000001,
+      "name": "Shanghai",
+      "country": "China",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "31.200,121.500",
+      "lat": 31.2304,
+      "lng": 121.4737,
+      "name": "Shanghai",
+      "country": "China",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "4.700,-74.100",
+      "lat": 4.711,
+      "lng": -74.0721,
+      "name": "Bogota",
+      "country": "Colombia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "6.200,-75.200",
+      "lat": 6.2,
+      "lng": -75.2,
+      "name": "El Peñol",
+      "country": "Colombia",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:17.112Z"
+    },
+    {
+      "key": "6.200,-75.300",
+      "lat": 6.2,
+      "lng": -75.3,
+      "name": "Medellín",
+      "country": "Colombia",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "6.200,-75.400",
+      "lat": 6.2,
+      "lng": -75.4,
+      "name": "Medellín",
+      "country": "Colombia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "6.200,-75.600",
+      "lat": 6.2,
+      "lng": -75.60000000000001,
+      "name": "Medellín",
+      "country": "Colombia",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:51.976Z"
+    },
+    {
+      "key": "6.300,-75.600",
+      "lat": 6.300000000000001,
+      "lng": -75.60000000000001,
+      "name": "Medellín",
+      "country": "Colombia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "9.100,-79.400",
+      "lat": 9.1,
+      "lng": -79.4,
+      "name": "Medellín",
+      "country": "Colombia",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "9.900,-84.100",
+      "lat": 9.9281,
+      "lng": -84.0907,
+      "name": "San Jose",
+      "country": "Costa Rica",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "45.800,16.000",
+      "lat": 45.815,
+      "lng": 15.9819,
+      "name": "Zagreb",
+      "country": "Croatia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "23.100,-82.400",
+      "lat": 23.1136,
+      "lng": -82.3666,
+      "name": "Havana",
+      "country": "Cuba",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "50.100,14.400",
+      "lat": 50.0755,
+      "lng": 14.4378,
+      "name": "Prague",
+      "country": "Czech Republic",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "50.100,14.300",
+      "lat": 50.1,
+      "lng": 14.3,
+      "name": "Prague",
+      "country": "Czechia",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:13.806Z"
+    },
+    {
+      "key": "55.700,12.500",
+      "lat": 55.7,
+      "lng": 12.5,
+      "name": "Copenhagen",
+      "country": "Denmark",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "55.700,12.600",
+      "lat": 55.6761,
+      "lng": 12.5683,
+      "name": "Copenhagen",
+      "country": "Denmark",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "55.700,13.200",
+      "lat": 55.7,
+      "lng": 13.200000000000001,
+      "name": "Copenhagen",
+      "country": "Denmark",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "18.500,-69.900",
+      "lat": 18.4861,
+      "lng": -69.9312,
+      "name": "Santo Domingo",
+      "country": "Dominican Republic",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "30.000,31.200",
+      "lat": 30.0444,
+      "lng": 31.2357,
+      "name": "Cairo",
+      "country": "Egypt",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "9.000,38.700",
+      "lat": 9.025,
+      "lng": 38.7469,
+      "name": "Addis Ababa",
+      "country": "Ethiopia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "60.200,24.800",
+      "lat": 60.2,
+      "lng": 24.8,
+      "name": "Espoo",
+      "country": "Finland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:39.822Z"
+    },
+    {
+      "key": "59.400,24.700",
+      "lat": 59.400000000000006,
+      "lng": 24.700000000000003,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "59.400,24.800",
+      "lat": 59.400000000000006,
+      "lng": 24.8,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "60.100,23.900",
+      "lat": 60.1,
+      "lng": 23.900000000000002,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "60.100,24.900",
+      "lat": 60.1,
+      "lng": 24.900000000000002,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "60.200,24.900",
+      "lat": 60.1699,
+      "lng": 24.9384,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "60.200,25.000",
+      "lat": 60.2,
+      "lng": 25,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:51.786Z"
+    },
+    {
+      "key": "60.300,25.000",
+      "lat": 60.300000000000004,
+      "lng": 25,
+      "name": "Helsinki",
+      "country": "Finland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "60.000,23.900",
+      "lat": 60,
+      "lng": 23.900000000000002,
+      "name": "Ingå",
+      "country": "Finland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:38.757Z"
+    },
+    {
+      "key": "60.300,24.900",
+      "lat": 60.300000000000004,
+      "lng": 24.900000000000002,
+      "name": "Vantaa",
+      "country": "Finland",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:26.139Z"
+    },
+    {
+      "key": "45.800,4.800",
+      "lat": 45.764,
+      "lng": 4.8357,
+      "name": "Lyon",
+      "country": "France",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "43.300,5.400",
+      "lat": 43.2965,
+      "lng": 5.3698,
+      "name": "Marseille",
+      "country": "France",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "47.900,1.800",
+      "lat": 47.900000000000006,
+      "lng": 1.8,
+      "name": "Paris",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "48.600,2.100",
+      "lat": 48.6,
+      "lng": 2.1,
+      "name": "Paris",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "48.800,2.300",
+      "lat": 48.800000000000004,
+      "lng": 2.3000000000000003,
+      "name": "Paris",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "48.800,2.400",
+      "lat": 48.800000000000004,
+      "lng": 2.4000000000000004,
+      "name": "Paris",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "48.900,2.300",
+      "lat": 48.900000000000006,
+      "lng": 2.3000000000000003,
+      "name": "Paris",
+      "country": "France",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:18.856Z"
+    },
+    {
+      "key": "48.900,2.400",
+      "lat": 48.8566,
+      "lng": 2.3522,
+      "name": "Paris",
+      "country": "France",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "49.000,2.600",
+      "lat": 49,
+      "lng": 2.6,
+      "name": "Paris",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "41.500,0.300",
+      "lat": 41.5,
+      "lng": 0.30000000000000004,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "41.800,0.800",
+      "lat": 41.800000000000004,
+      "lng": 0.8,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.100,1.300",
+      "lat": 42.1,
+      "lng": 1.3,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.400,1.500",
+      "lat": 42.400000000000006,
+      "lng": 1.5,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.500,1.500",
+      "lat": 42.5,
+      "lng": 1.5,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.500,1.600",
+      "lat": 42.5,
+      "lng": 1.6,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.600,1.600",
+      "lat": 42.6,
+      "lng": 1.6,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "42.600,1.700",
+      "lat": 42.6,
+      "lng": 1.7000000000000002,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "43.600,1.400",
+      "lat": 43.6047,
+      "lng": 1.4442,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "46.300,-0.400",
+      "lat": 46.300000000000004,
+      "lng": -0.4,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "46.600,0.300",
+      "lat": 46.6,
+      "lng": 0.30000000000000004,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "46.600,0.900",
+      "lat": 46.6,
+      "lng": 0.9,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.720Z"
+    },
+    {
+      "key": "47.400,0.700",
+      "lat": 47.400000000000006,
+      "lng": 0.7000000000000001,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "47.500,0.800",
+      "lat": 47.5,
+      "lng": 0.8,
+      "name": "Toulouse",
+      "country": "France",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "49.100,9.300",
+      "lat": 49.1,
+      "lng": 9.3,
+      "name": "Bad Mergentheim",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "49.500,9.800",
+      "lat": 49.5,
+      "lng": 9.8,
+      "name": "Bad Mergentheim",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:50.847Z"
+    },
+    {
+      "key": "52.500,13.400",
+      "lat": 52.52,
+      "lng": 13.405,
+      "name": "Berlin",
+      "country": "Germany",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "49.400,9.600",
+      "lat": 49.400000000000006,
+      "lng": 9.600000000000001,
+      "name": "Boxberg",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:46.782Z"
+    },
+    {
+      "key": "50.300,7.500",
+      "lat": 50.300000000000004,
+      "lng": 7.5,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "50.400,7.200",
+      "lat": 50.400000000000006,
+      "lng": 7.2,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "50.600,7.400",
+      "lat": 50.6,
+      "lng": 7.4,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "50.700,7.300",
+      "lat": 50.7,
+      "lng": 7.300000000000001,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "50.900,6.900",
+      "lat": 50.900000000000006,
+      "lng": 6.9,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "50.900,7.000",
+      "lat": 50.9375,
+      "lng": 6.9603,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.200,6.400",
+      "lat": 51.2,
+      "lng": 6.4,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "51.300,6.300",
+      "lat": 51.300000000000004,
+      "lng": 6.300000000000001,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "51.400,6.000",
+      "lat": 51.400000000000006,
+      "lng": 6,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "51.400,6.200",
+      "lat": 51.400000000000006,
+      "lng": 6.2,
+      "name": "Cologne",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "51.200,6.800",
+      "lat": 51.2,
+      "lng": 6.800000000000001,
+      "name": "Dusseldorf",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:59.844Z"
+    },
+    {
+      "key": "51.300,6.800",
+      "lat": 51.300000000000004,
+      "lng": 6.800000000000001,
+      "name": "Dusseldorf",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:27.877Z"
+    },
+    {
+      "key": "50.100,8.700",
+      "lat": 50.1109,
+      "lng": 8.6821,
+      "name": "Frankfurt",
+      "country": "Germany",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "50.100,8.900",
+      "lat": 50.1,
+      "lng": 8.9,
+      "name": "Frankfurt",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "50.400,8.100",
+      "lat": 50.400000000000006,
+      "lng": 8.1,
+      "name": "Frankfurt",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "53.500,10.000",
+      "lat": 53.5,
+      "lng": 10,
+      "name": "Hamburg",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "53.600,10.000",
+      "lat": 53.5511,
+      "lng": 9.9937,
+      "name": "Hamburg",
+      "country": "Germany",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "53.600,10.100",
+      "lat": 53.6,
+      "lng": 10.100000000000001,
+      "name": "Hamburg",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:53.829Z"
+    },
+    {
+      "key": "53.600,9.800",
+      "lat": 53.6,
+      "lng": 9.8,
+      "name": "Hamburg",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "48.100,11.600",
+      "lat": 48.1351,
+      "lng": 11.582,
+      "name": "Munich",
+      "country": "Germany",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "48.400,11.800",
+      "lat": 48.400000000000006,
+      "lng": 11.8,
+      "name": "Munich",
+      "country": "Germany",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "48.800,8.900",
+      "lat": 48.800000000000004,
+      "lng": 8.9,
+      "name": "Renningen",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:51.769Z"
+    },
+    {
+      "key": "48.800,9.200",
+      "lat": 48.800000000000004,
+      "lng": 9.200000000000001,
+      "name": "Stuttgart",
+      "country": "Germany",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:53.175Z"
+    },
+    {
+      "key": "37.700,27.200",
+      "lat": 37.7,
+      "lng": 27.200000000000003,
+      "name": "Athens",
+      "country": "Greece",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.900,27.300",
+      "lat": 37.9,
+      "lng": 27.3,
+      "name": "Athens",
+      "country": "Greece",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.000,23.700",
+      "lat": 37.9838,
+      "lng": 23.7275,
+      "name": "Athens",
+      "country": "Greece",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "38.000,27.300",
+      "lat": 38,
+      "lng": 27.3,
+      "name": "Athens",
+      "country": "Greece",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.600,23.000",
+      "lat": 40.6,
+      "lng": 23,
+      "name": "Pylaia Municipal Unit",
+      "country": "Greece",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:52.813Z"
+    },
+    {
+      "key": "40.500,23.000",
+      "lat": 40.5,
+      "lng": 23,
+      "name": "Thermi",
+      "country": "Greece",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:40.827Z"
+    },
+    {
+      "key": "40.600,22.900",
+      "lat": 40.6,
+      "lng": 22.900000000000002,
+      "name": "Thessaloniki Municipal Unit",
+      "country": "Greece",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:47.672Z"
+    },
+    {
+      "key": "19.000,-72.300",
+      "lat": 18.9712,
+      "lng": -72.2852,
+      "name": "Port-au-Prince",
+      "country": "Haiti",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "47.400,19.300",
+      "lat": 47.400000000000006,
+      "lng": 19.3,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:08.093Z"
+    },
+    {
+      "key": "47.500,18.700",
+      "lat": 47.5,
+      "lng": 18.7,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.500,18.800",
+      "lat": 47.5,
+      "lng": 18.8,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.500,18.900",
+      "lat": 47.5,
+      "lng": 18.900000000000002,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.500,19.000",
+      "lat": 47.4979,
+      "lng": 19.0402,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "47.500,19.100",
+      "lat": 47.5,
+      "lng": 19.1,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:08.756Z"
+    },
+    {
+      "key": "47.600,18.300",
+      "lat": 47.6,
+      "lng": 18.3,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.600,18.900",
+      "lat": 47.6,
+      "lng": 18.900000000000002,
+      "name": "Budapest",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.600,16.700",
+      "lat": 47.6,
+      "lng": 16.7,
+      "name": "Nagycenk",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:25.134Z"
+    },
+    {
+      "key": "47.700,16.600",
+      "lat": 47.7,
+      "lng": 16.6,
+      "name": "Sopron",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:15.224Z"
+    },
+    {
+      "key": "47.800,16.200",
+      "lat": 47.800000000000004,
+      "lng": 16.2,
+      "name": "Sopron",
+      "country": "Hungary",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "47.700,19.100",
+      "lat": 47.7,
+      "lng": 19.1,
+      "name": "Szentendre",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:34.199Z"
+    },
+    {
+      "key": "47.600,18.700",
+      "lat": 47.6,
+      "lng": 18.7,
+      "name": "Zsámbék",
+      "country": "Hungary",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:40.754Z"
+    },
+    {
+      "key": "64.100,-21.900",
+      "lat": 64.1466,
+      "lng": -21.9426,
+      "name": "Reykjavik",
+      "country": "Iceland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "12.800,77.600",
+      "lat": 12.8,
+      "lng": 77.60000000000001,
+      "name": "Anekal",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:52.197Z"
+    },
+    {
+      "key": "17.200,78.400",
+      "lat": 17.2,
+      "lng": 78.4,
+      "name": "Balapur mandal",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:48.826Z"
+    },
+    {
+      "key": "12.900,77.600",
+      "lat": 12.9,
+      "lng": 77.60000000000001,
+      "name": "Bangalore",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "13.000,77.600",
+      "lat": 12.9716,
+      "lng": 77.5946,
+      "name": "Bangalore",
+      "country": "India",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "13.100,77.500",
+      "lat": 13.100000000000001,
+      "lng": 77.5,
+      "name": "Bangalore",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "17.400,78.300",
+      "lat": 17.400000000000002,
+      "lng": 78.30000000000001,
+      "name": "Bangalore",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "17.500,78.400",
+      "lat": 17.5,
+      "lng": 78.4,
+      "name": "Bangalore",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "12.900,77.700",
+      "lat": 12.9,
+      "lng": 77.7,
+      "name": "Bengaluru",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "13.000,77.700",
+      "lat": 13,
+      "lng": 77.7,
+      "name": "Bengaluru",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:18.694Z"
+    },
+    {
+      "key": "13.300,77.700",
+      "lat": 13.3,
+      "lng": 77.7,
+      "name": "Bengaluru",
+      "country": "India",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "13.400,77.700",
+      "lat": 13.4,
+      "lng": 77.7,
+      "name": "Chikkaballapura taluk",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:50.867Z"
+    },
+    {
+      "key": "13.200,77.700",
+      "lat": 13.200000000000001,
+      "lng": 77.7,
+      "name": "Devanahalli taluku",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:48.828Z"
+    },
+    {
+      "key": "17.400,78.400",
+      "lat": 17.400000000000002,
+      "lng": 78.4,
+      "name": "Hyderabad",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:49.928Z"
+    },
+    {
+      "key": "17.400,78.500",
+      "lat": 17.400000000000002,
+      "lng": 78.5,
+      "name": "Hyderabad",
+      "country": "India",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:26.746Z"
+    },
+    {
+      "key": "22.600,88.400",
+      "lat": 22.5726,
+      "lng": 88.3639,
+      "name": "Kolkata",
+      "country": "India",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "19.100,72.900",
+      "lat": 19.076,
+      "lng": 72.8777,
+      "name": "Mumbai",
+      "country": "India",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "28.600,77.200",
+      "lat": 28.6139,
+      "lng": 77.209,
+      "name": "New Delhi",
+      "country": "India",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-8.300,115.100",
+      "lat": -8.3405,
+      "lng": 115.092,
+      "name": "Bali",
+      "country": "Indonesia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-6.200,106.800",
+      "lat": -6.2088,
+      "lng": 106.8456,
+      "name": "Jakarta",
+      "country": "Indonesia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "53.300,-6.300",
+      "lat": 53.3498,
+      "lng": -6.2603,
+      "name": "Dublin",
+      "country": "Ireland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "53.400,-6.300",
+      "lat": 53.400000000000006,
+      "lng": -6.300000000000001,
+      "name": "Dublin",
+      "country": "Ireland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "53.500,-6.200",
+      "lat": 53.5,
+      "lng": -6.2,
+      "name": "Dublin",
+      "country": "Ireland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "53.700,-6.400",
+      "lat": 53.7,
+      "lng": -6.4,
+      "name": "Dublin",
+      "country": "Ireland",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "53.400,-6.200",
+      "lat": 53.400000000000006,
+      "lng": -6.2,
+      "name": "Fingal",
+      "country": "Ireland",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:22.695Z"
+    },
+    {
+      "key": "53.600,-6.100",
+      "lat": 53.6,
+      "lng": -6.1000000000000005,
+      "name": "Fingal",
+      "country": "Ireland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:53.229Z"
+    },
+    {
+      "key": "53.600,-6.200",
+      "lat": 53.6,
+      "lng": -6.2,
+      "name": "Fingal",
+      "country": "Ireland",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:11.759Z"
+    },
+    {
+      "key": "31.800,35.200",
+      "lat": 31.7683,
+      "lng": 35.2137,
+      "name": "Jerusalem",
+      "country": "Israel",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "32.000,34.900",
+      "lat": 32,
+      "lng": 34.9,
+      "name": "Ramla Subdistrict",
+      "country": "Israel",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:56.784Z"
+    },
+    {
+      "key": "32.100,34.800",
+      "lat": 32.0853,
+      "lng": 34.7818,
+      "name": "Tel Aviv",
+      "country": "Israel",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "32.100,34.900",
+      "lat": 32.1,
+      "lng": 34.9,
+      "name": "Tel Aviv",
+      "country": "Israel",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "32.200,34.800",
+      "lat": 32.2,
+      "lng": 34.800000000000004,
+      "name": "Tel Aviv",
+      "country": "Israel",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "32.000,34.800",
+      "lat": 32,
+      "lng": 34.800000000000004,
+      "name": "Tel-Aviv",
+      "country": "Israel",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:37.118Z"
+    },
+    {
+      "key": "44.500,11.300",
+      "lat": 44.5,
+      "lng": 11.3,
+      "name": "Bologna",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:04.755Z"
+    },
+    {
+      "key": "44.500,11.400",
+      "lat": 44.5,
+      "lng": 11.4,
+      "name": "Bologna",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:43.822Z"
+    },
+    {
+      "key": "39.200,9.100",
+      "lat": 39.2,
+      "lng": 9.1,
+      "name": "Cagliari",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:13.483Z"
+    },
+    {
+      "key": "45.600,9.100",
+      "lat": 45.6,
+      "lng": 9.1,
+      "name": "Cesano Maderno",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:54.842Z"
+    },
+    {
+      "key": "39.100,9.500",
+      "lat": 39.1,
+      "lng": 9.5,
+      "name": "Crabonaxa/Villasimius",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:16.748Z"
+    },
+    {
+      "key": "43.800,11.200",
+      "lat": 43.800000000000004,
+      "lng": 11.200000000000001,
+      "name": "Florence",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:53.736Z"
+    },
+    {
+      "key": "43.800,11.300",
+      "lat": 43.7696,
+      "lng": 11.2558,
+      "name": "Florence",
+      "country": "Italy",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "39.100,9.400",
+      "lat": 39.1,
+      "lng": 9.4,
+      "name": "Maracalagonis",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:02.733Z"
+    },
+    {
+      "key": "45.500,9.200",
+      "lat": 45.4642,
+      "lng": 9.19,
+      "name": "Milan",
+      "country": "Italy",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "45.600,8.700",
+      "lat": 45.6,
+      "lng": 8.700000000000001,
+      "name": "Milan",
+      "country": "Italy",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "45.600,9.400",
+      "lat": 45.6,
+      "lng": 9.4,
+      "name": "Milan",
+      "country": "Italy",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.900,14.300",
+      "lat": 40.8518,
+      "lng": 14.2681,
+      "name": "Naples",
+      "country": "Italy",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "45.700,9.700",
+      "lat": 45.7,
+      "lng": 9.700000000000001,
+      "name": "Orio al Serio",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:25.188Z"
+    },
+    {
+      "key": "43.700,10.400",
+      "lat": 43.7,
+      "lng": 10.4,
+      "name": "Pisa",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:12.759Z"
+    },
+    {
+      "key": "44.100,12.600",
+      "lat": 44.1,
+      "lng": 12.600000000000001,
+      "name": "Rimini",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:10.734Z"
+    },
+    {
+      "key": "41.900,12.500",
+      "lat": 41.9028,
+      "lng": 12.4964,
+      "name": "Rome",
+      "country": "Italy",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "39.300,9.100",
+      "lat": 39.300000000000004,
+      "lng": 9.1,
+      "name": "Su Masu/Elmas",
+      "country": "Italy",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:15.744Z"
+    },
+    {
+      "key": "45.400,12.300",
+      "lat": 45.4408,
+      "lng": 12.3155,
+      "name": "Venice",
+      "country": "Italy",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "18.100,-77.300",
+      "lat": 18.1096,
+      "lng": -77.2975,
+      "name": "Kingston",
+      "country": "Jamaica",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "35.700,139.800",
+      "lat": 35.7,
+      "lng": 139.8,
+      "name": "Arakawa",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:43.738Z"
+    },
+    {
+      "key": "35.500,138.800",
+      "lat": 35.5,
+      "lng": 138.8,
+      "name": "Fujikawaguchiko",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:55.742Z"
+    },
+    {
+      "key": "34.800,134.700",
+      "lat": 34.800000000000004,
+      "lng": 134.70000000000002,
+      "name": "Himeji",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:54.874Z"
+    },
+    {
+      "key": "34.400,132.500",
+      "lat": 34.4,
+      "lng": 132.5,
+      "name": "Hiroshima",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:31.699Z"
+    },
+    {
+      "key": "35.300,136.800",
+      "lat": 35.300000000000004,
+      "lng": 136.8,
+      "name": "Ichinomiya",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:04.844Z"
+    },
+    {
+      "key": "34.700,137.900",
+      "lat": 34.7,
+      "lng": 137.9,
+      "name": "Iwata",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:01.828Z"
+    },
+    {
+      "key": "35.000,135.800",
+      "lat": 35,
+      "lng": 135.8,
+      "name": "Kyoto",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:14.093Z"
+    },
+    {
+      "key": "35.200,136.900",
+      "lat": 35.2,
+      "lng": 136.9,
+      "name": "Nagoya",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:29.678Z"
+    },
+    {
+      "key": "34.700,135.800",
+      "lat": 34.7,
+      "lng": 135.8,
+      "name": "Nara",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:02.845Z"
+    },
+    {
+      "key": "34.700,133.900",
+      "lat": 34.7,
+      "lng": 133.9,
+      "name": "Osaka",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "34.700,135.500",
+      "lat": 34.6937,
+      "lng": 135.5023,
+      "name": "Osaka",
+      "country": "Japan",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "34.700,137.700",
+      "lat": 34.7,
+      "lng": 137.70000000000002,
+      "name": "Osaka",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "34.800,138.000",
+      "lat": 34.800000000000004,
+      "lng": 138,
+      "name": "Osaka",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.000,135.700",
+      "lat": 35,
+      "lng": 135.70000000000002,
+      "name": "Osaka",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.500,139.800",
+      "lat": 35.5,
+      "lng": 139.8,
+      "name": "Ota",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:00.952Z"
+    },
+    {
+      "key": "35.100,138.900",
+      "lat": 35.1,
+      "lng": 138.9,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.400,139.200",
+      "lat": 35.4,
+      "lng": 139.20000000000002,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.400,139.300",
+      "lat": 35.4,
+      "lng": 139.3,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.400,139.400",
+      "lat": 35.4,
+      "lng": 139.4,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.400,139.600",
+      "lat": 35.4,
+      "lng": 139.6,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.500,138.700",
+      "lat": 35.5,
+      "lng": 138.70000000000002,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.500,139.400",
+      "lat": 35.5,
+      "lng": 139.4,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "35.600,139.700",
+      "lat": 35.6,
+      "lng": 139.70000000000002,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "35.600,139.800",
+      "lat": 35.6,
+      "lng": 139.8,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "35.700,139.700",
+      "lat": 35.6762,
+      "lng": 139.6503,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "35.800,140.400",
+      "lat": 35.800000000000004,
+      "lng": 140.4,
+      "name": "Tokyo",
+      "country": "Japan",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "35.500,139.500",
+      "lat": 35.5,
+      "lng": 139.5,
+      "name": "Yokohama",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:03.849Z"
+    },
+    {
+      "key": "35.500,139.600",
+      "lat": 35.5,
+      "lng": 139.6,
+      "name": "Yokohama",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:37.797Z"
+    },
+    {
+      "key": "35.600,139.500",
+      "lat": 35.6,
+      "lng": 139.5,
+      "name": "Yokohama",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:57.090Z"
+    },
+    {
+      "key": "35.600,139.600",
+      "lat": 35.6,
+      "lng": 139.6,
+      "name": "Yokohama",
+      "country": "Japan",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:29.122Z"
+    },
+    {
+      "key": "31.900,35.900",
+      "lat": 31.9454,
+      "lng": 35.9284,
+      "name": "Amman",
+      "country": "Jordan",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-1.300,36.800",
+      "lat": -1.2921,
+      "lng": 36.8219,
+      "name": "Nairobi",
+      "country": "Kenya",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "33.900,35.500",
+      "lat": 33.8938,
+      "lng": 35.5018,
+      "name": "Beirut",
+      "country": "Lebanon",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "3.100,101.700",
+      "lat": 3.139,
+      "lng": 101.6869,
+      "name": "Kuala Lumpur",
+      "country": "Malaysia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.800,-100.100",
+      "lat": 25.8,
+      "lng": -100.10000000000001,
+      "name": "Apodaca",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:07.763Z"
+    },
+    {
+      "key": "21.000,-86.900",
+      "lat": 21,
+      "lng": -86.9,
+      "name": "Cancun",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "21.100,-86.700",
+      "lat": 21.1,
+      "lng": -86.7,
+      "name": "Cancun",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "21.200,-86.900",
+      "lat": 21.1619,
+      "lng": -86.8515,
+      "name": "Cancun",
+      "country": "Mexico",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "21.100,-86.800",
+      "lat": 21.1,
+      "lng": -86.80000000000001,
+      "name": "Cancún",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:09.828Z"
+    },
+    {
+      "key": "20.700,-103.300",
+      "lat": 20.700000000000003,
+      "lng": -103.30000000000001,
+      "name": "Guadalajara",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "20.700,-103.400",
+      "lat": 20.700000000000003,
+      "lng": -103.4,
+      "name": "Guadalajara",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:19.114Z"
+    },
+    {
+      "key": "19.300,-99.100",
+      "lat": 19.3,
+      "lng": -99.10000000000001,
+      "name": "Mexico City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "19.300,-99.200",
+      "lat": 19.3,
+      "lng": -99.2,
+      "name": "Mexico City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "19.400,-99.100",
+      "lat": 19.4326,
+      "lng": -99.1332,
+      "name": "Mexico City",
+      "country": "Mexico",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "19.400,-99.200",
+      "lat": 19.400000000000002,
+      "lng": -99.2,
+      "name": "Mexico City",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:38.691Z"
+    },
+    {
+      "key": "19.700,-99.000",
+      "lat": 19.700000000000003,
+      "lng": -99,
+      "name": "Mexico City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "25.600,-100.300",
+      "lat": 25.6,
+      "lng": -100.30000000000001,
+      "name": "Monterrey",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "25.700,-100.300",
+      "lat": 25.700000000000003,
+      "lng": -100.30000000000001,
+      "name": "Monterrey",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:17.757Z"
+    },
+    {
+      "key": "16.900,-96.300",
+      "lat": 16.900000000000002,
+      "lng": -96.30000000000001,
+      "name": "Oaxaca City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "16.900,-96.400",
+      "lat": 16.900000000000002,
+      "lng": -96.4,
+      "name": "Oaxaca City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "17.000,-96.600",
+      "lat": 17,
+      "lng": -96.60000000000001,
+      "name": "Oaxaca City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "17.000,-96.700",
+      "lat": 17,
+      "lng": -96.7,
+      "name": "Oaxaca City",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "17.100,-96.700",
+      "lat": 17.1,
+      "lng": -96.7,
+      "name": "Oaxaca City",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:19.758Z"
+    },
+    {
+      "key": "15.800,-97.000",
+      "lat": 15.8,
+      "lng": -97,
+      "name": "Santa María Colotepec",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:35.808Z"
+    },
+    {
+      "key": "15.800,-97.100",
+      "lat": 15.8,
+      "lng": -97.10000000000001,
+      "name": "Santa María Colotepec",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "15.900,-97.100",
+      "lat": 15.9,
+      "lng": -97.10000000000001,
+      "name": "Santa María Colotepec",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "20.500,-103.300",
+      "lat": 20.5,
+      "lng": -103.30000000000001,
+      "name": "Tlajomulco de Zúñiga",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:08.809Z"
+    },
+    {
+      "key": "20.600,-103.300",
+      "lat": 20.6,
+      "lng": -103.30000000000001,
+      "name": "Tlaquepaque",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "20.600,-103.400",
+      "lat": 20.6,
+      "lng": -103.4,
+      "name": "Tlaquepaque",
+      "country": "Mexico",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:41.751Z"
+    },
+    {
+      "key": "20.600,-103.500",
+      "lat": 20.6,
+      "lng": -103.5,
+      "name": "Tlaquepaque",
+      "country": "Mexico",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "33.600,-7.600",
+      "lat": 33.5731,
+      "lng": -7.5898,
+      "name": "Casablanca",
+      "country": "Morocco",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "31.600,-8.000",
+      "lat": 31.6295,
+      "lng": -7.9811,
+      "name": "Marrakech",
+      "country": "Morocco",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "27.700,85.300",
+      "lat": 27.7172,
+      "lng": 85.324,
+      "name": "Kathmandu",
+      "country": "Nepal",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.600,5.400",
+      "lat": 51.6,
+      "lng": 5.4,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.600,5.700",
+      "lat": 51.6,
+      "lng": 5.7,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "51.600,6.100",
+      "lat": 51.6,
+      "lng": 6.1000000000000005,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.722Z"
+    },
+    {
+      "key": "51.600,6.200",
+      "lat": 51.6,
+      "lng": 6.2,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.700,5.300",
+      "lat": 51.7,
+      "lng": 5.300000000000001,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:51.457Z"
+    },
+    {
+      "key": "51.700,5.800",
+      "lat": 51.7,
+      "lng": 5.800000000000001,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "51.800,5.800",
+      "lat": 51.800000000000004,
+      "lng": 5.800000000000001,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "51.900,5.900",
+      "lat": 51.900000000000006,
+      "lng": 5.9,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.000,6.300",
+      "lat": 52,
+      "lng": 6.300000000000001,
+      "name": "'s-Hertogenbosch",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "52.400,5.200",
+      "lat": 52.400000000000006,
+      "lng": 5.2,
+      "name": "Almere",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:33.763Z"
+    },
+    {
+      "key": "52.300,4.700",
+      "lat": 52.300000000000004,
+      "lng": 4.7,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.300,4.900",
+      "lat": 52.300000000000004,
+      "lng": 4.9,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:04.093Z"
+    },
+    {
+      "key": "52.300,5.000",
+      "lat": 52.300000000000004,
+      "lng": 5,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:57.163Z"
+    },
+    {
+      "key": "52.400,4.700",
+      "lat": 52.400000000000006,
+      "lng": 4.7,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.400,4.800",
+      "lat": 52.400000000000006,
+      "lng": 4.800000000000001,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "52.400,4.900",
+      "lat": 52.3676,
+      "lng": 4.9041,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "52.400,5.800",
+      "lat": 52.400000000000006,
+      "lng": 5.800000000000001,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.500,6.100",
+      "lat": 52.5,
+      "lng": 6.1000000000000005,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "53.200,5.800",
+      "lat": 53.2,
+      "lng": 5.800000000000001,
+      "name": "Amsterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "51.600,5.300",
+      "lat": 51.6,
+      "lng": 5.300000000000001,
+      "name": "Boxtel",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:58.825Z"
+    },
+    {
+      "key": "51.600,4.800",
+      "lat": 51.6,
+      "lng": 4.800000000000001,
+      "name": "Breda",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:47.688Z"
+    },
+    {
+      "key": "51.300,5.400",
+      "lat": 51.300000000000004,
+      "lng": 5.4,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.300,5.500",
+      "lat": 51.300000000000004,
+      "lng": 5.5,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "51.300,5.600",
+      "lat": 51.300000000000004,
+      "lng": 5.6000000000000005,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "51.400,5.400",
+      "lat": 51.400000000000006,
+      "lng": 5.4,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:12.807Z"
+    },
+    {
+      "key": "51.400,5.500",
+      "lat": 51.400000000000006,
+      "lng": 5.5,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:41.325Z"
+    },
+    {
+      "key": "51.500,5.400",
+      "lat": 51.5,
+      "lng": 5.4,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:44.204Z"
+    },
+    {
+      "key": "51.500,5.500",
+      "lat": 51.5,
+      "lng": 5.5,
+      "name": "Eindhoven",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:41.629Z"
+    },
+    {
+      "key": "52.300,5.800",
+      "lat": 52.300000000000004,
+      "lng": 5.800000000000001,
+      "name": "Elspeet",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:53.846Z"
+    },
+    {
+      "key": "52.300,4.800",
+      "lat": 52.300000000000004,
+      "lng": 4.800000000000001,
+      "name": "Haarlemmermeer",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:47.053Z"
+    },
+    {
+      "key": "51.200,5.600",
+      "lat": 51.2,
+      "lng": 5.6000000000000005,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "51.200,5.700",
+      "lat": 51.2,
+      "lng": 5.7,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "51.200,5.800",
+      "lat": 51.2,
+      "lng": 5.800000000000001,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "51.200,6.000",
+      "lat": 51.2,
+      "lng": 6,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "51.300,5.700",
+      "lat": 51.300000000000004,
+      "lng": 5.7,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "51.500,5.600",
+      "lat": 51.5,
+      "lng": 5.6000000000000005,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:43.062Z"
+    },
+    {
+      "key": "51.700,5.600",
+      "lat": 51.7,
+      "lng": 5.6000000000000005,
+      "name": "Helmond",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "50.800,6.000",
+      "lat": 50.800000000000004,
+      "lng": 6,
+      "name": "Landgraaf",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "50.900,5.900",
+      "lat": 50.900000000000006,
+      "lng": 5.9,
+      "name": "Landgraaf",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "50.900,6.000",
+      "lat": 50.900000000000006,
+      "lng": 6,
+      "name": "Landgraaf",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:12.576Z"
+    },
+    {
+      "key": "51.400,5.600",
+      "lat": 51.400000000000006,
+      "lng": 5.6000000000000005,
+      "name": "Mierlo",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:32.835Z"
+    },
+    {
+      "key": "50.600,3.100",
+      "lat": 50.6,
+      "lng": 3.1,
+      "name": "Nieuwvliet",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "50.700,3.200",
+      "lat": 50.7,
+      "lng": 3.2,
+      "name": "Nieuwvliet",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "51.300,3.500",
+      "lat": 51.300000000000004,
+      "lng": 3.5,
+      "name": "Nieuwvliet",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.400,3.400",
+      "lat": 51.400000000000006,
+      "lng": 3.4000000000000004,
+      "name": "Nieuwvliet",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:16.255Z"
+    },
+    {
+      "key": "51.400,3.500",
+      "lat": 51.400000000000006,
+      "lng": 3.5,
+      "name": "Nieuwvliet",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.800,5.900",
+      "lat": 51.800000000000004,
+      "lng": 5.9,
+      "name": "Nijmegen",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:54.745Z"
+    },
+    {
+      "key": "51.800,4.700",
+      "lat": 51.800000000000004,
+      "lng": 4.7,
+      "name": "Rotterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "51.900,4.400",
+      "lat": 51.900000000000006,
+      "lng": 4.4,
+      "name": "Rotterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "51.900,4.500",
+      "lat": 51.900000000000006,
+      "lng": 4.5,
+      "name": "Rotterdam",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:48.693Z"
+    },
+    {
+      "key": "52.000,4.400",
+      "lat": 52,
+      "lng": 4.4,
+      "name": "Rotterdam",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "52.100,4.300",
+      "lat": 52.1,
+      "lng": 4.3,
+      "name": "The Hague",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:43.758Z"
+    },
+    {
+      "key": "51.300,5.100",
+      "lat": 51.300000000000004,
+      "lng": 5.1000000000000005,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.400,4.900",
+      "lat": 51.400000000000006,
+      "lng": 4.9,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "51.500,5.000",
+      "lat": 51.5,
+      "lng": 5,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "51.500,5.100",
+      "lat": 51.5,
+      "lng": 5.1000000000000005,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "51.600,5.000",
+      "lat": 51.6,
+      "lng": 5,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "51.600,5.100",
+      "lat": 51.6,
+      "lng": 5.1000000000000005,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:47.559Z"
+    },
+    {
+      "key": "51.700,5.100",
+      "lat": 51.7,
+      "lng": 5.1000000000000005,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "51.800,5.000",
+      "lat": 51.800000000000004,
+      "lng": 5,
+      "name": "Tilburg",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "52.000,5.100",
+      "lat": 52,
+      "lng": 5.1000000000000005,
+      "name": "Utrecht",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.000,5.200",
+      "lat": 52,
+      "lng": 5.2,
+      "name": "Utrecht",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "52.100,5.000",
+      "lat": 52.1,
+      "lng": 5,
+      "name": "Utrecht",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "52.100,5.100",
+      "lat": 52.1,
+      "lng": 5.1000000000000005,
+      "name": "Utrecht",
+      "country": "Netherlands",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:46.542Z"
+    },
+    {
+      "key": "52.100,5.200",
+      "lat": 52.1,
+      "lng": 5.2,
+      "name": "Utrecht",
+      "country": "Netherlands",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "-36.800,174.800",
+      "lat": -36.8485,
+      "lng": 174.7633,
+      "name": "Auckland",
+      "country": "New Zealand",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-41.300,174.800",
+      "lat": -41.2865,
+      "lng": 174.7762,
+      "name": "Wellington",
+      "country": "New Zealand",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "6.500,3.400",
+      "lat": 6.5244,
+      "lng": 3.3792,
+      "name": "Lagos",
+      "country": "Nigeria",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "59.900,10.700",
+      "lat": 59.900000000000006,
+      "lng": 10.700000000000001,
+      "name": "Oslo",
+      "country": "Norway",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:58.221Z"
+    },
+    {
+      "key": "59.900,10.800",
+      "lat": 59.9139,
+      "lng": 10.7522,
+      "name": "Oslo",
+      "country": "Norway",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "60.200,11.100",
+      "lat": 60.2,
+      "lng": 11.100000000000001,
+      "name": "Oslo",
+      "country": "Norway",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "63.400,10.400",
+      "lat": 63.400000000000006,
+      "lng": 10.4,
+      "name": "Trondheim",
+      "country": "Norway",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:56.113Z"
+    },
+    {
+      "key": "-12.000,-77.000",
+      "lat": -12.0464,
+      "lng": -77.0428,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-12.000,-77.100",
+      "lat": -12,
+      "lng": -77.10000000000001,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-13.800,-76.200",
+      "lat": -13.8,
+      "lng": -76.2,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-14.000,-75.800",
+      "lat": -14,
+      "lng": -75.8,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-14.100,-75.800",
+      "lat": -14.100000000000001,
+      "lng": -75.8,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-16.200,-67.700",
+      "lat": -16.2,
+      "lng": -67.7,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-16.400,-68.100",
+      "lat": -16.400000000000002,
+      "lng": -68.10000000000001,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-16.400,-68.200",
+      "lat": -16.400000000000002,
+      "lng": -68.2,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-16.500,-68.200",
+      "lat": -16.5,
+      "lng": -68.2,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-16.600,-68.100",
+      "lat": -16.6,
+      "lng": -68.10000000000001,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-17.400,-66.100",
+      "lat": -17.400000000000002,
+      "lng": -66.10000000000001,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-17.600,-63.100",
+      "lat": -17.6,
+      "lng": -63.1,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-20.300,-66.900",
+      "lat": -20.3,
+      "lng": -66.9,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-20.300,-67.000",
+      "lat": -20.3,
+      "lng": -67,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-20.400,-67.000",
+      "lat": -20.400000000000002,
+      "lng": -67,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-21.200,-67.200",
+      "lat": -21.200000000000003,
+      "lng": -67.2,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "-21.400,-67.600",
+      "lat": -21.400000000000002,
+      "lng": -67.60000000000001,
+      "name": "Lima",
+      "country": "Peru",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.707Z"
+    },
+    {
+      "key": "-12.100,-77.000",
+      "lat": -12.100000000000001,
+      "lng": -77,
+      "name": "Miraflores",
+      "country": "Peru",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:49.106Z"
+    },
+    {
+      "key": "14.600,121.000",
+      "lat": 14.5995,
+      "lng": 120.9842,
+      "name": "Manila",
+      "country": "Philippines",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "50.100,19.800",
+      "lat": 50.1,
+      "lng": 19.8,
+      "name": "Balice",
+      "country": "Poland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:25.875Z"
+    },
+    {
+      "key": "50.100,19.900",
+      "lat": 50.1,
+      "lng": 19.900000000000002,
+      "name": "Krakow",
+      "country": "Poland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:27.169Z"
+    },
+    {
+      "key": "52.200,21.000",
+      "lat": 52.2297,
+      "lng": 21.0122,
+      "name": "Warsaw",
+      "country": "Poland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.100,16.900",
+      "lat": 51.1,
+      "lng": 16.900000000000002,
+      "name": "Wrocław",
+      "country": "Poland",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:46.841Z"
+    },
+    {
+      "key": "51.100,17.000",
+      "lat": 51.1,
+      "lng": 17,
+      "name": "Wrocław",
+      "country": "Poland",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:17.474Z"
+    },
+    {
+      "key": "37.100,-8.700",
+      "lat": 37.1,
+      "lng": -8.700000000000001,
+      "name": "Lagos",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:44.737Z"
+    },
+    {
+      "key": "37.100,-8.400",
+      "lat": 37.1,
+      "lng": -8.4,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.100,-8.500",
+      "lat": 37.1,
+      "lng": -8.5,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.100,-8.600",
+      "lat": 37.1,
+      "lng": -8.6,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.100,-8.800",
+      "lat": 37.1,
+      "lng": -8.8,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.200,-8.400",
+      "lat": 37.2,
+      "lng": -8.4,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "37.300,-8.300",
+      "lat": 37.300000000000004,
+      "lng": -8.3,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.000,-7.900",
+      "lat": 38,
+      "lng": -7.9,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.700,-7.500",
+      "lat": 38.7,
+      "lng": -7.5,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.700,-9.100",
+      "lat": 38.7223,
+      "lng": -9.1393,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "38.700,-9.200",
+      "lat": 38.7,
+      "lng": -9.200000000000001,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.700,-9.300",
+      "lat": 38.7,
+      "lng": -9.3,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.800,-9.100",
+      "lat": 38.800000000000004,
+      "lng": -9.1,
+      "name": "Lisbon",
+      "country": "Portugal",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "41.200,-8.600",
+      "lat": 41.2,
+      "lng": -8.6,
+      "name": "Porto",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:50.867Z"
+    },
+    {
+      "key": "37.000,-9.000",
+      "lat": 37,
+      "lng": -9,
+      "name": "Sagres",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:30.231Z"
+    },
+    {
+      "key": "37.100,-8.900",
+      "lat": 37.1,
+      "lng": -8.9,
+      "name": "Vila do Bispo",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:30.815Z"
+    },
+    {
+      "key": "41.200,-8.700",
+      "lat": 41.2,
+      "lng": -8.700000000000001,
+      "name": "Vila Nova da Telha",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:55.844Z"
+    },
+    {
+      "key": "41.100,-8.600",
+      "lat": 41.1,
+      "lng": -8.6,
+      "name": "Vila Nova de Gaia",
+      "country": "Portugal",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:49.822Z"
+    },
+    {
+      "key": "18.500,-66.100",
+      "lat": 18.4655,
+      "lng": -66.1057,
+      "name": "San Juan",
+      "country": "Puerto Rico",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.300,51.500",
+      "lat": 25.2854,
+      "lng": 51.531,
+      "name": "Doha",
+      "country": "Qatar",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.300,51.600",
+      "lat": 25.3,
+      "lng": 51.6,
+      "name": "Doha",
+      "country": "Qatar",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "44.400,26.100",
+      "lat": 44.4268,
+      "lng": 26.1025,
+      "name": "Bucharest",
+      "country": "Romania",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "55.800,37.600",
+      "lat": 55.7558,
+      "lng": 37.6173,
+      "name": "Moscow",
+      "country": "Russia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "59.900,30.300",
+      "lat": 59.9343,
+      "lng": 30.3351,
+      "name": "St Petersburg",
+      "country": "Russia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "14.700,-17.500",
+      "lat": 14.7167,
+      "lng": -17.4677,
+      "name": "Dakar",
+      "country": "Senegal",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "44.800,20.400",
+      "lat": 44.7866,
+      "lng": 20.4489,
+      "name": "Belgrade",
+      "country": "Serbia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "1.400,103.800",
+      "lat": 1.3521,
+      "lng": 103.8198,
+      "name": "Singapore",
+      "country": "Singapore",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "46.100,14.500",
+      "lat": 46.0569,
+      "lng": 14.5058,
+      "name": "Ljubljana",
+      "country": "Slovenia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-33.900,18.400",
+      "lat": -33.9249,
+      "lng": 18.4241,
+      "name": "Cape Town",
+      "country": "South Africa",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "-26.200,28.000",
+      "lat": -26.2041,
+      "lng": 28.0473,
+      "name": "Johannesburg",
+      "country": "South Africa",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "33.500,126.500",
+      "lat": 33.5,
+      "lng": 126.5,
+      "name": "Jeju",
+      "country": "South Korea",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:36.825Z"
+    },
+    {
+      "key": "33.300,126.300",
+      "lat": 33.300000000000004,
+      "lng": 126.30000000000001,
+      "name": "Seogwipo-si",
+      "country": "South Korea",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:57.736Z"
+    },
+    {
+      "key": "33.200,126.300",
+      "lat": 33.2,
+      "lng": 126.30000000000001,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "33.300,126.800",
+      "lat": 33.300000000000004,
+      "lng": 126.80000000000001,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "33.400,126.200",
+      "lat": 33.4,
+      "lng": 126.2,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "33.400,126.300",
+      "lat": 33.4,
+      "lng": 126.30000000000001,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "33.400,126.500",
+      "lat": 33.4,
+      "lng": 126.5,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "33.400,126.900",
+      "lat": 33.4,
+      "lng": 126.9,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "33.500,126.900",
+      "lat": 33.5,
+      "lng": 126.9,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.400,126.400",
+      "lat": 37.4,
+      "lng": 126.4,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.400,126.500",
+      "lat": 37.4,
+      "lng": 126.5,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.500,126.400",
+      "lat": 37.5,
+      "lng": 126.4,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.500,126.900",
+      "lat": 37.5,
+      "lng": 126.9,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.500,127.000",
+      "lat": 37.5,
+      "lng": 127,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.500,127.100",
+      "lat": 37.5,
+      "lng": 127.10000000000001,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.600,126.800",
+      "lat": 37.6,
+      "lng": 126.80000000000001,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.600,126.900",
+      "lat": 37.6,
+      "lng": 126.9,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.600,127.000",
+      "lat": 37.5665,
+      "lng": 126.978,
+      "name": "Seoul",
+      "country": "South Korea",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "38.700,-2.500",
+      "lat": 38.7,
+      "lng": -2.5,
+      "name": "Alcaraz",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:14.834Z"
+    },
+    {
+      "key": "39.400,-3.200",
+      "lat": 39.400000000000006,
+      "lng": -3.2,
+      "name": "Alcázar de San Juan",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:35.863Z"
+    },
+    {
+      "key": "40.300,-3.900",
+      "lat": 40.300000000000004,
+      "lng": -3.9000000000000004,
+      "name": "Alcorcón",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:37.882Z"
+    },
+    {
+      "key": "38.300,-0.500",
+      "lat": 38.300000000000004,
+      "lng": -0.5,
+      "name": "Alicante",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:31.096Z"
+    },
+    {
+      "key": "41.400,2.200",
+      "lat": 41.3874,
+      "lng": 2.1686,
+      "name": "Barcelona",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "43.100,-2.100",
+      "lat": 43.1,
+      "lng": -2.1,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "43.300,-1.900",
+      "lat": 43.300000000000004,
+      "lng": -1.9000000000000001,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "43.300,-2.200",
+      "lat": 43.300000000000004,
+      "lng": -2.2,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "43.300,-2.300",
+      "lat": 43.300000000000004,
+      "lng": -2.3000000000000003,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "43.300,-2.900",
+      "lat": 43.263,
+      "lng": -2.935,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "43.900,-1.100",
+      "lat": 43.900000000000006,
+      "lng": -1.1,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "44.500,-0.800",
+      "lat": 44.5,
+      "lng": -0.8,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "45.000,-0.400",
+      "lat": 45,
+      "lng": -0.4,
+      "name": "Bilbao",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "40.300,-4.800",
+      "lat": 40.300000000000004,
+      "lng": -4.800000000000001,
+      "name": "Casavieja",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:49.744Z"
+    },
+    {
+      "key": "40.700,-3.800",
+      "lat": 40.7,
+      "lng": -3.8000000000000003,
+      "name": "Colmenar Viejo",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:48.873Z"
+    },
+    {
+      "key": "39.200,-0.200",
+      "lat": 39.2,
+      "lng": -0.2,
+      "name": "Cullera",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:20.841Z"
+    },
+    {
+      "key": "39.200,-0.300",
+      "lat": 39.2,
+      "lng": -0.30000000000000004,
+      "name": "Cullera",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.000,-0.100",
+      "lat": 39,
+      "lng": -0.1,
+      "name": "Daimús",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:46.956Z"
+    },
+    {
+      "key": "38.900,-2.500",
+      "lat": 38.900000000000006,
+      "lng": -2.5,
+      "name": "El Bonillo",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:34.813Z"
+    },
+    {
+      "key": "39.000,-2.500",
+      "lat": 39,
+      "lng": -2.5,
+      "name": "El Bonillo",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:32.741Z"
+    },
+    {
+      "key": "41.300,2.100",
+      "lat": 41.300000000000004,
+      "lng": 2.1,
+      "name": "el Prat de Llobregat",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:51.827Z"
+    },
+    {
+      "key": "28.500,-16.400",
+      "lat": 28.5,
+      "lng": -16.400000000000002,
+      "name": "El Sauzal",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:50.735Z"
+    },
+    {
+      "key": "38.300,-0.600",
+      "lat": 38.300000000000004,
+      "lng": -0.6000000000000001,
+      "name": "Elx / Elche",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:07:05.846Z"
+    },
+    {
+      "key": "38.300,-0.700",
+      "lat": 38.300000000000004,
+      "lng": -0.7000000000000001,
+      "name": "Elx / Elche",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:11.187Z"
+    },
+    {
+      "key": "40.200,-4.400",
+      "lat": 40.2,
+      "lng": -4.4,
+      "name": "Escalona",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:47.848Z"
+    },
+    {
+      "key": "37.700,-0.700",
+      "lat": 37.7,
+      "lng": -0.7000000000000001,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "38.000,-1.400",
+      "lat": 38,
+      "lng": -1.4000000000000001,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.100,-0.700",
+      "lat": 38.1,
+      "lng": -0.7000000000000001,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.500,-0.800",
+      "lat": 38.5,
+      "lng": -0.8,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "38.600,0.000",
+      "lat": 38.6,
+      "lng": 0,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.600,0.100",
+      "lat": 38.6,
+      "lng": 0.1,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "38.700,-0.200",
+      "lat": 38.7,
+      "lng": -0.2,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.700,0.100",
+      "lat": 38.7,
+      "lng": 0.1,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "39.000,-0.200",
+      "lat": 39,
+      "lng": -0.2,
+      "name": "Gandia",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:50.331Z"
+    },
+    {
+      "key": "27.700,-15.600",
+      "lat": 27.700000000000003,
+      "lng": -15.600000000000001,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "27.800,-15.500",
+      "lat": 27.8,
+      "lng": -15.5,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "27.800,-15.700",
+      "lat": 27.8,
+      "lng": -15.700000000000001,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "27.900,-15.500",
+      "lat": 27.900000000000002,
+      "lng": -15.5,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "27.900,-15.600",
+      "lat": 27.900000000000002,
+      "lng": -15.600000000000001,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "27.900,-15.800",
+      "lat": 27.900000000000002,
+      "lng": -15.8,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "28.100,-15.400",
+      "lat": 28.1235,
+      "lng": -15.4363,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "28.100,-15.700",
+      "lat": 28.1,
+      "lng": -15.700000000000001,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "28.200,-15.500",
+      "lat": 28.200000000000003,
+      "lng": -15.5,
+      "name": "Gran Canaria",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.100,-0.600",
+      "lat": 38.1,
+      "lng": -0.6000000000000001,
+      "name": "Guardamar del Segura",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:46.195Z"
+    },
+    {
+      "key": "39.200,-3.400",
+      "lat": 39.2,
+      "lng": -3.4000000000000004,
+      "name": "Herencia",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:17.744Z"
+    },
+    {
+      "key": "27.900,-15.400",
+      "lat": 27.900000000000002,
+      "lng": -15.4,
+      "name": "Ingenio",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:19.821Z"
+    },
+    {
+      "key": "41.400,2.100",
+      "lat": 41.400000000000006,
+      "lng": 2.1,
+      "name": "l'Hospitalet de Llobregat",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:55.095Z"
+    },
+    {
+      "key": "38.400,-2.600",
+      "lat": 38.400000000000006,
+      "lng": -2.6,
+      "name": "La Puerta de Segura",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "38.400,-2.700",
+      "lat": 38.400000000000006,
+      "lng": -2.7,
+      "name": "La Puerta de Segura",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:15.736Z"
+    },
+    {
+      "key": "38.400,-2.800",
+      "lat": 38.400000000000006,
+      "lng": -2.8000000000000003,
+      "name": "La Puerta de Segura",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "38.700,-3.000",
+      "lat": 38.7,
+      "lng": -3,
+      "name": "La Puerta de Segura",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "40.100,-4.400",
+      "lat": 40.1,
+      "lng": -4.4,
+      "name": "Las Rozas de Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "40.500,-3.900",
+      "lat": 40.5,
+      "lng": -3.9000000000000004,
+      "name": "Las Rozas de Madrid",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:14.199Z"
+    },
+    {
+      "key": "40.300,-3.700",
+      "lat": 40.300000000000004,
+      "lng": -3.7,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.300,-3.800",
+      "lat": 40.300000000000004,
+      "lng": -3.8000000000000003,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "40.400,-3.600",
+      "lat": 40.400000000000006,
+      "lng": -3.6,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.400,-3.700",
+      "lat": 40.4168,
+      "lng": -3.7038,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "40.400,-3.800",
+      "lat": 40.400000000000006,
+      "lng": -3.8000000000000003,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "40.500,-3.400",
+      "lat": 40.5,
+      "lng": -3.4000000000000004,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "40.500,-3.500",
+      "lat": 40.5,
+      "lng": -3.5,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.500,-3.600",
+      "lat": 40.5,
+      "lng": -3.6,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:45.314Z"
+    },
+    {
+      "key": "40.500,-3.700",
+      "lat": 40.5,
+      "lng": -3.7,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:48.079Z"
+    },
+    {
+      "key": "40.500,-3.800",
+      "lat": 40.5,
+      "lng": -3.8000000000000003,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:43.105Z"
+    },
+    {
+      "key": "40.600,-3.100",
+      "lat": 40.6,
+      "lng": -3.1,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "40.600,-3.300",
+      "lat": 40.6,
+      "lng": -3.3000000000000003,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "41.200,-2.400",
+      "lat": 41.2,
+      "lng": -2.4000000000000004,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "41.300,-2.000",
+      "lat": 41.300000000000004,
+      "lng": -2,
+      "name": "Madrid",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "36.700,-4.400",
+      "lat": 36.7213,
+      "lng": -4.4214,
+      "name": "Malaga",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "38.900,-6.300",
+      "lat": 38.900000000000006,
+      "lng": -6.300000000000001,
+      "name": "Mérida",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:31.750Z"
+    },
+    {
+      "key": "38.300,-2.700",
+      "lat": 38.300000000000004,
+      "lng": -2.7,
+      "name": "Orcera",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:21.759Z"
+    },
+    {
+      "key": "39.500,2.500",
+      "lat": 39.5,
+      "lng": 2.5,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "39.500,2.700",
+      "lat": 39.5,
+      "lng": 2.7,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "39.500,2.900",
+      "lat": 39.5,
+      "lng": 2.9000000000000004,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.600,2.600",
+      "lat": 39.6,
+      "lng": 2.6,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "39.600,2.700",
+      "lat": 39.6,
+      "lng": 2.7,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "39.600,2.900",
+      "lat": 39.6131,
+      "lng": 2.8882,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "39.700,2.600",
+      "lat": 39.7,
+      "lng": 2.6,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.700,2.900",
+      "lat": 39.7,
+      "lng": 2.9000000000000004,
+      "name": "Palma de Mallorca",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "27.800,-15.600",
+      "lat": 27.8,
+      "lng": -15.600000000000001,
+      "name": "San Bartolomé de Tirajana",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:20.843Z"
+    },
+    {
+      "key": "37.800,-0.700",
+      "lat": 37.800000000000004,
+      "lng": -0.7000000000000001,
+      "name": "San Javier",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:34.808Z"
+    },
+    {
+      "key": "43.300,-2.000",
+      "lat": 43.300000000000004,
+      "lng": -2,
+      "name": "San Sebastián",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:38.873Z"
+    },
+    {
+      "key": "40.600,-3.600",
+      "lat": 40.6,
+      "lng": -3.6,
+      "name": "San Sebastián de los Reyes",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:14.712Z"
+    },
+    {
+      "key": "40.700,-3.600",
+      "lat": 40.7,
+      "lng": -3.6,
+      "name": "San Sebastián de los Reyes",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.400,3.200",
+      "lat": 39.400000000000006,
+      "lng": 3.2,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.400,3.300",
+      "lat": 39.400000000000006,
+      "lng": 3.3000000000000003,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.700,3.100",
+      "lat": 39.7,
+      "lng": 3.1,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.800,3.100",
+      "lat": 39.800000000000004,
+      "lng": 3.1,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:49.755Z"
+    },
+    {
+      "key": "39.800,3.200",
+      "lat": 39.800000000000004,
+      "lng": 3.2,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "39.900,3.100",
+      "lat": 39.900000000000006,
+      "lng": 3.1,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "39.900,3.200",
+      "lat": 39.900000000000006,
+      "lng": 3.2,
+      "name": "Santa Margalida",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "41.300,1.500",
+      "lat": 41.300000000000004,
+      "lng": 1.5,
+      "name": "Santa Oliva",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:52.741Z"
+    },
+    {
+      "key": "42.900,-8.400",
+      "lat": 42.900000000000006,
+      "lng": -8.4,
+      "name": "Santiago de Compostela",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:57.744Z"
+    },
+    {
+      "key": "28.200,-16.800",
+      "lat": 28.200000000000003,
+      "lng": -16.8,
+      "name": "Santiago del Teide",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:36.797Z"
+    },
+    {
+      "key": "38.000,-3.100",
+      "lat": 38,
+      "lng": -3.1,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "38.100,-2.600",
+      "lat": 38.1,
+      "lng": -2.6,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:44.824Z"
+    },
+    {
+      "key": "38.100,-2.700",
+      "lat": 38.1,
+      "lng": -2.7,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "38.100,-3.100",
+      "lat": 38.1,
+      "lng": -3.1,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "38.200,-2.600",
+      "lat": 38.2,
+      "lng": -2.6,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:45.928Z"
+    },
+    {
+      "key": "38.200,-2.700",
+      "lat": 38.2,
+      "lng": -2.7,
+      "name": "Santiago-Pontones",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:39.759Z"
+    },
+    {
+      "key": "37.400,-5.900",
+      "lat": 37.4,
+      "lng": -5.9,
+      "name": "Seville",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "37.400,-6.000",
+      "lat": 37.3891,
+      "lng": -5.9845,
+      "name": "Seville",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "37.600,-6.100",
+      "lat": 37.6,
+      "lng": -6.1000000000000005,
+      "name": "Seville",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "38.800,-6.600",
+      "lat": 38.800000000000004,
+      "lng": -6.6000000000000005,
+      "name": "Seville",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.600,-5.800",
+      "lat": 39.6,
+      "lng": -5.800000000000001,
+      "name": "Seville",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "41.200,1.800",
+      "lat": 41.2,
+      "lng": 1.8,
+      "name": "Sitges",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:02.112Z"
+    },
+    {
+      "key": "41.400,1.800",
+      "lat": 41.400000000000006,
+      "lng": 1.8,
+      "name": "Sitges",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "38.900,-1.600",
+      "lat": 38.900000000000006,
+      "lng": -1.6,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.748Z"
+    },
+    {
+      "key": "39.000,-3.400",
+      "lat": 39,
+      "lng": -3.4000000000000004,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "39.200,-2.200",
+      "lat": 39.2,
+      "lng": -2.2,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "39.300,-2.600",
+      "lat": 39.300000000000004,
+      "lng": -2.6,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "39.300,-2.800",
+      "lat": 39.300000000000004,
+      "lng": -2.8000000000000003,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:44.717Z"
+    },
+    {
+      "key": "39.300,-3.400",
+      "lat": 39.300000000000004,
+      "lng": -3.4000000000000004,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.300,-3.500",
+      "lat": 39.300000000000004,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.400,-2.200",
+      "lat": 39.400000000000006,
+      "lng": -2.2,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "39.400,-3.500",
+      "lat": 39.400000000000006,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.500,-1.400",
+      "lat": 39.5,
+      "lng": -1.4000000000000001,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.500,-1.800",
+      "lat": 39.5,
+      "lng": -1.8,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "39.500,-2.300",
+      "lat": 39.5,
+      "lng": -2.3000000000000003,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.500,-3.500",
+      "lat": 39.5,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.600,-2.100",
+      "lat": 39.6,
+      "lng": -2.1,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "39.600,-3.000",
+      "lat": 39.6,
+      "lng": -3,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "39.600,-3.500",
+      "lat": 39.6,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "39.700,-3.500",
+      "lat": 39.7,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "39.800,-2.400",
+      "lat": 39.800000000000004,
+      "lng": -2.4000000000000004,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "39.900,-3.500",
+      "lat": 39.900000000000006,
+      "lng": -3.5,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "40.000,-3.600",
+      "lat": 40,
+      "lng": -3.6,
+      "name": "Socuéllamos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "28.000,-15.600",
+      "lat": 28,
+      "lng": -15.600000000000001,
+      "name": "Tejeda",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:21.811Z"
+    },
+    {
+      "key": "28.000,-15.400",
+      "lat": 28,
+      "lng": -15.4,
+      "name": "Telde",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:42.676Z"
+    },
+    {
+      "key": "28.000,-16.600",
+      "lat": 28,
+      "lng": -16.6,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.300,-16.500",
+      "lat": 28.3,
+      "lng": -16.5,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.300,-16.600",
+      "lat": 28.3,
+      "lng": -16.6,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.300,-16.800",
+      "lat": 28.3,
+      "lng": -16.8,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.300,-16.900",
+      "lat": 28.3,
+      "lng": -16.900000000000002,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.400,-16.700",
+      "lat": 28.400000000000002,
+      "lng": -16.7,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.400,-16.800",
+      "lat": 28.400000000000002,
+      "lng": -16.8,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.500,-16.300",
+      "lat": 28.4636,
+      "lng": -16.2518,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "28.500,-16.500",
+      "lat": 28.5,
+      "lng": -16.5,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "28.600,-16.200",
+      "lat": 28.6,
+      "lng": -16.2,
+      "name": "Tenerife",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "42.800,-8.400",
+      "lat": 42.800000000000004,
+      "lng": -8.4,
+      "name": "Teo",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "42.800,-8.500",
+      "lat": 42.800000000000004,
+      "lng": -8.5,
+      "name": "Teo",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:13.175Z"
+    },
+    {
+      "key": "42.900,-8.500",
+      "lat": 42.900000000000006,
+      "lng": -8.5,
+      "name": "Teo",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "42.900,-8.600",
+      "lat": 42.900000000000006,
+      "lng": -8.6,
+      "name": "Teo",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.200,-3.000",
+      "lat": 39.2,
+      "lng": -3,
+      "name": "Tomelloso",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:39.741Z"
+    },
+    {
+      "key": "40.600,-3.700",
+      "lat": 40.6,
+      "lng": -3.7,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:42.446Z"
+    },
+    {
+      "key": "40.700,-3.900",
+      "lat": 40.7,
+      "lng": -3.9000000000000004,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "40.800,-4.000",
+      "lat": 40.800000000000004,
+      "lng": -4,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.600,-3.700",
+      "lat": 41.6,
+      "lng": -3.7,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.900,-2.900",
+      "lat": 41.900000000000006,
+      "lng": -2.9000000000000004,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "42.200,-3.700",
+      "lat": 42.2,
+      "lng": -3.7,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.400,-3.700",
+      "lat": 42.400000000000006,
+      "lng": -3.7,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.706Z"
+    },
+    {
+      "key": "42.400,-4.000",
+      "lat": 42.400000000000006,
+      "lng": -4,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "43.300,-4.100",
+      "lat": 43.300000000000004,
+      "lng": -4.1000000000000005,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "43.400,-5.100",
+      "lat": 43.400000000000006,
+      "lng": -5.1000000000000005,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "43.400,-5.200",
+      "lat": 43.400000000000006,
+      "lng": -5.2,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "43.500,-5.100",
+      "lat": 43.5,
+      "lng": -5.1000000000000005,
+      "name": "Tres Cantos",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.747Z"
+    },
+    {
+      "key": "39.500,-0.300",
+      "lat": 39.5,
+      "lng": -0.30000000000000004,
+      "name": "Valencia",
+      "country": "Spain",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:50.680Z"
+    },
+    {
+      "key": "39.500,-0.400",
+      "lat": 39.4699,
+      "lng": -0.3763,
+      "name": "Valencia",
+      "country": "Spain",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "40.300,-1.100",
+      "lat": 40.300000000000004,
+      "lng": -1.1,
+      "name": "Valencia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "40.400,-1.100",
+      "lat": 40.400000000000006,
+      "lng": -1.1,
+      "name": "Valencia",
+      "country": "Spain",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "57.700,11.900",
+      "lat": 57.7,
+      "lng": 11.9,
+      "name": "Gothenburg",
+      "country": "Sweden",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:58.848Z"
+    },
+    {
+      "key": "57.700,12.000",
+      "lat": 57.7,
+      "lng": 12,
+      "name": "Gothenburg",
+      "country": "Sweden",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:27.679Z"
+    },
+    {
+      "key": "59.200,17.900",
+      "lat": 59.2,
+      "lng": 17.900000000000002,
+      "name": "Stockholm",
+      "country": "Sweden",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "59.300,18.000",
+      "lat": 59.300000000000004,
+      "lng": 18,
+      "name": "Stockholm",
+      "country": "Sweden",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.702Z"
+    },
+    {
+      "key": "59.300,18.100",
+      "lat": 59.3293,
+      "lng": 18.0686,
+      "name": "Stockholm",
+      "country": "Sweden",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "46.200,6.100",
+      "lat": 46.2044,
+      "lng": 6.1432,
+      "name": "Geneva",
+      "country": "Switzerland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "47.400,8.500",
+      "lat": 47.3769,
+      "lng": 8.5417,
+      "name": "Zurich",
+      "country": "Switzerland",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "13.800,100.500",
+      "lat": 13.7563,
+      "lng": 100.5018,
+      "name": "Bangkok",
+      "country": "Thailand",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "36.800,10.200",
+      "lat": 36.8065,
+      "lng": 10.1815,
+      "name": "Tunis",
+      "country": "Tunisia",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "39.200,9.300",
+      "lat": 39.2,
+      "lng": 9.3,
+      "name": "Tunis",
+      "country": "Tunisia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.200,9.400",
+      "lat": 39.2,
+      "lng": 9.4,
+      "name": "Tunis",
+      "country": "Tunisia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.200,9.600",
+      "lat": 39.2,
+      "lng": 9.600000000000001,
+      "name": "Tunis",
+      "country": "Tunisia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.300,9.600",
+      "lat": 39.300000000000004,
+      "lng": 9.600000000000001,
+      "name": "Tunis",
+      "country": "Tunisia",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.699Z"
+    },
+    {
+      "key": "39.900,32.900",
+      "lat": 39.9334,
+      "lng": 32.8597,
+      "name": "Ankara",
+      "country": "Turkey",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "36.900,30.700",
+      "lat": 36.8969,
+      "lng": 30.7133,
+      "name": "Antalya",
+      "country": "Turkey",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "41.000,28.800",
+      "lat": 41,
+      "lng": 28.8,
+      "name": "Bakırköy",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:28.833Z"
+    },
+    {
+      "key": "41.100,29.000",
+      "lat": 41.1,
+      "lng": 29,
+      "name": "Beşiktaş",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:04.167Z"
+    },
+    {
+      "key": "38.300,27.200",
+      "lat": 38.300000000000004,
+      "lng": 27.200000000000003,
+      "name": "Gaziemir",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:23.166Z"
+    },
+    {
+      "key": "40.900,29.100",
+      "lat": 40.900000000000006,
+      "lng": 29.1,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.000,28.900",
+      "lat": 41,
+      "lng": 28.900000000000002,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.000,29.000",
+      "lat": 41.0082,
+      "lng": 28.9784,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "41.000,29.100",
+      "lat": 41,
+      "lng": 29.1,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.200,29.000",
+      "lat": 41.2,
+      "lng": 29,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "41.200,29.100",
+      "lat": 41.2,
+      "lng": 29.1,
+      "name": "Istanbul",
+      "country": "Turkey",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "37.800,27.200",
+      "lat": 37.800000000000004,
+      "lng": 27.200000000000003,
+      "name": "Kuşadası",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:46.106Z"
+    },
+    {
+      "key": "37.800,27.300",
+      "lat": 37.800000000000004,
+      "lng": 27.3,
+      "name": "Kuşadası",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:46.745Z"
+    },
+    {
+      "key": "37.900,27.200",
+      "lat": 37.9,
+      "lng": 27.200000000000003,
+      "name": "Kuşadası",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:23.916Z"
+    },
+    {
+      "key": "40.900,29.300",
+      "lat": 40.900000000000006,
+      "lng": 29.3,
+      "name": "Pendik",
+      "country": "Turkey",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:09.739Z"
+    },
+    {
+      "key": "24.400,54.500",
+      "lat": 24.400000000000002,
+      "lng": 54.5,
+      "name": "Abu Dhabi",
+      "country": "UAE",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.701Z"
+    },
+    {
+      "key": "24.500,54.400",
+      "lat": 24.4539,
+      "lng": 54.3773,
+      "name": "Abu Dhabi",
+      "country": "UAE",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.200,55.300",
+      "lat": 25.2048,
+      "lng": 55.2708,
+      "name": "Dubai",
+      "country": "UAE",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "56.000,-3.200",
+      "lat": 55.9533,
+      "lng": -3.1883,
+      "name": "Edinburgh",
+      "country": "UK",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.500,-0.100",
+      "lat": 51.5074,
+      "lng": -0.1278,
+      "name": "London",
+      "country": "UK",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "51.900,0.200",
+      "lat": 51.900000000000006,
+      "lng": 0.2,
+      "name": "London",
+      "country": "UK",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.749Z"
+    },
+    {
+      "key": "51.900,0.300",
+      "lat": 51.900000000000006,
+      "lng": 0.30000000000000004,
+      "name": "London",
+      "country": "UK",
+      "source": "fallback",
+      "updatedAt": "2026-09-28T10:10:54.764Z"
+    },
+    {
+      "key": "53.500,-2.200",
+      "lat": 53.4808,
+      "lng": -2.2426,
+      "name": "Manchester",
+      "country": "UK",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "24.500,54.300",
+      "lat": 24.5,
+      "lng": 54.300000000000004,
+      "name": "Al Kasir",
+      "country": "United Arab Emirates",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:48.176Z"
+    },
+    {
+      "key": "24.400,54.600",
+      "lat": 24.400000000000002,
+      "lng": 54.6,
+      "name": "Al Matar",
+      "country": "United Arab Emirates",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.722Z"
+    },
+    {
+      "key": "24.500,54.600",
+      "lat": 24.5,
+      "lng": 54.6,
+      "name": "Al Matar",
+      "country": "United Arab Emirates",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:18.193Z"
+    },
+    {
+      "key": "37.700,-122.200",
+      "lat": 37.7,
+      "lng": -122.2,
+      "name": "Alameda",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:00.805Z"
+    },
+    {
+      "key": "37.300,-119.600",
+      "lat": 37.300000000000004,
+      "lng": -119.60000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.300,-119.700",
+      "lat": 37.300000000000004,
+      "lng": -119.7,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.300,-120.500",
+      "lat": 37.300000000000004,
+      "lng": -120.5,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.500,-119.800",
+      "lat": 37.5,
+      "lng": -119.80000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.500,-120.000",
+      "lat": 37.5,
+      "lng": -120,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.700,-119.500",
+      "lat": 37.7,
+      "lng": -119.5,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.700,-119.600",
+      "lat": 37.7,
+      "lng": -119.60000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.700,-119.700",
+      "lat": 37.7,
+      "lng": -119.7,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.800,-120.300",
+      "lat": 37.800000000000004,
+      "lng": -120.30000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.800,-122.200",
+      "lat": 37.800000000000004,
+      "lng": -122.2,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.800,-122.300",
+      "lat": 37.800000000000004,
+      "lng": -122.30000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "37.900,-122.200",
+      "lat": 37.9,
+      "lng": -122.2,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.900,-122.300",
+      "lat": 37.9,
+      "lng": -122.30000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:43.676Z"
+    },
+    {
+      "key": "37.900,-122.500",
+      "lat": 37.9,
+      "lng": -122.5,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.900,-122.600",
+      "lat": 37.9,
+      "lng": -122.60000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "38.000,-122.300",
+      "lat": 38,
+      "lng": -122.30000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "38.100,-122.200",
+      "lat": 38.1,
+      "lng": -122.2,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "38.600,-121.500",
+      "lat": 38.6,
+      "lng": -121.5,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "38.600,-122.600",
+      "lat": 38.6,
+      "lng": -122.60000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "38.700,-121.300",
+      "lat": 38.7,
+      "lng": -121.30000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.100,-119.900",
+      "lat": 39.1,
+      "lng": -119.9,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "39.200,-119.900",
+      "lat": 39.2,
+      "lng": -119.9,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "39.200,-120.100",
+      "lat": 39.2,
+      "lng": -120.10000000000001,
+      "name": "Berkeley",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "33.600,-84.400",
+      "lat": 33.6,
+      "lng": -84.4,
+      "name": "Clayton County",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:53.796Z"
+    },
+    {
+      "key": "38.900,-120.100",
+      "lat": 38.900000000000006,
+      "lng": -120.10000000000001,
+      "name": "El Dorado County",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:37.745Z"
+    },
+    {
+      "key": "44.900,-93.200",
+      "lat": 44.900000000000006,
+      "lng": -93.2,
+      "name": "Fort Snelling Unorganized Territory",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:42.215Z"
+    },
+    {
+      "key": "21.300,-157.800",
+      "lat": 21.3,
+      "lng": -157.8,
+      "name": "Honolulu",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:06.105Z"
+    },
+    {
+      "key": "21.300,-157.900",
+      "lat": 21.3,
+      "lng": -157.9,
+      "name": "Honolulu",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:01.809Z"
+    },
+    {
+      "key": "30.000,-90.200",
+      "lat": 30,
+      "lng": -90.2,
+      "name": "Kenner",
+      "country": "United States",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.700Z"
+    },
+    {
+      "key": "30.000,-90.300",
+      "lat": 30,
+      "lng": -90.30000000000001,
+      "name": "Kenner",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:35:16.762Z"
+    },
+    {
+      "key": "29.900,-90.100",
+      "lat": 29.900000000000002,
+      "lng": -90.10000000000001,
+      "name": "New Orleans",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-04-03T03:33:49.196Z"
+    },
+    {
+      "key": "30.000,-90.100",
+      "lat": 30,
+      "lng": -90.10000000000001,
+      "name": "New Orleans",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:42.842Z"
+    },
+    {
+      "key": "37.400,-121.900",
+      "lat": 37.4,
+      "lng": -121.9,
+      "name": "San Jose",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:59.769Z"
+    },
+    {
+      "key": "37.600,-122.400",
+      "lat": 37.6,
+      "lng": -122.4,
+      "name": "San Mateo County",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:05:59.806Z"
+    },
+    {
+      "key": "37.200,-113.000",
+      "lat": 37.2,
+      "lng": -113,
+      "name": "Springdale",
+      "country": "United States",
+      "source": "online",
+      "updatedAt": "2026-09-28T12:06:02.823Z"
+    },
+    {
+      "key": "33.700,-84.400",
+      "lat": 33.749,
+      "lng": -84.388,
+      "name": "Atlanta",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "42.400,-71.100",
+      "lat": 42.3601,
+      "lng": -71.0589,
+      "name": "Boston",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "41.900,-87.600",
+      "lat": 41.8781,
+      "lng": -87.6298,
+      "name": "Chicago",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "32.800,-96.800",
+      "lat": 32.7767,
+      "lng": -96.797,
+      "name": "Dallas",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "29.800,-95.400",
+      "lat": 29.7604,
+      "lng": -95.3698,
+      "name": "Houston",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "35.200,-113.900",
+      "lat": 35.2,
+      "lng": -113.9,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "35.200,-114.100",
+      "lat": 35.2,
+      "lng": -114.10000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "36.000,-112.100",
+      "lat": 36,
+      "lng": -112.10000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "36.100,-112.100",
+      "lat": 36.1,
+      "lng": -112.10000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "36.100,-115.100",
+      "lat": 36.1,
+      "lng": -115.10000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "36.100,-115.200",
+      "lat": 36.1,
+      "lng": -115.2,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "36.200,-115.100",
+      "lat": 36.1699,
+      "lng": -115.1398,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "36.800,-114.100",
+      "lat": 36.800000000000004,
+      "lng": -114.10000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "36.900,-111.400",
+      "lat": 36.9,
+      "lng": -111.4,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.705Z"
+    },
+    {
+      "key": "36.900,-111.500",
+      "lat": 36.9,
+      "lng": -111.5,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "37.200,-113.300",
+      "lat": 37.2,
+      "lng": -113.30000000000001,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.300,-112.900",
+      "lat": 37.300000000000004,
+      "lng": -112.9,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.600,-112.200",
+      "lat": 37.6,
+      "lng": -112.2,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.700,-112.400",
+      "lat": 37.7,
+      "lng": -112.4,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.800,-112.400",
+      "lat": 37.800000000000004,
+      "lng": -112.4,
+      "name": "Las Vegas",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "34.100,-118.200",
+      "lat": 34.0522,
+      "lng": -118.2437,
+      "name": "Los Angeles",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "25.800,-80.200",
+      "lat": 25.7617,
+      "lng": -80.1918,
+      "name": "Miami",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "40.700,-74.000",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "name": "New York",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "33.400,-112.100",
+      "lat": 33.4484,
+      "lng": -112.074,
+      "name": "Phoenix",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "21.300,-157.700",
+      "lat": 21.3,
+      "lng": -157.70000000000002,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.400,-157.700",
+      "lat": 21.400000000000002,
+      "lng": -157.70000000000002,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.400,-157.800",
+      "lat": 21.400000000000002,
+      "lng": -157.8,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.500,-158.000",
+      "lat": 21.5,
+      "lng": -158,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.600,-157.900",
+      "lat": 21.6,
+      "lng": -157.9,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.600,-158.100",
+      "lat": 21.6,
+      "lng": -158.10000000000002,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.600,-158.200",
+      "lat": 21.6,
+      "lng": -158.20000000000002,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "21.700,-158.000",
+      "lat": 21.700000000000003,
+      "lng": -158,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "36.500,-121.900",
+      "lat": 36.5,
+      "lng": -121.9,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "36.600,-121.900",
+      "lat": 36.6,
+      "lng": -121.9,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "36.700,-121.800",
+      "lat": 36.7,
+      "lng": -121.80000000000001,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.100,-121.700",
+      "lat": 37.1,
+      "lng": -121.7,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.400,-122.000",
+      "lat": 37.4,
+      "lng": -122,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.400,-122.100",
+      "lat": 37.4,
+      "lng": -122.10000000000001,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.697Z"
+    },
+    {
+      "key": "37.400,-122.200",
+      "lat": 37.4,
+      "lng": -122.2,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.700,-122.500",
+      "lat": 37.7,
+      "lng": -122.5,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.698Z"
+    },
+    {
+      "key": "37.800,-120.800",
+      "lat": 37.800000000000004,
+      "lng": -120.80000000000001,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.800,-121.200",
+      "lat": 37.800000000000004,
+      "lng": -121.2,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.704Z"
+    },
+    {
+      "key": "37.800,-122.400",
+      "lat": 37.7749,
+      "lng": -122.4194,
+      "name": "San Francisco",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "47.600,-122.300",
+      "lat": 47.6062,
+      "lng": -122.3321,
+      "name": "Seattle",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "38.900,-77.000",
+      "lat": 38.9072,
+      "lng": -77.0369,
+      "name": "Washington DC",
+      "country": "USA",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "10.500,-66.900",
+      "lat": 10.4806,
+      "lng": -66.9036,
+      "name": "Caracas",
+      "country": "Venezuela",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "21.000,105.800",
+      "lat": 21.0278,
+      "lng": 105.8342,
+      "name": "Hanoi",
+      "country": "Vietnam",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "10.800,106.600",
+      "lat": 10.8231,
+      "lng": 106.6297,
+      "name": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "source": "seed",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    {
+      "key": "10.800,106.700",
+      "lat": 10.8,
+      "lng": 106.7,
+      "name": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:10:14.694Z"
+    },
+    {
+      "key": "16.000,108.200",
+      "lat": 16,
+      "lng": 108.2,
+      "name": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "16.000,108.300",
+      "lat": 16,
+      "lng": 108.30000000000001,
+      "name": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "16.100,108.300",
+      "lat": 16.1,
+      "lng": 108.30000000000001,
+      "name": "Ho Chi Minh City",
+      "country": "Vietnam",
+      "source": "fallback",
+      "updatedAt": "2026-04-03T03:35:18.703Z"
+    },
+    {
+      "key": "16.100,108.200",
+      "lat": 16.1,
+      "lng": 108.2,
+      "name": "Hoi An",
+      "country": "Vietnam",
+      "source": "online",
+      "updatedAt": "2026-09-28T10:09:58.836Z"
+    }
+  ]
+}

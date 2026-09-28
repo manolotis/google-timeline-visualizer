@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run lint
+
+      - run: npm run test
+
+      # No personal data exists in CI (Timeline.json and public/data/ are
+      # gitignored and never committed); the build must succeed without them
+      # — EmptyState handles missing data at runtime, and vite build only
+      # copies public/data/ into dist/ when it's present.
+      - run: npm run build

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+Timeline.json
+public/data/*.json
+# Personal preprocess config (family-home coordinates); see timeline-config.example.json
+timeline-config.json
+*.tsbuildinfo
+
+# Claude Code agent worktrees
+.claude/worktrees/

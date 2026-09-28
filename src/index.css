@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+  }
+}
+
+/* Leaflet map overrides for dark theme */
+.leaflet-container {
+  background: #0a0a0f;
+}
+
+/* Visited-countries map (Overview): dark tooltip and zoom control */
+.leaflet-tooltip.country-tooltip {
+  @apply bg-gray-900 border-gray-700 text-gray-100 text-xs rounded-lg shadow-lg px-3 py-2;
+}
+.leaflet-tooltip-top.country-tooltip::before {
+  border-top-color: #374151;
+}
+.countries-map .leaflet-control-zoom.leaflet-bar {
+  @apply border border-gray-700 rounded-lg overflow-hidden;
+}
+.countries-map .leaflet-control-zoom.leaflet-bar a {
+  @apply bg-gray-900 text-gray-300 border-gray-700;
+}
+.countries-map .leaflet-control-zoom.leaflet-bar a:hover {
+  @apply bg-gray-800 text-white;
+}
+.countries-map .leaflet-control-zoom.leaflet-bar a.leaflet-disabled {
+  @apply bg-gray-900 text-gray-600;
+}
+
+/* Calendar heatmap cells */
+.cal-cell {
+  @apply rounded-sm;
+  width: 13px;
+  height: 13px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded;
+}
