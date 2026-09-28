@@ -5,7 +5,8 @@
  * walking, cycling, flight distance, trips), a visited-countries world map,
  * per-period bar charts for flights and nights away, a transport mode pie
  * chart with distance breakdown, and record highlights (longest trip,
- * furthest trip) — all for the globally selected time range.
+ * furthest trip, each linking to its trip page) — all for the globally
+ * selected time range.
  */
 import { useMemo } from 'react';
 import { useStats, useFlights, useVisits, useNightsAway, useTrips } from '../hooks/useData';
@@ -30,11 +31,44 @@ import {
   rangePeriods,
   statsBounds,
   periodNoun,
+  selectionToParams,
 } from '../timeRange';
+import { tripHref, type RouteParams } from '../route';
+import type { Trip } from '../types';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
+
+function TripHighlight({
+  title,
+  value,
+  trip,
+  rangeParams,
+}: {
+  title: string;
+  value: string;
+  trip: Trip;
+  rangeParams: RouteParams;
+}) {
+  return (
+    <a
+      href={tripHref(trip.startDate, rangeParams)}
+      className="group block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-orange-500/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/60"
+    >
+      <h3 className="flex items-center justify-between text-sm text-gray-400">
+        {title}
+        <span className="text-xs text-gray-600 group-hover:text-orange-400 transition-colors">
+          View trip ›
+        </span>
+      </h3>
+      <p className="text-xl font-bold text-white mt-1">{value}</p>
+      <p className="text-sm text-gray-500 mt-1">
+        {trip.startDate} → {trip.endDate}
+      </p>
+    </a>
+  );
+}
 
 export default function Overview() {
   const { data: stats, loading: sl, error } = useStats();
@@ -111,6 +145,7 @@ export default function Overview() {
   const km = (mode: string) => activity.distanceByMode[mode] ?? 0;
   const hours = (mode: string) => activity.durationByMode[mode] ?? 0;
   const noun = periodNoun(periods);
+  const rangeParams = selectionToParams(selection);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
@@ -228,28 +263,22 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Records */}
+      {/* Records, each linking to its trip's detail page */}
       {summary.longest && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <h3 className="text-sm text-gray-400">Longest Trip</h3>
-            <p className="text-xl font-bold text-white mt-1">
-              {summary.longest.nights} nights
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              {summary.longest.startDate} → {summary.longest.endDate}
-            </p>
-          </div>
+          <TripHighlight
+            title="Longest Trip"
+            value={`${summary.longest.nights} nights`}
+            trip={summary.longest}
+            rangeParams={rangeParams}
+          />
           {summary.furthest && (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <h3 className="text-sm text-gray-400">Furthest Trip</h3>
-              <p className="text-xl font-bold text-white mt-1">
-                {summary.furthest.maxDistKm.toLocaleString()} km from home
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                {summary.furthest.startDate} → {summary.furthest.endDate}
-              </p>
-            </div>
+            <TripHighlight
+              title="Furthest Trip"
+              value={`${summary.furthest.maxDistKm.toLocaleString()} km from home`}
+              trip={summary.furthest}
+              rangeParams={rangeParams}
+            />
           )}
         </div>
       )}

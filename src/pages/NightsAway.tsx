@@ -4,24 +4,32 @@
  * Renders per-year calendar heatmaps showing home/away status for each
  * night, a year selector (kept in the URL), and a list of detected trips
  * with their dates, place counts, and distance from home, restricted to the
- * globally selected time range. The home location is auto-detected during
- * preprocessing from INFERRED_HOME / HOME visit entries.
+ * globally selected time range; each trip links to its detail page
+ * (TripDetail). The home location is auto-detected during preprocessing
+ * from INFERRED_HOME / HOME visit entries.
  */
 import { useMemo } from 'react';
 import { useNightsAway, useTrips } from '../hooks/useData';
-import { setParams, useRoute } from '../route';
+import { setParams, tripHref, useRoute } from '../route';
 import CalendarHeatmap from '../components/CalendarHeatmap';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
 import { longestTrip, furthestTrip } from '../aggregate';
-import { useTimeRange, inRange, overlapsRange, intersectRanges, yearRange } from '../timeRange';
+import {
+  useTimeRange,
+  inRange,
+  overlapsRange,
+  intersectRanges,
+  yearRange,
+  selectionToParams,
+} from '../timeRange';
 
 export default function NightsAway() {
   const { data: nights, loading: nl, error } = useNightsAway();
   const { data: trips, loading: tl } = useTrips();
-  const { range } = useTimeRange();
+  const { selection, range } = useTimeRange();
 
   const rangeNights = useMemo(
     () => nights?.filter((n) => inRange(n.date, range)) ?? [],
@@ -83,6 +91,7 @@ export default function NightsAway() {
   const totalDaysYear = yearNights.length;
   const longest = longestTrip(rangeTrips);
   const furthest = furthestTrip(rangeTrips);
+  const rangeParams = selectionToParams(selection);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -151,12 +160,13 @@ export default function NightsAway() {
         ) : (
           <div className="space-y-2">
             {yearTrips.map((trip) => (
-              <div
+              <a
                 key={trip.startDate}
-                className="flex items-center justify-between bg-gray-800/50 rounded-lg px-4 py-3"
+                href={tripHref(trip.startDate, rangeParams)}
+                className="group flex items-center justify-between gap-3 bg-gray-800/50 rounded-lg px-4 py-3 border border-transparent hover:bg-gray-800 hover:border-orange-500/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/60"
               >
                 <div>
-                  <div className="text-sm text-gray-200">
+                  <div className="text-sm text-gray-200 group-hover:text-white">
                     {trip.startDate} → {trip.endDate}
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">
@@ -164,13 +174,16 @@ export default function NightsAway() {
                     {trip.maxDistKm.toLocaleString()} km from home
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-orange-400">
-                    {trip.nights}
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-orange-400">
+                      {trip.nights}
+                    </div>
+                    <div className="text-xs text-gray-500">nights</div>
                   </div>
-                  <div className="text-xs text-gray-500">nights</div>
+                  <span aria-hidden="true" className="text-gray-600 group-hover:text-orange-400 transition-colors">›</span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         )}

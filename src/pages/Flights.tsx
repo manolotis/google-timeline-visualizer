@@ -3,8 +3,7 @@
  *
  * Shows a sortable flight log table (sort order kept in the URL), summary
  * stats, and an interactive Leaflet map with great-circle arcs for each
- * flight route. Great-circle paths are computed using the Haversine-based
- * intermediate point formula for visually accurate curved arcs on the map.
+ * flight route (see flight.ts).
  */
 import { useMemo } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
@@ -15,39 +14,9 @@ import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
 import { summarizeActivities } from '../aggregate';
+import { greatCircleArc, formatDuration } from '../flight';
 import { useTimeRange, inRange } from '../timeRange';
 import 'leaflet/dist/leaflet.css';
-
-function greatCircleArc(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number,
-  numPoints = 50,
-): [number, number][] {
-  // Generate points along a great circle for curved flight paths
-  const toRad = (d: number) => (d * Math.PI) / 180;
-  const toDeg = (r: number) => (r * 180) / Math.PI;
-  const φ1 = toRad(lat1), λ1 = toRad(lng1);
-  const φ2 = toRad(lat2), λ2 = toRad(lng2);
-  const d = 2 * Math.asin(
-    Math.sqrt(
-      Math.sin((φ2 - φ1) / 2) ** 2 +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin((λ2 - λ1) / 2) ** 2
-    ),
-  );
-  if (d < 0.001) return [[lat1, lng1], [lat2, lng2]];
-
-  const points: [number, number][] = [];
-  for (let i = 0; i <= numPoints; i++) {
-    const f = i / numPoints;
-    const A = Math.sin((1 - f) * d) / Math.sin(d);
-    const B = Math.sin(f * d) / Math.sin(d);
-    const x = A * Math.cos(φ1) * Math.cos(λ1) + B * Math.cos(φ2) * Math.cos(λ2);
-    const y = A * Math.cos(φ1) * Math.sin(λ1) + B * Math.cos(φ2) * Math.sin(λ2);
-    const z = A * Math.sin(φ1) + B * Math.sin(φ2);
-    points.push([toDeg(Math.atan2(z, Math.sqrt(x * x + y * y))), toDeg(Math.atan2(y, x))]);
-  }
-  return points;
-}
 
 type SortField = 'date' | 'distance' | 'duration';
 type SortDir = 'asc' | 'desc';
@@ -239,11 +208,7 @@ export default function Flights() {
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-gray-300">{f.distanceKm.toLocaleString()} km</td>
-                  <td className="px-4 py-2.5 text-gray-300">
-                    {f.durationMin >= 60
-                      ? `${Math.floor(f.durationMin / 60)}h ${f.durationMin % 60}m`
-                      : `${f.durationMin}m`}
-                  </td>
+                  <td className="px-4 py-2.5 text-gray-300">{formatDuration(f.durationMin)}</td>
                 </tr>
               ))}
             </tbody>

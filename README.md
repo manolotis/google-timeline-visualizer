@@ -16,13 +16,13 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ### 🔗 Shareable Links & History
 - Every view has its own URL: the page, the time range, and per-page view settings live in the address bar's `#` hash, so **a reload restores exactly what you were looking at**, and a bookmark or shared link reproduces it (the URL holds view settings only, never your data, so a link opens wherever your copy of the dashboard runs)
-- One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`
+- One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`, plus one per trip, named by its first night: `#/trip?start=2024-03-14`
 - Time range as compact parameters: `?range=2024` (a year), `?range=last12m`, or `?from=2024-03-01&to=2024-06-30` (either side may be left out); All time adds nothing
 - Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), and Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), e.g. `#/flights?range=2024&sort=distance`
 - Only settings that differ from the defaults are written, so an untouched page stays a clean `#/overview`
 - Browser **back/forward** step through page and time-range changes (typing a custom date range counts as one step); sorting, year picks, and layer toggles update the current entry instead of piling up history
 - The nav tabs are real links: middle-click or Ctrl/⌘-click opens a page in a new tab with the current time range. The browser tab title names the page and range, which also names your bookmarks
-- Unknown pages fall back to the Overview for all time, and unreadable parameters are ignored, so a mistyped link never breaks the app
+- Unknown pages fall back to the Overview for all time, and unreadable parameters are ignored, so a mistyped link never breaks the app. A trip link whose date falls inside a trip opens that trip (so links survive trips being regrouped by a later preprocess run); one that matches no trip opens that year's trip list
 
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
@@ -34,7 +34,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
   - Country borders are bundled with the app (no extra network requests)
 - Per-year (or per-month) bar charts for flights taken and nights spent away
 - Transport mode pie chart and distance breakdown
-- Longest and furthest trip highlights
+- Longest and furthest trip highlights, each opening its [trip detail page](#-trip-detail)
 
 ### ✈️ Flights
 - Full log of every flight detected in the selected range
@@ -47,8 +47,17 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
 - Year-by-year selector (years within the selected range) with per-year count and percentage
 - Auto-detection of **home location** from Google's `INFERRED_HOME` data
-- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it)
+- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it); click a trip (or Tab to it and press Enter) to open its [detail page](#-trip-detail)
 - Range stats: total nights away, total trips, longest trip, furthest trip
+
+### 🧳 Trip Detail
+- One page per trip, opened from the Nights Away trip list or the Overview highlights, with its own shareable URL (`#/trip?start=2024-03-14`); browser back returns to where you came from, and **← Trips in 2024** goes to that year's trip list
+- Header with the dates, nights away, return day, farthest distance from home (and where), cities, countries, places visited, total distance traveled, and flights taken
+- **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home; the legend lists the distance covered per mode
+- **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
+- **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
+- **Flights** taken during the trip, in order, with departure time, cities, distance, and duration
+- Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
 
 ### 🗺️ Travel Map
 - Full-screen interactive Leaflet map with dark CARTO basemap
@@ -223,6 +232,8 @@ timeline-visualizer/
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
 │   ├── timeRange.ts           # Global time range: selection model, URL params, context, date/period helpers
 │   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, series)
+│   ├── trip.ts                # Trip detail: finds a trip by date, derives its map, nights, cities, flights
+│   ├── flight.ts              # Great-circle arcs and duration formatting for flights
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
 │   │   └── useData.ts         # Cached fetch hooks for each data file
@@ -240,6 +251,7 @@ timeline-visualizer/
 │       ├── Flights.tsx        # Flight log table + great-circle arc map
 │       ├── Geography.tsx      # Countries/cities by days spent
 │       ├── NightsAway.tsx     # Calendar heatmap + trip list
+│       ├── TripDetail.tsx     # One trip: map, night-by-night stops, cities, flights
 │       ├── TravelMap.tsx      # Full-screen map with route/mode/place layers
 │       └── Statistics.tsx     # Detailed charts, patterns, and top places
 ├── package.json
@@ -254,7 +266,6 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
-- **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Multi-home support** — home periods over time instead of a single static home, for people who have moved
 - **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight

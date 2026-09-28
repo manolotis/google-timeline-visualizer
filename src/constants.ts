@@ -1,10 +1,13 @@
 /**
- * Shared UI constants: transport mode colors/labels and chart styling.
+ * Shared UI constants: transport mode colors/labels, the night palette, and
+ * chart styling.
  *
- * Single source of truth for the mode palette used by the Overview,
- * Travel Map, and Statistics pages. Keys match the activity `type` values
- * in the raw Timeline.json export.
+ * Single source of truth for the mode palette used by the Overview, Travel
+ * Map, Statistics, and trip pages. Keys match the activity `type` values in
+ * the raw Timeline.json export.
  */
+
+export const APP_TITLE = 'Timeline Visualizer';
 
 export const MODE_COLORS: Record<string, string> = {
   FLYING: '#f59e0b',
@@ -43,6 +46,18 @@ export const MODE_LABELS: Record<string, string> = {
 };
 
 export const FALLBACK_MODE_COLOR = '#6b7280';
+
+/** Nights at home (calendar heatmap, trip itinerary). */
+export const HOME_NIGHT_COLOR = '#1a1a2e';
+
+/** Away nights by distance from home, near (≤ 100 km) → far (> 1000 km). */
+export const AWAY_NIGHT_COLORS = ['#fdba74', '#fb923c', '#f97316'] as const;
+
+export function nightColor(night: { isHome: boolean; distKm?: number }): string {
+  if (night.isHome) return HOME_NIGHT_COLOR;
+  const km = night.distKm ?? 0;
+  return AWAY_NIGHT_COLORS[km > 1000 ? 2 : km > 100 ? 1 : 0];
+}
 
 /** Recharts <Tooltip> styling for the dark theme. */
 export const CHART_TOOLTIP_STYLE = {
