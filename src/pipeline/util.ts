@@ -5,7 +5,7 @@
 import type { RawSegment } from './types';
 
 export function parseLatLng(s: string): [number, number] {
-  // "40.6013752°, -3.7080549°" → [40.6013752, -3.7080549]
+  // "48.8583701°, 2.2944813°" → [48.8583701, 2.2944813]
   const parts = s.replace(/°/g, '').split(',').map((p) => parseFloat(p.trim()));
   return [parts[0], parts[1]];
 }

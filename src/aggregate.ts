@@ -196,7 +196,7 @@ export function homePeriodYears(period: HomePeriod): string {
   return from === to ? from : `${from}–${to}`;
 }
 
-/** "Eindhoven, Netherlands", falling back to coordinates. */
+/** "Utrecht, Netherlands", falling back to coordinates. */
 export function homePlaceName(period: HomePeriod): string {
   if (period.city) return period.country ? `${period.city}, ${period.country}` : period.city;
   return `${period.lat.toFixed(4)}, ${period.lng.toFixed(4)}`;

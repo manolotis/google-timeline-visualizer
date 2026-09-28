@@ -65,7 +65,7 @@ Everything you can currently see and do with the tool, page by page.
 
 - **Multi-home support** — "home" is wherever you lived at the time. Home periods are detected automatically (see [Home Periods](#home-periods)), so after a move your new place counts as home and the old one becomes a destination like any other
   - Every night, trip distance and away-night country is measured against the home of that night's period
-  - The page header lists the homes that apply to the selected range, e.g. "Eindhoven, Netherlands (2014–2026) → Tres Cantos, Spain (since 2026)"
+  - The page header lists the homes that apply to the selected range, e.g. "Utrecht, Netherlands (2016–2022) → Lyon, France (since 2022)"
 - **Family homes** — mark places you keep going back to without living there, like your parents' house every Christmas, in an optional config file (see [Family Homes](#family-homes)). Nights there are never "away":
   - They don't count as nights away (totals, percentages, per-year charts, the away-night geography) and never form or extend a trip: a Christmas stay there is no trip at all, and a trip with a stopover there splits in two
   - They are their own kind of night, neither home nor away: a teal square on the calendar heatmap, their own count next to the nights away, and a line in the page header naming the family homes stayed at in the range
@@ -81,8 +81,8 @@ Everything you can currently see and do with the tool, page by page.
 - One page per trip, opened from the Nights Away trip list or the Overview highlights, with its own shareable URL (`#/trip?start=2024-03-14`); browser back returns to where you came from, and **← Trips in 2024** goes to that year's trip list
 - Header with the dates, nights away, return day, farthest distance from home (and where), cities, countries, places visited, total distance traveled, and flights taken
 - **Trip map** (dark Esri basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home (or the family home the trip left from); the legend lists the distance covered per mode
-- A trip that ends at a family home says so ("then 🏡 Tres Cantos from …") instead of "back home"
-- **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
+- A trip that ends at a family home says so ("then 🏡 Grandma's from …") instead of "back home"
+- **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Annecy, France · 3 nights"
 - **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
 - **Flights** taken during the trip, in order, with local departure time, IATA route labels (city as a sub-label), distance, and duration
 - Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
@@ -93,7 +93,7 @@ Everything you can currently see and do with the tool, page by page.
 - Thousands of route segments drawn on a canvas, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
 - Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
-- A home marker for every home that applies to the selected range, labelled with the years you lived there (e.g. "Home 2014–2026", "Home since 2026")
+- A home marker for every home that applies to the selected range, labelled with the years you lived there (e.g. "Home 2016–2022", "Home since 2022")
 - A teal ring for every [family home](#family-homes) stayed at in the selected range, labelled with its name
 - **▶ Playback** — watch your travel history draw itself. The Playback button opens a player bar over the map that replays the selected range (all your data for All time) in chronological order:
   - Segments appear as the date passes their start. The newest glow wider and brighter for about a second before settling into their normal style, and a dot marks where the latest one ended, so your eye can follow the movement
@@ -290,6 +290,8 @@ Resolution order for each location:
 3. Nearest known city fallback from offline DB/seed data
 
 When an online lookup resolves a previously unseen location, `npm run preprocess` writes it back to the offline DB. This means the database keeps improving over time and future runs — command line and in-browser alike, since the app bundles the committed file — can resolve more locations without internet.
+
+The database's online-resolved entries are derived from [OpenStreetMap](https://www.openstreetmap.org/copyright) data via Nominatim — © OpenStreetMap contributors, available under the [Open Database License](https://opendatacommons.org/licenses/odbl/). Note that the committed file grows with the places *your* preprocess runs resolve, so committing it publishes the (city-level) set of areas your timeline touches — see [Privacy](#privacy).
 
 The **in-browser import never looks anything up online**: it resolves cities from the bundled offline DB only (step 2 is skipped) and never writes the DB back. That keeps the privacy promise (your coordinates don't leave the browser) and Nominatim's usage policy. Places the DB doesn't cover get the nearest known city, exactly as in an offline command-line run (`CITY_DB_ENABLE_ONLINE=0`), whose output the import reproduces byte for byte. If your travels reach places the DB doesn't know, a command-line run with online lookups improves the DB; commit it, and later imports benefit too.
 
@@ -495,3 +497,9 @@ timeline-visualizer/
 ## Privacy
 
 All data processing happens locally on your machine. The in-browser import reads your file and processes it inside your browser (a Web Worker); the result is stored in your browser's IndexedDB, for this site only, until you use **Clear imported data** (or clear the site's data in your browser). It never looks places up online. The only external requests are for map tiles (Esri dark basemap) and, with the command-line `npm run preprocess` only, optional Nominatim reverse geocoding (coordinates only, rate-limited); the world map's country borders, the city database and the airport list ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
+
+Two things *are* meant to be committed, so mind them if your fork is public: `scripts/data/offline-city-db.json` grows with the places your online preprocess runs resolve (a city-level footprint of where your timeline has been — trim it back to the stock file if you'd rather not share that), and a build made after `npm run preprocess` contains your `public/data/` inside `dist/`, so only deploy an import-only build (or deploy privately).
+
+## License
+
+The code is released under the [MIT License](LICENSE). The committed data files have their own terms: `public/world-countries.geo.json` derives from [Natural Earth](https://www.naturalearthdata.com/) (public domain), `scripts/data/airports.json` from [OurAirports](https://ourairports.com/data/) (public domain), and the online-resolved entries of `scripts/data/offline-city-db.json` from © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors ([ODbL](https://opendatacommons.org/licenses/odbl/)).
