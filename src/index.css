@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+  }
+}
+
+/* Leaflet map overrides for dark theme */
+.leaflet-container {
+  background: #0a0a0f;
+}
+
+/* Calendar heatmap cells */
+.cal-cell {
+  @apply rounded-sm;
+  width: 13px;
+  height: 13px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded;
+}

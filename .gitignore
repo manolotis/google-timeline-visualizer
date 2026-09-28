@@ -1,0 +1,5 @@
+node_modules/
+dist/
+Timeline.json
+public/data/*.json
+*.tsbuildinfo
