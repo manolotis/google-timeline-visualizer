@@ -17,9 +17,9 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ### 🔗 Shareable Links & History
 - Every view has its own URL: the page, the time range, and per-page view settings live in the address bar's `#` hash, so **a reload restores exactly what you were looking at**, and a bookmark or shared link reproduces it (the URL holds view settings only, never your data, so a link opens wherever your copy of the dashboard runs)
-- One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`, plus one per trip, named by its first night: `#/trip?start=2024-03-14`
+- One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`, `#/compare`, plus one per trip, named by its first night: `#/trip?start=2024-03-14`
 - Time range as compact parameters: `?range=2024` (a year), `?range=last12m`, or `?from=2024-03-01&to=2024-06-30` (either side may be left out); All time adds nothing
-- Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), and whether the Travel Map player is open (`playback=on`), e.g. `#/flights?range=2024&sort=distance`
+- Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), whether the Travel Map player is open (`playback=on`), and the Compare page's two years (`a=2024&b=2025`, ignoring the global range — see [Compare Years](#-compare-years)), e.g. `#/flights?range=2024&sort=distance`
 - Only settings that differ from the defaults are written, so an untouched page stays a clean `#/overview`
 - Browser **back/forward** step through page and time-range changes (typing a custom date range counts as one step); sorting, year picks, layer toggles, and opening the player update the current entry instead of piling up history
 - The nav tabs are real links: middle-click or Ctrl/⌘-click opens a page in a new tab with the current time range. The browser tab title names the page and range, which also names your bookmarks
@@ -102,6 +102,14 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Country table also lists **days present** in the range (home time included), the measure behind the Overview world map
 - Country name variants from different sources ("USA" / "United States", "Czechia" / "Czech Republic") are merged by ISO code
 - Uses a self-updating offline city database so known locations are reused offline
+
+### ⚖️ Compare Years
+- Two full calendar years, side by side, with its own shareable URL (`#/compare?a=2024&b=2025`); year pickers default to the two most recent **full** years in your data (fully covered start-to-end), with a swap button
+- **Ignores the global time range** (the picker stays usable and a small note says so, the same pattern as the trip detail page) — a year here is always compared in full, whatever period is selected elsewhere
+- **Side-by-side stat rows** with delta badges (an arrow plus a percent, or "+N" when the earlier year was zero): total distance, flights, flight distance, estimated CO₂, nights away and the percentage of the year spent away, trips, unique places, countries/cities visited, and new countries/cities that year (each a *lifetime* first-visit year, like the Statistics page's Firsts & Streaks)
+- **Distance by mode**, as both stat rows and a grouped horizontal bar chart, for the top modes by combined distance across both years
+- **Overlaid monthly charts** — distance and nights away, month-of-year on the x-axis, one line per year — so seasonal patterns line up even when the two years are far apart
+- Year A is always orange, Year B always sky-blue, consistently across every row and chart on the page
 
 ## Architecture
 
@@ -370,7 +378,8 @@ timeline-visualizer/
 │       ├── NightsAway.tsx     # Calendar heatmap + trip list
 │       ├── TripDetail.tsx     # One trip: map, night-by-night stops, cities, flights
 │       ├── TravelMap.tsx      # Full-screen map with route/mode/place layers and playback
-│       └── Statistics.tsx     # Detailed charts, patterns, and top places
+│       ├── Statistics.tsx     # Detailed charts, patterns, and top places
+│       └── Compare.tsx        # Two calendar years side by side: stat rows, overlaid monthly charts, mode split
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -384,7 +393,6 @@ timeline-visualizer/
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
-- **Year-vs-year comparison** view
 - Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
 
 ## Privacy
