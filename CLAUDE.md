@@ -37,6 +37,7 @@ Raw input format: on-device Timeline export with a top-level `semanticSegments` 
 - Shared UI constants (transport-mode colors/labels, chart tooltip style) live in `src/constants.ts` — don't re-declare them in pages.
 - Preprocessing loads the entire Timeline.json into memory with `JSON.parse`; fine on a dev machine, just slow — don't add per-segment async work outside the existing CityResolver batching.
 - Flight/route paths come from the *preceding* segment's `timelinePath` (index `i - 1`), a quirk of the export format.
+- README's **Features** section is the canonical user-facing list of what the app can do. Whenever a Roadmap item is implemented, move it out of Roadmap and describe it under Features in the same change — keep the two sections in sync.
 
 ## Style
 

@@ -4,6 +4,8 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 
 ## Features
 
+Everything you can currently see and do with the tool, page by page. Planned additions live in the [Roadmap](#roadmap); when a roadmap item ships, it moves up into this list.
+
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
 - "Times around the Earth" distance comparison
@@ -203,7 +205,7 @@ timeline-visualizer/
 
 ## Roadmap
 
-Planned improvements, roughly in priority order:
+Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted, color intensity by days spent on a logarithmic (or quantile) scale so home/long-stay countries don't wash out briefly-visited ones
 - **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
