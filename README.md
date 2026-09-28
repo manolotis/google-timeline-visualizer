@@ -6,50 +6,57 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 
 Everything you can currently see and do with the tool, page by page. Planned additions live in the [Roadmap](#roadmap); when a roadmap item ships, it moves up into this list.
 
+### 📅 Global Time Range
+- One **date-range picker in the top bar**, visible on every page: pick a period once and every stat card, chart, table, heatmap, and map shows only that period
+- Presets for **All time** (the default), **Last 12 months** (up to your newest data), and **each year** in your data, plus **custom start/end dates** (leave one side empty for an open-ended range)
+- The selection persists while you switch pages; the ✕ next to the picker resets to All time
+- Trend charts adapt their granularity: per year for long ranges, **per month** for ranges up to three years
+- Day-precise: every number is recomputed from dated per-record data, so a custom range is exact rather than rounded to whole months, and All time reproduces the unfiltered totals exactly
+- A "no data in this range" hint (with a one-click reset) instead of empty charts when a period has nothing recorded
+
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
 - "Times around the Earth" distance comparison
-- **Visited-countries world map** — choropleth with every visited country highlighted, colored by days present (home time, day trips and layovers included) on a **quantile scale**, so a weekend trip stays clearly visible next to countries you've lived in for years
-  - Hover a country for its name, days present, and nights away from home; non-visited countries show as neutral gray
+- **Visited-countries world map** — choropleth with every country visited in the selected range highlighted, colored by days present in that range (home time, day trips and layovers included) on a **quantile scale** recomputed per range, so a weekend trip stays clearly visible next to countries you've lived in for years
+  - Hover a country for its name, days present, and nights away from home within the range; countries not visited in the range show as neutral gray
   - Compact legend with the day range of each color class; zoom in to explore dense regions like Europe (scroll-wheel zoom is off so the page still scrolls)
   - Countries too small to see at world zoom (e.g. Andorra) also get a dot
   - Country borders are bundled with the app (no extra network requests)
-- Yearly bar charts for flights taken and nights spent away
+- Per-year (or per-month) bar charts for flights taken and nights spent away
 - Transport mode pie chart and distance breakdown
 - Longest and furthest trip highlights
 
 ### ✈️ Flights
-- Full log of every flight detected in your timeline data
-- Sortable table by date, distance, or duration with year filter
+- Full log of every flight detected in the selected range
+- Sortable table by date, distance, or duration
 - Interactive world map with **great-circle arcs** for each flight route
 - Origin/destination coordinate markers with resolved city names
 - Summary stats: total flights, total distance, most repeated route, average duration
 
 ### 🌙 Nights Away from Home
-- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away)
-- Year-by-year selector with per-year count and percentage
+- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
+- Year-by-year selector (years within the selected range) with per-year count and percentage
 - Auto-detection of **home location** from Google's `INFERRED_HOME` data
-- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count
-- All-time stats: total nights away, total trips, longest trip, furthest trip
+- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it)
+- Range stats: total nights away, total trips, longest trip, furthest trip
 
 ### 🗺️ Travel Map
 - Full-screen interactive Leaflet map with dark CARTO basemap
 - Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
-- Year range filter (derived from your data) to explore specific time periods
-- Place markers (top 500 visited locations) sized by visit frequency, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
+- Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
 - Home marker with permanent label
 
 ### 📈 Statistics
-- Distance and activity count by transport mode (horizontal bar charts, individually colored)
-- Yearly distance traveled (line chart) and unique places per year (bar chart)
+- Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
+- Distance traveled (line chart) and unique places visited (bar chart) per year, or per month for shorter ranges
 - Day-of-week radar chart showing activity distribution
 - Hour-of-day bar chart for movement patterns
-- Top 20 most visited places table showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
+- Top 20 most visited places in the range, showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
 
 ### 🧭 Geography
-- Countries and cities ranked by total away-days, with summary cards and full share-of-total tables
-- Country table also lists **days present** (home time included), the measure behind the Overview world map
+- Countries and cities ranked by away-days in the selected range, with summary cards and full share-of-total tables
+- Country table also lists **days present** in the range (home time included), the measure behind the Overview world map
 - Country name variants from different sources ("USA" / "United States", "Czechia" / "Czech Republic") are merged by ISO code
 - Uses a self-updating offline city database so known locations are reused offline
 
@@ -70,18 +77,20 @@ Timeline.json (raw Google export)
  React + Vite SPA        ← Static site, loads JSON via fetch
 ```
 
+Because every page respects the global time range, the preprocessor emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Record dates are the event-local calendar date taken from the export's timestamps; nights use the per-night key from `nights-away.json`, and days present (see [World Country Geometry](#world-country-geometry)) use UTC calendar dates.
+
 ### Generated Data Files
 
 | File | Description |
 |---|---|
 | `home.json` | Auto-detected home coordinates (from `INFERRED_HOME` / `HOME` visits) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
-| `visits.json` | Deduplicated places with visit counts, total time spent, and resolved city/country name |
+| `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
 | `nights-away.json` | Per-date home/away classification with distance from home |
-| `geography.json` | Countries/cities ranked by away-days spent there; each country also carries its ISO alpha-3 code and total days present (home included) |
+| `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
 | `trips.json` | Consecutive away-nights grouped into trips |
 | `routes.json` | All movement segments with polyline points and transport mode |
-| `stats.json` | Pre-computed aggregates: yearly trends, distance by mode, top places, activity patterns |
+| `stats.json` | Column-oriented log of every activity (date, start hour, mode, distance, duration) that the statistics are computed from |
 
 ### World Country Geometry
 
@@ -94,7 +103,7 @@ npx mapshaper ne_50m_admin_0_countries.geojson -simplify 12% weighted keep-shape
 
 Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The preprocessor matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `scripts/preprocess.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and warns about any country it can't place on the map.
 
-Days present counts every calendar day (UTC) with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries.
+Days present counts every calendar day (UTC) with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries. `geography.json` stores which countries were present on each date, so the map and the Geography table count days present for whatever time range is selected.
 
 ### Offline City Database
 
@@ -201,6 +210,8 @@ timeline-visualizer/
 │   ├── App.tsx                # Root component with top-bar page navigation
 │   ├── types.ts               # TypeScript interfaces for all data shapes
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
+│   ├── timeRange.ts           # Global time range: selection model, context, date/period helpers
+│   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, series)
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
 │   │   └── useData.ts         # Cached fetch hooks for each data file
@@ -208,6 +219,9 @@ timeline-visualizer/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
 │   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
+│   │   ├── TimeRangeProvider.tsx # Holds the global range above the page switch
+│   │   ├── TimeRangeControl.tsx  # Top-bar range picker (presets + custom dates)
+│   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
 │   │   ├── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
 │   │   └── VisitedCountriesMap.tsx # Visited-countries choropleth (Overview)
 │   └── pages/
@@ -229,8 +243,7 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
-- **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
-- **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
+- **URL routing & shareable state** — hash-based routing so page/time-range selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Multi-home support** — home periods over time instead of a single static home, for people who have moved

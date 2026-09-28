@@ -3,21 +3,27 @@
  *
  * Renders a grid of 52–53 weekly columns × 7 day rows for a given year.
  * Each cell is colored based on whether the user was home (dark) or away
- * (orange gradient by distance from home). Includes month labels, day
- * labels, and a color legend.
+ * (orange gradient by distance from home). Days outside the optional
+ * `range` are drawn as faint outlines. Includes month labels, day labels,
+ * and a color legend.
  */
 import { useMemo } from 'react';
 import type { NightEntry } from '../types';
+import { inRange, type DateRange } from '../timeRange';
 
 interface Props {
   nights: NightEntry[];
   year: number;
+  /** Days outside this range are shown as excluded */
+  range?: DateRange;
 }
 
 const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+const OPEN_RANGE: DateRange = { start: null, end: null };
+const EXCLUDED_STYLE = { backgroundColor: 'transparent', boxShadow: 'inset 0 0 0 1px #1f2937' };
 
-export default function CalendarHeatmap({ nights, year }: Props) {
+export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Props) {
   const grid = useMemo(() => {
     const map = new Map(nights.map(n => [n.date, n]));
     // Build weeks for the year
@@ -33,9 +39,11 @@ export default function CalendarHeatmap({ nights, year }: Props) {
     const cur = new Date(gridStart);
 
     while (cur <= end || week.length > 0) {
-      const key = cur.toISOString().slice(0, 10);
-      const inRange = cur >= start && cur <= end;
-      week.push(inRange ? (map.get(key) ?? { date: key, isHome: true }) : null);
+      // Key by the cell's own calendar date (not toISOString, which shifts
+      // by a day east of UTC) so the grid holds exactly the year's night keys
+      const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
+      const inYear = cur >= start && cur <= end;
+      week.push(inYear ? (map.get(key) ?? { date: key, isHome: true }) : null);
 
       if (week.length === 7) {
         weeks.push(week);
@@ -48,6 +56,11 @@ export default function CalendarHeatmap({ nights, year }: Props) {
     return weeks;
   }, [nights, year]);
 
+  const hasExcluded = useMemo(
+    () => grid.some((week) => week.some((day) => day !== null && !inRange(day.date, range))),
+    [grid, range],
+  );
+
   // Month label positions
   const monthPositions = useMemo(() => {
     const positions: { label: string; col: number }[] = [];
@@ -55,7 +68,7 @@ export default function CalendarHeatmap({ nights, year }: Props) {
     grid.forEach((week, wi) => {
       for (const day of week) {
         if (day) {
-          const m = new Date(day.date).getMonth();
+          const m = parseInt(day.date.slice(5, 7), 10) - 1;
           if (m !== lastMonth) {
             positions.push({ label: MONTH_LABELS[m], col: wi });
             lastMonth = m;
@@ -94,24 +107,33 @@ export default function CalendarHeatmap({ nights, year }: Props) {
           {/* Grid */}
           {grid.map((week, wi) => (
             <div key={wi} className="flex flex-col gap-0.5">
-              {week.map((day, di) => (
-                <div
-                  key={di}
-                  className="cal-cell"
-                  title={day ? `${day.date}: ${day.isHome ? 'Home' : `Away (${day.distKm ?? '?'} km)`}` : ''}
-                  style={{
-                    backgroundColor: !day
-                      ? 'transparent'
-                      : day.isHome
-                        ? '#1a1a2e'
-                        : day.distKm && day.distKm > 1000
-                          ? '#f97316'
-                          : day.distKm && day.distKm > 100
-                            ? '#fb923c'
-                            : '#fdba74',
-                  }}
-                />
-              ))}
+              {week.map((day, di) =>
+                day && !inRange(day.date, range) ? (
+                  <div
+                    key={di}
+                    className="cal-cell"
+                    title={`${day.date}: outside the selected range`}
+                    style={EXCLUDED_STYLE}
+                  />
+                ) : (
+                  <div
+                    key={di}
+                    className="cal-cell"
+                    title={day ? `${day.date}: ${day.isHome ? 'Home' : `Away (${day.distKm ?? '?'} km)`}` : ''}
+                    style={{
+                      backgroundColor: !day
+                        ? 'transparent'
+                        : day.isHome
+                          ? '#1a1a2e'
+                          : day.distKm && day.distKm > 1000
+                            ? '#f97316'
+                            : day.distKm && day.distKm > 100
+                              ? '#fb923c'
+                              : '#fdba74',
+                    }}
+                  />
+                ),
+              )}
             </div>
           ))}
         </div>
@@ -122,6 +144,12 @@ export default function CalendarHeatmap({ nights, year }: Props) {
           <div className="cal-cell" style={{ backgroundColor: '#fb923c' }} />
           <div className="cal-cell" style={{ backgroundColor: '#f97316' }} />
           <span>Far away</span>
+          {hasExcluded && (
+            <>
+              <div className="cal-cell ml-3" style={EXCLUDED_STYLE} />
+              <span>Outside range</span>
+            </>
+          )}
         </div>
       </div>
     </div>

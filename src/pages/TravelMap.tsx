@@ -1,18 +1,22 @@
 /**
  * Travel Map page — full-screen interactive route visualization.
  *
- * Renders all movement segments on a Leaflet map with CARTO dark tiles.
- * Routes are color-coded by transport mode (15 types). Controls include
- * year range filtering, per-mode toggles, and a place marker layer.
- * Route polylines are downsampled to max 50 points each during
- * preprocessing to keep the total payload manageable (~3MB).
+ * Renders the movement segments in the globally selected time range on a
+ * Leaflet map with CARTO dark tiles. Routes are color-coded by transport
+ * mode (15 types). Controls include per-mode toggles and a layer of the
+ * places visited in the range. Route polylines are downsampled to max 50
+ * points each during preprocessing to keep the total payload manageable
+ * (~3MB).
  */
 import { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { useRoutes, useVisits, useHome } from '../hooks/useData';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
+import NoDataInRange from '../components/NoDataInRange';
 import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR } from '../constants';
+import { summarizeVisits, isHomePlace } from '../aggregate';
+import { useTimeRange, inRange } from '../timeRange';
 import 'leaflet/dist/leaflet.css';
 
 // Fit map bounds to data
@@ -32,9 +36,10 @@ function FitBounds({ coords }: { coords: [number, number][] }) {
 }
 
 export default function TravelMap() {
-  const { data: routes, loading: rl } = useRoutes();
+  const { data: routes, loading: rl, error } = useRoutes();
   const { data: visits, loading: vl } = useVisits();
   const { data: home } = useHome();
+  const { range } = useTimeRange();
 
   const allModes = useMemo(() => {
     if (!routes) return [];
@@ -42,28 +47,10 @@ export default function TravelMap() {
     return [...s].sort();
   }, [routes]);
 
-  // Year span present in the data (fallback covers the empty/loading case)
-  const [minYear, maxYear] = useMemo(() => {
-    if (!routes || routes.length === 0) {
-      const y = new Date().getFullYear();
-      return [y, y];
-    }
-    let min = Infinity;
-    let max = -Infinity;
-    for (const r of routes) {
-      const y = new Date(r.startTime).getFullYear();
-      if (y < min) min = y;
-      if (y > max) max = y;
-    }
-    return [min, max];
-  }, [routes]);
-
   // Per-mode user toggles layered over the default (major modes on,
   // walking/unknown off) so no state initialization is needed on load.
   const [modeOverrides, setModeOverrides] = useState<Map<string, boolean>>(new Map());
-  const [yearRange, setYearRange] = useState<[number, number] | null>(null);
   const [showVisits, setShowVisits] = useState(true);
-  const [fromYear, toYear] = yearRange ?? [minYear, maxYear];
 
   const activeModes = useMemo(() => {
     const active = new Set(allModes.filter(
@@ -76,25 +63,27 @@ export default function TravelMap() {
     return active;
   }, [allModes, modeOverrides]);
 
-  const filteredRoutes = useMemo(() => {
-    if (!routes) return [];
-    return routes.filter((r) => {
-      if (!activeModes.has(r.mode)) return false;
-      const y = new Date(r.startTime).getFullYear();
-      return y >= fromYear && y <= toYear;
-    });
-  }, [routes, activeModes, fromYear, toYear]);
+  const rangeRoutes = useMemo(
+    () => routes?.filter((r) => inRange(r.startTime.slice(0, 10), range)) ?? [],
+    [routes, range],
+  );
 
-  const filteredVisits = useMemo(() => {
-    if (!visits || !showVisits) return [];
-    return visits
-      .filter((v) => {
-        const y = new Date(v.firstVisit).getFullYear();
-        return y >= fromYear && y <= toYear;
-      })
-      .filter((v) => v.semanticType !== 'INFERRED_HOME' && v.semanticType !== 'HOME')
-      .slice(0, 500); // cap for performance
-  }, [visits, showVisits, fromYear, toYear]);
+  const filteredRoutes = useMemo(
+    () => rangeRoutes.filter((r) => activeModes.has(r.mode)),
+    [rangeRoutes, activeModes],
+  );
+
+  // Places visited in the range, most visited (in the range) first;
+  // visit counts and hours on the markers are for the range too
+  const rangePlaces = useMemo(
+    () => (visits ? summarizeVisits(visits, range).places.filter((p) => !isHomePlace(p.semanticType)) : []),
+    [visits, range],
+  );
+
+  const filteredVisits = useMemo(
+    () => (showVisits ? rangePlaces.slice(0, 500) : []), // cap for performance
+    [rangePlaces, showVisits],
+  );
 
   // Gather some bounds points from filtered data
   const boundsCoords = useMemo((): [number, number][] => {
@@ -110,44 +99,18 @@ export default function TravelMap() {
   }, [filteredRoutes, home]);
 
   if (rl || vl) return <Loader />;
-  if (!routes) return <EmptyState />;
+  if (!routes) return <EmptyState error={error} />;
 
   const toggleMode = (mode: string) => {
     setModeOverrides((prev) => new Map(prev).set(mode, !activeModes.has(mode)));
   };
 
-  const years = [];
-  for (let y = minYear; y <= maxYear; y++) years.push(y);
+  const hasDataInRange = rangeRoutes.length > 0 || rangePlaces.length > 0;
 
   return (
     <div className="flex flex-col h-[calc(100vh-56px)]">
-      {/* Controls bar */}
+      {/* Controls bar (the time range comes from the global control in the top bar) */}
       <div className="flex flex-wrap items-center gap-3 px-4 py-3 bg-gray-900 border-b border-gray-800">
-        {/* Year range */}
-        <div className="flex items-center gap-2 text-sm">
-          <select
-            value={fromYear}
-            onChange={(e) => setYearRange([parseInt(e.target.value), toYear])}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-xs"
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <span className="text-gray-500">–</span>
-          <select
-            value={toYear}
-            onChange={(e) => setYearRange([fromYear, parseInt(e.target.value)])}
-            className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-xs"
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="h-5 w-px bg-gray-700" />
-
         {/* Mode toggles */}
         <div className="flex flex-wrap gap-1.5">
           {allModes.map((mode) => (
@@ -187,73 +150,81 @@ export default function TravelMap() {
         </span>
       </div>
 
-      {/* Map */}
-      <div className="flex-1">
-        <MapContainer
-          center={home ? [home.lat, home.lng] : [30, 0]}
-          zoom={5}
-          style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={true}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          />
-          {boundsCoords.length > 2 && <FitBounds coords={boundsCoords} />}
-
-          {/* Home marker */}
-          {home && (
-            <CircleMarker
-              center={[home.lat, home.lng]}
-              radius={6}
-              pathOptions={{ color: '#22c55e', fillColor: '#22c55e', fillOpacity: 0.8, weight: 2 }}
-            >
-              <Tooltip permanent className="!bg-gray-900 !text-green-400 !border-green-800 !text-xs">
-                🏠 Home
-              </Tooltip>
-            </CircleMarker>
-          )}
-
-          {/* Route polylines */}
-          {filteredRoutes.map((r, i) => (
-            <Polyline
-              key={i}
-              positions={r.points}
-              pathOptions={{
-                color: MODE_COLORS[r.mode] || FALLBACK_MODE_COLOR,
-                weight: r.mode === 'FLYING' ? 1.5 : 1,
-                opacity: 0.4,
-              }}
+      {!hasDataInRange ? (
+        <div className="flex-1 p-6">
+          <div className="max-w-2xl mx-auto mt-6">
+            <NoDataInRange title="No routes or places in this range" />
+          </div>
+        </div>
+      ) : (
+        /* Map ("isolate" keeps Leaflet's z-indexed panes below the sticky nav) */
+        <div className="flex-1 isolate">
+          <MapContainer
+            center={home ? [home.lat, home.lng] : [30, 0]}
+            zoom={5}
+            style={{ height: '100%', width: '100%' }}
+            scrollWheelZoom={true}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
-          ))}
+            {boundsCoords.length > 2 && <FitBounds coords={boundsCoords} />}
 
-          {/* Visit markers */}
-          {filteredVisits.map((v, i) => (
-            <CircleMarker
-              key={i}
-              center={[v.lat, v.lng]}
-              radius={Math.min(2 + Math.log2(v.visitCount + 1) * 1.5, 10)}
-              pathOptions={{
-                color: '#10b981',
-                fillColor: '#10b981',
-                fillOpacity: 0.5,
-                weight: 0.5,
-              }}
-            >
-              <Tooltip>
-                <div className="text-xs">
-                  <div>
-                    {v.city
-                      ? `${v.city}${v.country ? `, ${v.country}` : ''}`
-                      : `${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}`}
+            {/* Home marker */}
+            {home && (
+              <CircleMarker
+                center={[home.lat, home.lng]}
+                radius={6}
+                pathOptions={{ color: '#22c55e', fillColor: '#22c55e', fillOpacity: 0.8, weight: 2 }}
+              >
+                <Tooltip permanent className="!bg-gray-900 !text-green-400 !border-green-800 !text-xs">
+                  🏠 Home
+                </Tooltip>
+              </CircleMarker>
+            )}
+
+            {/* Route polylines */}
+            {filteredRoutes.map((r, i) => (
+              <Polyline
+                key={i}
+                positions={r.points}
+                pathOptions={{
+                  color: MODE_COLORS[r.mode] || FALLBACK_MODE_COLOR,
+                  weight: r.mode === 'FLYING' ? 1.5 : 1,
+                  opacity: 0.4,
+                }}
+              />
+            ))}
+
+            {/* Visit markers */}
+            {filteredVisits.map((v) => (
+              <CircleMarker
+                key={v.placeId}
+                center={[v.lat, v.lng]}
+                radius={Math.min(2 + Math.log2(v.visitCount + 1) * 1.5, 10)}
+                pathOptions={{
+                  color: '#10b981',
+                  fillColor: '#10b981',
+                  fillOpacity: 0.5,
+                  weight: 0.5,
+                }}
+              >
+                <Tooltip>
+                  <div className="text-xs">
+                    <div>
+                      {v.city
+                        ? `${v.city}${v.country ? `, ${v.country}` : ''}`
+                        : `${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}`}
+                    </div>
+                    <div>{v.visitCount} visits · {v.totalHours}h</div>
                   </div>
-                  <div>{v.visitCount} visits · {v.totalHours}h</div>
-                </div>
-              </Tooltip>
-            </CircleMarker>
-          ))}
-        </MapContainer>
-      </div>
+                </Tooltip>
+              </CircleMarker>
+            ))}
+          </MapContainer>
+        </div>
+      )}
     </div>
   );
 }

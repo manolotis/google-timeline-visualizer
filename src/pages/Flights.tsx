@@ -1,10 +1,10 @@
 /**
- * Flights page — tabular and map view of all detected flights.
+ * Flights page — tabular and map view of the flights in the selected range.
  *
- * Shows a sortable/filterable flight log table, summary stats, and an
- * interactive Leaflet map with great-circle arcs for each flight route.
- * Great-circle paths are computed using the Haversine-based intermediate
- * point formula for visually accurate curved arcs on the map.
+ * Shows a sortable flight log table, summary stats, and an interactive
+ * Leaflet map with great-circle arcs for each flight route. Great-circle
+ * paths are computed using the Haversine-based intermediate point formula
+ * for visually accurate curved arcs on the map.
  */
 import { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
@@ -12,6 +12,9 @@ import { useFlights, useStats } from '../hooks/useData';
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
+import NoDataInRange from '../components/NoDataInRange';
+import { summarizeActivities } from '../aggregate';
+import { useTimeRange, inRange } from '../timeRange';
 import 'leaflet/dist/leaflet.css';
 
 function greatCircleArc(
@@ -50,21 +53,18 @@ type SortDir = 'asc' | 'desc';
 
 export default function Flights() {
   const { data: flights, loading, error } = useFlights();
-  const { data: stats } = useStats();
+  const { data: stats, loading: sl } = useStats();
+  const { range } = useTimeRange();
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
-  const [yearFilter, setYearFilter] = useState<string>('all');
 
-  const years = useMemo(() => {
-    if (!flights) return [];
-    const s = new Set(flights.map((f) => f.date.slice(0, 4)));
-    return [...s].sort();
-  }, [flights]);
+  const inRangeFlights = useMemo(
+    () => flights?.filter((f) => inRange(f.date, range)) ?? [],
+    [flights, range],
+  );
 
   const sorted = useMemo(() => {
-    if (!flights) return [];
-    let f = [...flights];
-    if (yearFilter !== 'all') f = f.filter((fl) => fl.date.startsWith(yearFilter));
+    const f = [...inRangeFlights];
     f.sort((a, b) => {
       const cmp =
         sortField === 'date' ? a.date.localeCompare(b.date)
@@ -73,10 +73,26 @@ export default function Flights() {
       return sortDir === 'asc' ? cmp : -cmp;
     });
     return f;
-  }, [flights, sortField, sortDir, yearFilter]);
+  }, [inRangeFlights, sortField, sortDir]);
 
-  if (loading) return <Loader />;
+  // Same number as the Overview's "Flight Distance" (activity log, FLYING)
+  const flightKm = useMemo(
+    () => (stats ? summarizeActivities(stats, range).distanceByMode.FLYING ?? 0 : 0),
+    [stats, range],
+  );
+
+  if (loading || sl) return <Loader />;
   if (!flights) return <EmptyState error={error} />;
+
+  const header = <h1 className="text-3xl font-bold text-white">Flights</h1>;
+  if (inRangeFlights.length === 0) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+        {header}
+        <NoDataInRange title="No flights in this range" />
+      </div>
+    );
+  }
 
   const toggle = (field: SortField) => {
     if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -88,22 +104,25 @@ export default function Flights() {
 
   // Most frequent route (by start/end grid cell ~ 0.5 degree)
   const routeCounts = new Map<string, number>();
-  for (const f of flights) {
+  for (const f of inRangeFlights) {
     const key = `${Math.round(f.startLat * 2)}/${Math.round(f.startLng * 2)}-${Math.round(f.endLat * 2)}/${Math.round(f.endLng * 2)}`;
     routeCounts.set(key, (routeCounts.get(key) ?? 0) + 1);
   }
   const topRouteCount = Math.max(...routeCounts.values());
+  const avgDuration = Math.round(
+    inRangeFlights.reduce((s, f) => s + f.durationMin, 0) / inRangeFlights.length,
+  );
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold text-white">Flights</h1>
+      {header}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon="✈️" label="Total Flights" value={flights.length} />
+        <StatCard icon="✈️" label="Total Flights" value={inRangeFlights.length} />
         <StatCard
           icon="📏"
           label="Total Distance"
-          value={`${(stats?.totalFlightDistanceKm ?? 0).toLocaleString()} km`}
+          value={`${flightKm.toLocaleString()} km`}
         />
         <StatCard
           icon="🔁"
@@ -113,12 +132,12 @@ export default function Flights() {
         <StatCard
           icon="⏱️"
           label="Avg Duration"
-          value={`${Math.round(flights.reduce((s, f) => s + f.durationMin, 0) / flights.length)} min`}
+          value={`${avgDuration} min`}
         />
       </div>
 
-      {/* Map */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden" style={{ height: 400 }}>
+      {/* Map ("isolate" keeps Leaflet's z-indexed panes below the sticky nav) */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden isolate" style={{ height: 400 }}>
         <MapContainer
           center={[30, 0]}
           zoom={2}
@@ -157,23 +176,6 @@ export default function Flights() {
             </CircleMarker>
           ))}
         </MapContainer>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-3 items-center">
-        <label className="text-sm text-gray-400">Year:</label>
-        <select
-          value={yearFilter}
-          onChange={(e) => setYearFilter(e.target.value)}
-          className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-gray-200"
-        >
-          <option value="all">All ({flights.length})</option>
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y} ({flights.filter((f) => f.date.startsWith(y)).length})
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Table */}

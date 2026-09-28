@@ -3,97 +3,126 @@
  *
  * Renders per-year calendar heatmaps showing home/away status for each
  * night, a year selector, and a list of detected trips with their dates,
- * place counts, and distance from home. The home location is auto-detected
- * during preprocessing from INFERRED_HOME / HOME visit entries.
+ * place counts, and distance from home, restricted to the globally selected
+ * time range. The home location is auto-detected during preprocessing from
+ * INFERRED_HOME / HOME visit entries.
  */
 import { useState, useMemo } from 'react';
-import { useNightsAway, useTrips, useStats } from '../hooks/useData';
+import { useNightsAway, useTrips } from '../hooks/useData';
 import CalendarHeatmap from '../components/CalendarHeatmap';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
+import NoDataInRange from '../components/NoDataInRange';
+import { longestTrip, furthestTrip } from '../aggregate';
+import { useTimeRange, inRange, overlapsRange, intersectRanges, yearRange } from '../timeRange';
 
 export default function NightsAway() {
   const { data: nights, loading: nl, error } = useNightsAway();
   const { data: trips, loading: tl } = useTrips();
-  const { data: stats, loading: sl } = useStats();
+  const { range } = useTimeRange();
 
+  const rangeNights = useMemo(
+    () => nights?.filter((n) => inRange(n.date, range)) ?? [],
+    [nights, range],
+  );
+  const rangeTrips = useMemo(
+    () => trips?.filter((t) => overlapsRange(t.startDate, t.endDate, range)) ?? [],
+    [trips, range],
+  );
+
+  // Years with tracked nights inside the range, newest first
   const years = useMemo(() => {
-    if (!nights) return [];
-    const s = new Set(nights.map((n) => parseInt(n.date.slice(0, 4))));
+    const s = new Set(rangeNights.map((n) => parseInt(n.date.slice(0, 4))));
     return [...s].sort((a, b) => b - a);
-  }, [nights]);
+  }, [rangeNights]);
 
+  // The picked year only applies while it is still inside the global range
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const year = selectedYear ?? years[0] ?? 2025;
+  const year = selectedYear !== null && years.includes(selectedYear) ? selectedYear : years[0];
+
+  // The part of the global range that falls inside the displayed year
+  const yearWindow = useMemo(
+    () => (year === undefined ? range : intersectRanges(range, yearRange(year))),
+    [range, year],
+  );
 
   const yearNights = useMemo(
-    () => nights?.filter((n) => n.date.startsWith(String(year))) ?? [],
-    [nights, year],
+    () => rangeNights.filter((n) => inRange(n.date, yearWindow)),
+    [rangeNights, yearWindow],
   );
 
+  const yearTrips = useMemo(
+    () =>
+      rangeTrips
+        .filter((t) => overlapsRange(t.startDate, t.endDate, yearWindow))
+        .sort((a, b) => b.startDate.localeCompare(a.startDate)),
+    [rangeTrips, yearWindow],
+  );
+
+  if (nl || tl) return <Loader />;
+  if (!nights || !trips) return <EmptyState error={error} />;
+
+  const header = <h1 className="text-3xl font-bold text-white">Nights Away from Home</h1>;
+  if (year === undefined) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+        {header}
+        <NoDataInRange title="No tracked nights in this range" />
+      </div>
+    );
+  }
+
+  const awayTotal = rangeNights.filter((n) => !n.isHome).length;
   const awayThisYear = yearNights.filter((n) => !n.isHome).length;
   const totalDaysYear = yearNights.length;
-
-  // Trips for selected year
-  const yearTrips = useMemo(
-    () => trips?.filter((t) => t.startDate.startsWith(String(year))) ?? [],
-    [trips, year],
-  );
-
-  if (nl || tl || sl) return <Loader />;
-  if (!nights || !trips || !stats) return <EmptyState error={error} />;
+  const longest = longestTrip(rangeTrips);
+  const furthest = furthestTrip(rangeTrips);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold text-white">Nights Away from Home</h1>
+      {header}
 
-      {/* Global stats */}
+      {/* Stats for the selected range */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon="🌙"
           label="Total Nights Away"
-          value={stats.totalNightsAway}
-          sub={`${Math.round((stats.totalNightsAway / stats.totalNightsTracked) * 100)}% of all nights`}
+          value={awayTotal}
+          sub={`${Math.round((awayTotal / rangeNights.length) * 100)}% of all nights`}
         />
-        <StatCard icon="🧳" label="Total Trips" value={stats.totalTrips} />
+        <StatCard icon="🧳" label="Total Trips" value={rangeTrips.length} />
         <StatCard
           icon="📅"
           label="Longest Trip"
-          value={stats.longestTrip ? `${stats.longestTrip.nights} nights` : 'N/A'}
-          sub={
-            stats.longestTrip
-              ? `${stats.longestTrip.startDate} → ${stats.longestTrip.endDate}`
-              : undefined
-          }
+          value={longest ? `${longest.nights} nights` : 'N/A'}
+          sub={longest ? `${longest.startDate} → ${longest.endDate}` : undefined}
         />
         <StatCard
           icon="🌍"
           label="Furthest Trip"
-          value={
-            stats.furthestTrip
-              ? `${stats.furthestTrip.maxDistKm.toLocaleString()} km`
-              : 'N/A'
-          }
+          value={furthest ? `${furthest.maxDistKm.toLocaleString()} km` : 'N/A'}
         />
       </div>
 
-      {/* Year selector */}
-      <div className="flex gap-2 flex-wrap">
-        {years.map((y) => (
-          <button
-            key={y}
-            onClick={() => setSelectedYear(y)}
-            className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-              y === year
-                ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:text-gray-200'
-            }`}
-          >
-            {y}
-          </button>
-        ))}
-      </div>
+      {/* Year selector (only years inside the selected range) */}
+      {years.length > 1 && (
+        <div className="flex gap-2 flex-wrap">
+          {years.map((y) => (
+            <button
+              key={y}
+              onClick={() => setSelectedYear(y)}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                y === year
+                  ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                  : 'bg-gray-800 text-gray-400 border border-gray-700 hover:text-gray-200'
+              }`}
+            >
+              {y}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Calendar heatmap */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
@@ -104,7 +133,7 @@ export default function NightsAway() {
             nights away out of {totalDaysYear} ({Math.round((awayThisYear / totalDaysYear) * 100) || 0}%)
           </div>
         </div>
-        <CalendarHeatmap nights={yearNights} year={year} />
+        <CalendarHeatmap nights={yearNights} year={year} range={range} />
       </div>
 
       {/* Trips list for year */}
@@ -113,37 +142,31 @@ export default function NightsAway() {
           Trips in {year} ({yearTrips.length})
         </h2>
         {yearTrips.length === 0 ? (
-          <p className="text-gray-500">No trips this year</p>
+          <p className="text-gray-500">No trips in this period</p>
         ) : (
           <div className="space-y-2">
-            {yearTrips
-              .sort(
-                (a, b) =>
-                  new Date(b.startDate).getTime() -
-                  new Date(a.startDate).getTime(),
-              )
-              .map((trip, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between bg-gray-800/50 rounded-lg px-4 py-3"
-                >
-                  <div>
-                    <div className="text-sm text-gray-200">
-                      {trip.startDate} → {trip.endDate}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {trip.places.length} place{trip.places.length !== 1 ? 's' : ''} ·{' '}
-                      {trip.maxDistKm.toLocaleString()} km from home
-                    </div>
+            {yearTrips.map((trip) => (
+              <div
+                key={trip.startDate}
+                className="flex items-center justify-between bg-gray-800/50 rounded-lg px-4 py-3"
+              >
+                <div>
+                  <div className="text-sm text-gray-200">
+                    {trip.startDate} → {trip.endDate}
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-orange-400">
-                      {trip.nights}
-                    </div>
-                    <div className="text-xs text-gray-500">nights</div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {trip.places.length} place{trip.places.length !== 1 ? 's' : ''} ·{' '}
+                    {trip.maxDistKm.toLocaleString()} km from home
                   </div>
                 </div>
-              ))}
+                <div className="text-right">
+                  <div className="text-lg font-bold text-orange-400">
+                    {trip.nights}
+                  </div>
+                  <div className="text-xs text-gray-500">nights</div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -1,12 +1,13 @@
 /**
  * World choropleth of visited countries (Overview page).
  *
- * Every country with at least one recorded visit is shaded by days present
- * (home time included) using quantile classes, so a 3-day trip stays clearly
- * visible next to countries lived in for years. Visited countries too small
- * to see at world zoom (e.g. Andorra) also get a dot. Geometry is the
- * vendored public/world-countries.geo.json, joined on the ISO alpha-3 codes
- * that preprocess attaches to geography.json.
+ * Every country with at least one recorded visit in the globally selected
+ * time range is shaded by its days present in that range (home time
+ * included) using quantile classes recomputed per range, so a 3-day trip
+ * stays clearly visible next to countries lived in for years. Visited
+ * countries too small to see at world zoom (e.g. Andorra) also get a dot.
+ * Geometry is the vendored public/world-countries.geo.json, joined on the
+ * ISO alpha-3 codes that preprocess attaches to geography.json.
  */
 import { useMemo, type ReactNode } from 'react';
 import { GeoJSON, MapContainer, Pane } from 'react-leaflet';
@@ -15,7 +16,9 @@ import type { Feature, FeatureCollection, Geometry, MultiPolygon, Point, Polygon
 import 'leaflet/dist/leaflet.css';
 import Loader from './Loader';
 import { useGeography, useWorldCountries } from '../hooks/useData';
-import type { GeographyCountry, WorldCountryProperties } from '../types';
+import { isStaleGeography, summarizeGeography, type GeographyCountry } from '../aggregate';
+import { useTimeRange } from '../timeRange';
+import type { WorldCountryProperties } from '../types';
 
 /** Low → high days (Tailwind orange 700/600/400/300/200): brighter = more time on the dark map. */
 const RAMP = ['#c2410c', '#ea580c', '#fb923c', '#fdba74', '#fed7aa'];
@@ -89,10 +92,15 @@ function plural(n: number, word: string): string {
   return `${n.toLocaleString()} ${word}${n === 1 ? '' : 's'}`;
 }
 
-function tooltipHtml(featureName: string, country: GeographyCountry | undefined): string {
+/** `inRangeText` qualifies "Not visited" for a range, e.g. " in 2024" */
+function tooltipHtml(
+  featureName: string,
+  country: GeographyCountry | undefined,
+  inRangeText: string,
+): string {
   if (!country) {
     return `<div class="font-semibold text-gray-300">${escapeHtml(featureName)}</div>` +
-      '<div class="text-gray-500">Not visited</div>';
+      `<div class="text-gray-500">Not visited${escapeHtml(inRangeText)}</div>`;
   }
   const away = country.days > 0
     ? `<div class="text-gray-500">${plural(country.days, 'night')} away from home</div>`
@@ -133,17 +141,25 @@ function Legend({ classes }: { classes: ScaleClass[] }) {
 export default function VisitedCountriesMap() {
   const { data: geo, loading: geoLoading, error: geoError } = useGeography();
   const { data: world, loading: worldLoading, error: worldError } = useWorldCountries();
+  const { selection, range, label } = useTimeRange();
+  const inRangeText = selection.kind === 'all' ? '' : ` in ${label}`;
 
-  // Older geography.json files (before this feature) lack per-country totals
-  const stale = !!geo && geo.countries.some((c) => c.totalDays === undefined);
+  // Older geography.json files lack the per-date country presence
+  const stale = !!geo && isStaleGeography(geo);
+
+  // Countries with an away night or a day present in the range
+  const countries = useMemo(
+    () => (geo && !stale ? summarizeGeography(geo, range).countries : []),
+    [geo, stale, range],
+  );
 
   const visited = useMemo(() => {
     const byIso = new Map<string, GeographyCountry>();
-    for (const c of geo?.countries ?? []) {
+    for (const c of countries) {
       if (c.iso3 && c.totalDays > 0) byIso.set(c.iso3, c);
     }
     return byIso;
-  }, [geo]);
+  }, [countries]);
 
   const classes = useMemo(
     () => quantileClasses([...visited.values()].map((c) => c.totalDays)),
@@ -170,7 +186,7 @@ export default function VisitedCountriesMap() {
     const onEachFeature = (feature: CountryFeature, layer: Layer) => {
       const path = layer as Path;
       const { iso3, name } = feature.properties;
-      path.bindTooltip(tooltipHtml(name, visited.get(iso3)), {
+      path.bindTooltip(tooltipHtml(name, visited.get(iso3), inRangeText), {
         sticky: true,
         direction: 'top',
         offset: [0, -10],
@@ -199,14 +215,19 @@ export default function VisitedCountriesMap() {
     };
 
     return { style, onEachFeature, tinyVisited };
-  }, [world, visited, classes]);
+  }, [world, visited, classes, inRangeText]);
 
-  // Countries in the data that have no shape to draw (should be empty)
+  // react-leaflet's GeoJSON only applies `data` and `onEachFeature` when it is
+  // created, so the layers are remounted whenever the range (and with it the
+  // colors, tooltips and dots) or its label changes
+  const layerKey = `${range.start ?? ''}..${range.end ?? ''}${inRangeText}`;
+
+  // Countries in the range that have no shape to draw (should be empty)
   const unmapped = useMemo(() => {
-    if (!geo || !world) return [];
+    if (!world) return [];
     const drawable = new Set(world.features.map((f) => f.properties.iso3));
-    return geo.countries.filter((c) => !c.iso3 || !drawable.has(c.iso3)).map((c) => c.country);
-  }, [geo, world]);
+    return countries.filter((c) => !c.iso3 || !drawable.has(c.iso3)).map((c) => c.country);
+  }, [countries, world]);
 
   let body: ReactNode;
   if (geoLoading || worldLoading) {
@@ -227,7 +248,8 @@ export default function VisitedCountriesMap() {
   } else {
     body = (
       <>
-        <div className="countries-map aspect-[2/1] min-h-64 max-h-[36rem] w-full rounded-lg overflow-hidden border border-gray-800">
+        {/* "isolate" keeps Leaflet's z-indexed panes below the sticky nav */}
+        <div className="countries-map isolate aspect-[2/1] min-h-64 max-h-[36rem] w-full rounded-lg overflow-hidden border border-gray-800">
           <MapContainer
             bounds={INITIAL_VIEW}
             maxBounds={MAX_BOUNDS}
@@ -239,9 +261,15 @@ export default function VisitedCountriesMap() {
             attributionControl={false}
             style={{ height: '100%', width: '100%', background: SEA_COLOR }}
           >
-            <GeoJSON data={world} style={layers.style} onEachFeature={layers.onEachFeature} />
+            <GeoJSON
+              key={layerKey}
+              data={world}
+              style={layers.style}
+              onEachFeature={layers.onEachFeature}
+            />
             <Pane name={TINY_PANE} style={{ zIndex: 450 }}>
               <GeoJSON
+                key={layerKey}
                 data={layers.tinyVisited}
                 style={layers.style}
                 onEachFeature={layers.onEachFeature}
@@ -259,17 +287,22 @@ export default function VisitedCountriesMap() {
     );
   }
 
+  const ready = !!geo && !!world && !stale;
+  let summaryText = 'shaded by days present, home included';
+  if (ready && visited.size > 0) {
+    summaryText = `${visited.size} ${visited.size === 1 ? 'country' : 'countries'}${inRangeText} · ${summaryText}`;
+  } else if (ready) {
+    summaryText = `No visits recorded${inRangeText}`;
+  }
+
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
       <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
         <div>
           <h2 className="text-lg font-semibold text-white">Countries Visited</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {visited.size > 0 && !stale ? `${visited.size} countries · ` : ''}
-            shaded by days present, home included
-          </p>
+          <p className="text-sm text-gray-400 mt-0.5">{summaryText}</p>
         </div>
-        {visited.size > 0 && !stale && <Legend classes={classes} />}
+        {ready && visited.size > 0 && <Legend classes={classes} />}
       </div>
       {body}
     </div>

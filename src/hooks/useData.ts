@@ -16,7 +16,7 @@ import type {
   Visit,
   Home,
   RouteSegment,
-  GeographyStats,
+  GeographyData,
   WorldCountries,
 } from '../types';
 
@@ -93,7 +93,7 @@ export function useRoutes() {
 }
 
 export function useGeography() {
-  return useFetch<GeographyStats>('/data/geography.json');
+  return useFetch<GeographyData>('/data/geography.json');
 }
 
 export function useWorldCountries() {

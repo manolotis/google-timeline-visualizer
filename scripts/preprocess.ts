@@ -7,14 +7,21 @@
  * Generated files:
  *   - home.json        — Auto-detected home location (median of INFERRED_HOME coords)
  *   - flights.json     — Flight segments with coords, distance, duration, and paths
- *   - visits.json      — Deduplicated place visits with counts and time spent
+ *   - visits.json      — Deduplicated places with counts, time spent, and dated stays
  *   - nights-away.json — Per-date home/away classification
- *   - geography.json   — Countries/cities ranked by away nights spent there, plus
- *                        per-country days present (incl. home) and ISO codes
- *                        matched against public/world-countries.geo.json
+ *   - geography.json   — Countries (with ISO codes matched against
+ *                        public/world-countries.geo.json), the city of every
+ *                        away night, and the countries present on every date
  *   - trips.json       — Consecutive away-nights grouped into trips
  *   - routes.json      — All activity segments with polyline paths (downsampled)
- *   - stats.json       — Aggregate statistics, yearly trends, and top places
+ *   - stats.json       — Column-oriented log of every activity (date, hour, mode,
+ *                        distance, duration) for client-side aggregation
+ *
+ * Everything the dashboard shows depends on the global time-range filter, so
+ * this script emits dated per-record data rather than all-time totals; the
+ * frontend (src/aggregate.ts) sums whatever falls inside the selected range.
+ * Record dates are the event-local calendar date, i.e. the 'YYYY-MM-DD'
+ * prefix of the export's ISO timestamps.
  *
  * Usage: npm run preprocess
  */
@@ -83,6 +90,10 @@ function haversineDist(
 
 function durationMin(start: string, end: string): number {
   return (new Date(end).getTime() - new Date(start).getTime()) / 60000;
+}
+
+function durationSec(start: string, end: string): number {
+  return Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000);
 }
 
 function dateStr(iso: string): string {
@@ -674,6 +685,8 @@ async function main() {
     departures: string[];
     totalMinutes: number;
     visitCount: number;
+    /** [event-local start date, duration in seconds] for every stay */
+    stays: [string, number][];
   }
   const visitMap = new Map<string, Visit>();
 
@@ -684,12 +697,14 @@ async function main() {
     const [lat, lng] = parseLatLng(tc.placeLocation.latLng);
     const key = tc.placeId;
     const dur = durationMin(s.startTime, s.endTime);
+    const stay: [string, number] = [dateStr(s.startTime), durationSec(s.startTime, s.endTime)];
     const existing = visitMap.get(key);
     if (existing) {
       existing.arrivals.push(s.startTime);
       existing.departures.push(s.endTime);
       existing.totalMinutes += dur;
       existing.visitCount++;
+      existing.stays.push(stay);
     } else {
       visitMap.set(key, {
         placeId: key,
@@ -700,6 +715,7 @@ async function main() {
         departures: [s.endTime],
         totalMinutes: dur,
         visitCount: 1,
+        stays: [stay],
       });
     }
   }
@@ -717,6 +733,7 @@ async function main() {
         totalHours: Math.round(v.totalMinutes / 6) / 10,
         firstVisit: arrivals[0],
         lastVisit: arrivals.at(-1),
+        stays: v.stays,
       };
     })
     .sort((a, b) => b.visitCount - a.visitCount);
@@ -1012,150 +1029,123 @@ async function main() {
   );
 
   // ========================================================================
-  // 5. Geography stay aggregation
+  // 5. Geography: countries, away-night cities, and days present
   // ========================================================================
-  console.log('Computing geography stay durations…');
+  // Emitted per night and per date (not as totals) so the frontend can rank
+  // countries and cities, and shade the world map, for any selected range.
+  console.log('Resolving geography…');
 
   interface GeographyCountry {
+    /** Display name: the world geometry's name when matched, else the raw name */
     country: string;
     /** ISO 3166-1 alpha-3 of the matching world-countries.geo.json feature; null if unmatched */
     iso3: string | null;
-    /** Nights away from home spent in the country */
-    days: number;
-    shareOfAwayDays: number;
-    /** Distinct (UTC) dates with at least one visit in the country, home time included */
-    totalDays: number;
   }
 
   interface GeographyCity {
     city: string;
-    country: string;
+    /** Index into `countries` */
+    country: number;
     lat: number;
     lng: number;
-    days: number;
-    shareOfAwayDays: number;
   }
 
-  // Geocoder names vary ("USA" vs "United States"), so countries are grouped
+  interface GeographyNight {
+    date: string;
+    /** Index into `cities`, or null when no city could be resolved */
+    city: number | null;
+  }
+
+  // Geocoder names vary ("USA" vs "United States"), so countries are keyed
   // by ISO code and named after the world geometry when they match.
   const countryIndex = loadCountryIndex(WORLD_GEO_PATH);
-  const countryAgg = new Map<
-    string,
-    { country: string; iso3: string | null; days: number; dates: Set<number> }
-  >();
-  function getCountry(rawName: string) {
+  const geoCountries: GeographyCountry[] = [];
+  const geoCountryIndex = new Map<string, number>();
+  function countryId(rawName: string): number {
     const match = countryIndex.get(normalizeCountryName(rawName));
     const key = match ? match.iso3 : `?${rawName}`;
-    let agg = countryAgg.get(key);
-    if (!agg) {
-      agg = { country: match?.name ?? rawName, iso3: match?.iso3 ?? null, days: 0, dates: new Set() };
-      countryAgg.set(key, agg);
+    let id = geoCountryIndex.get(key);
+    if (id === undefined) {
+      id = geoCountries.length;
+      geoCountryIndex.set(key, id);
+      geoCountries.push({ country: match?.name ?? rawName, iso3: match?.iso3 ?? null });
     }
-    return agg;
+    return id;
   }
 
-  const cityDays = new Map<
-    string,
-    { city: string; country: string; lat: number; lng: number; days: number }
-  >();
-  let unmatchedCountryDays = 0;
-  let unmatchedCityDays = 0;
+  const geoCities: GeographyCity[] = [];
+  const geoCityIndex = new Map<string, number>();
+  const geoNights: GeographyNight[] = [];
 
   for (const night of nightsAway) {
-    if (night.isHome || night.lat == null || night.lng == null) continue;
+    if (night.isHome) continue;
 
-    const cityMatch = await cityResolver.resolve(night.lat, night.lng);
-    if (!cityMatch) {
-      unmatchedCountryDays++;
-      unmatchedCityDays++;
-      continue;
+    const cityMatch =
+      night.lat != null && night.lng != null
+        ? await cityResolver.resolve(night.lat, night.lng)
+        : null;
+    let city: number | null = null;
+    if (cityMatch) {
+      const country = countryId(cityMatch.country);
+      const cityKey = `${cityMatch.name}::${country}`;
+      city = geoCityIndex.get(cityKey) ?? null;
+      if (city === null) {
+        city = geoCities.length;
+        geoCityIndex.set(cityKey, city);
+        geoCities.push({
+          city: cityMatch.name,
+          country,
+          lat: cityMatch.lat,
+          lng: cityMatch.lng,
+        });
+      }
     }
-
-    const country = getCountry(cityMatch.country);
-    country.days++;
-
-    const cityKey = `${cityMatch.name}::${country.country}`;
-    const existingCity = cityDays.get(cityKey);
-    if (existingCity) {
-      existingCity.days++;
-    } else {
-      cityDays.set(cityKey, {
-        city: cityMatch.name,
-        country: country.country,
-        lat: cityMatch.lat,
-        lng: cityMatch.lng,
-        days: 1,
-      });
-    }
+    geoNights.push({ date: night.date, city });
   }
 
-  // Days present: every UTC date a visit was recorded in the country. Unlike
+  // Days present: every UTC date a visit was recorded in a country. Unlike
   // away nights this includes home time, day trips and layovers; a travel day
   // counts for both countries. Visit coordinates are already in the city DB
   // from the prefill, so resolve() only runs for rare placeId-less visits.
   const DAY_MS = 86_400_000;
+  const countriesByDay = new Map<number, Set<number>>();
   for (const v of visitSegments) {
     const city = cityResolver.peek(v.lat, v.lng) ?? (await cityResolver.resolve(v.lat, v.lng));
     if (!city) continue;
-    const { dates } = getCountry(city.country);
+    const country = countryId(city.country);
     for (let day = Math.floor(v.start / DAY_MS); day * DAY_MS <= v.end; day++) {
-      dates.add(day);
+      let present = countriesByDay.get(day);
+      if (!present) {
+        present = new Set();
+        countriesByDay.set(day, present);
+      }
+      present.add(country);
     }
   }
+  const presence: [string, number[]][] = [...countriesByDay.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([day, present]) => [
+      new Date(day * DAY_MS).toISOString().slice(0, 10),
+      [...present].sort((a, b) => a - b),
+    ]);
 
-  const countries: GeographyCountry[] = [...countryAgg.values()]
-    .map((c) => ({
-      country: c.country,
-      iso3: c.iso3,
-      days: c.days,
-      shareOfAwayDays: totalAway ? Math.round((c.days / totalAway) * 1000) / 10 : 0,
-      totalDays: c.dates.size,
-    }))
-    .sort(
-      (a, b) =>
-        b.days - a.days ||
-        b.totalDays - a.totalDays ||
-        a.country.localeCompare(b.country),
-    );
-
-  const unmappedCountries = countries.filter((c) => !c.iso3).map((c) => c.country);
+  const unmappedCountries = geoCountries.filter((c) => !c.iso3).map((c) => c.country);
   if (unmappedCountries.length > 0) {
     console.warn(
       `  No map geometry for: ${unmappedCountries.join(', ')} (add them to COUNTRY_ALIASES)`,
     );
   }
 
-  const cities: GeographyCity[] = [...cityDays.values()]
-    .map((city) => ({
-      ...city,
-      shareOfAwayDays: totalAway ? Math.round((city.days / totalAway) * 1000) / 10 : 0,
-    }))
-    .sort(
-      (a, b) =>
-        b.days - a.days ||
-        a.country.localeCompare(b.country) ||
-        a.city.localeCompare(b.city),
-    );
-
   const geography = {
-    summary: {
-      totalAwayDays: totalAway,
-      totalCountries: countries.length,
-      totalCities: cities.length,
-      matchedCountryDays: totalAway - unmatchedCountryDays,
-      matchedCityDays: totalAway - unmatchedCityDays,
-      unmatchedCountryDays,
-      unmatchedCityDays,
-      topCountry: countries[0] ?? null,
-      topCity: cities[0] ?? null,
-    },
-    countries,
-    cities,
+    countries: geoCountries,
+    cities: geoCities,
+    nights: geoNights,
+    presence,
   };
 
   console.log(
-    `  ${geography.summary.totalCountries} countries (${geography.summary.totalCountries - unmappedCountries.length} on the map), ` +
-      `${geography.summary.totalCities} cities matched`,
+    `  ${geoCountries.length} countries (${geoCountries.length - unmappedCountries.length} on the map), ` +
+      `${geoCities.length} cities matched, ${presence.length} days with a known country`,
   );
   fs.writeFileSync(
     path.join(OUT, 'geography.json'),
@@ -1250,169 +1240,53 @@ async function main() {
   fs.writeFileSync(path.join(OUT, 'trips.json'), JSON.stringify(trips));
 
   // ========================================================================
-  // 7. Aggregate statistics
+  // 7. Activity log for statistics
   // ========================================================================
-  console.log('Computing statistics…');
+  // One row per activity segment, stored column-wise to keep the file small.
+  // The frontend aggregates the rows inside the selected time range into
+  // distance/count/duration by mode, per-period trends, and day-of-week /
+  // hour-of-day patterns. Distances stay unrounded so sums are exact.
+  console.log('Building activity log…');
 
-  // Distance and duration by transport mode
-  const distByMode: Record<string, number> = {};
-  const countByMode: Record<string, number> = {};
-  const durByMode: Record<string, number> = {};
+  const modes: string[] = [];
+  const modeIndex = new Map<string, number>();
+  const activities = {
+    date: [] as string[],
+    hour: [] as number[],
+    mode: [] as number[],
+    meters: [] as number[],
+    seconds: [] as number[],
+  };
+  let totalMeters = 0;
+
   for (const s of segments) {
     if (!s.activity) continue;
-    const mode = s.activity.topCandidate.type;
-    const dist = s.activity.distanceMeters / 1000;
-    const dur = durationMin(s.startTime, s.endTime) / 60; // hours
-    distByMode[mode] = (distByMode[mode] ?? 0) + dist;
-    countByMode[mode] = (countByMode[mode] ?? 0) + 1;
-    durByMode[mode] = (durByMode[mode] ?? 0) + dur;
-  }
-
-  // Round distances and durations
-  for (const k of Object.keys(distByMode)) {
-    distByMode[k] = Math.round(distByMode[k]);
-  }
-  for (const k of Object.keys(durByMode)) {
-    durByMode[k] = Math.round(durByMode[k] * 10) / 10;
-  }
-
-  // Yearly breakdown
-  interface YearStats {
-    year: number;
-    flights: number;
-    nightsAway: number;
-    totalDistKm: number;
-    uniquePlaces: number;
-  }
-
-  const yearMap = new Map<number, YearStats>();
-  function getYear(y: number): YearStats {
-    if (!yearMap.has(y))
-      yearMap.set(y, {
-        year: y,
-        flights: 0,
-        nightsAway: 0,
-        totalDistKm: 0,
-        uniquePlaces: 0,
-      });
-    return yearMap.get(y)!;
-  }
-
-  for (const f of enrichedFlights) {
-    const y = new Date(f.startTime).getFullYear();
-    getYear(y).flights++;
-  }
-
-  for (const n of nightsAway) {
-    if (!n.isHome) {
-      const y = parseInt(n.date.slice(0, 4));
-      getYear(y).nightsAway++;
+    const type = s.activity.topCandidate.type;
+    let m = modeIndex.get(type);
+    if (m === undefined) {
+      m = modes.length;
+      modes.push(type);
+      modeIndex.set(type, m);
     }
-  }
-
-  for (const s of segments) {
-    if (!s.activity) continue;
-    const y = new Date(s.startTime).getFullYear();
-    getYear(y).totalDistKm += s.activity.distanceMeters / 1000;
-  }
-
-  // Unique places per year
-  const placesByYear = new Map<number, Set<string>>();
-  for (const s of segments) {
-    if (!s.visit?.topCandidate?.placeId) continue;
-    const y = new Date(s.startTime).getFullYear();
-    if (!placesByYear.has(y)) placesByYear.set(y, new Set());
-    placesByYear.get(y)!.add(s.visit.topCandidate.placeId);
-  }
-  for (const [y, places] of placesByYear) {
-    getYear(y).uniquePlaces = places.size;
-  }
-
-  const yearly = [...yearMap.values()]
-    .sort((a, b) => a.year - b.year)
-    .map((ys) => ({ ...ys, totalDistKm: Math.round(ys.totalDistKm) }));
-
-  // Top visited places (non-home, non-work)
-  const topPlaces = visits
-    .filter(
-      (v) =>
-        v.semanticType !== 'INFERRED_HOME' &&
-        v.semanticType !== 'HOME',
-    )
-    .slice(0, 50)
-    .map((v) => ({
-      placeId: v.placeId,
-      lat: v.lat,
-      lng: v.lng,
-      visitCount: v.visitCount,
-      totalHours: v.totalHours,
-      semanticType: v.semanticType,
-      city: v.city,
-      country: v.country,
-    }));
-
-  // Day-of-week activity distribution
-  const dayOfWeek = new Array(7).fill(0);
-  for (const s of segments) {
-    if (!s.activity) continue;
-    const d = new Date(s.startTime).getDay();
-    dayOfWeek[d]++;
-  }
-
-  // Hour-of-day activity distribution
-  const hourOfDay = new Array(24).fill(0);
-  for (const s of segments) {
-    if (!s.activity) continue;
-    const h = new Date(s.startTime).getHours();
-    hourOfDay[h]++;
-  }
-
-  // Country estimation from coordinates using simple lat/lng clustering
-  // (lightweight approximation — group visited coords into distinct geographic areas)
-  const uniqueCoords = new Set<string>();
-  for (const v of visits) {
-    // Round to ~11km grid (0.1 degree)
-    const key = `${Math.round(v.lat * 10) / 10},${Math.round(v.lng * 10) / 10}`;
-    uniqueCoords.add(key);
+    activities.date.push(dateStr(s.startTime));
+    // Event-local hour, straight from the ISO timestamp ("…T17:08:24…")
+    activities.hour.push(parseInt(s.startTime.slice(11, 13), 10));
+    activities.mode.push(m);
+    activities.meters.push(s.activity.distanceMeters);
+    activities.seconds.push(durationSec(s.startTime, s.endTime));
+    totalMeters += s.activity.distanceMeters;
   }
 
   const stats = {
-    totalSegments: segments.length,
-    totalFlights: enrichedFlights.length,
-    totalNightsAway: totalAway,
-    totalNightsTracked: nightsAway.length,
-    totalTrips: trips.length,
-    totalUniqueVisitedPlaces: visits.length,
-    totalDistanceKm: Math.round(
-      Object.values(distByMode).reduce((a, b) => a + b, 0),
-    ),
-    totalFlightDistanceKm: distByMode['FLYING'] ?? 0,
-    totalWalkingKm: distByMode['WALKING'] ?? 0,
-    totalCyclingKm: distByMode['CYCLING'] ?? 0,
-    distanceByMode: distByMode,
-    countByMode: countByMode,
-    durationByMode: durByMode,
-    totalWalkingHours: durByMode['WALKING'] ?? 0,
-    totalCyclingHours: durByMode['CYCLING'] ?? 0,
-    yearly: yearly,
-    topPlaces: topPlaces,
-    dayOfWeek: dayOfWeek,
-    hourOfDay: hourOfDay,
     dateRange: {
       start: segments[0].startTime,
       end: segments[segments.length - 1].endTime,
     },
-    longestTrip: trips.length
-      ? trips.reduce((a, b) => (a.nights > b.nights ? a : b))
-      : null,
-    furthestTrip: trips.length
-      ? trips.reduce((a, b) => (a.maxDistKm > b.maxDistKm ? a : b))
-      : null,
+    modes,
+    activities,
   };
 
-  console.log(`  Total distance: ${stats.totalDistanceKm.toLocaleString()} km`);
-  console.log(`  Total flights: ${stats.totalFlights}`);
-  console.log(`  Total trips: ${stats.totalTrips}`);
+  console.log(`  ${activities.date.length} activities, ${Math.round(totalMeters / 1000).toLocaleString()} km`);
   fs.writeFileSync(path.join(OUT, 'stats.json'), JSON.stringify(stats));
 
   // ========================================================================
