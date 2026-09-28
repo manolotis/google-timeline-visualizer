@@ -1,14 +1,15 @@
 /**
  * Flights page — tabular and map view of the flights in the selected range.
  *
- * Shows a sortable flight log table, summary stats, and an interactive
- * Leaflet map with great-circle arcs for each flight route. Great-circle
- * paths are computed using the Haversine-based intermediate point formula
- * for visually accurate curved arcs on the map.
+ * Shows a sortable flight log table (sort order kept in the URL), summary
+ * stats, and an interactive Leaflet map with great-circle arcs for each
+ * flight route. Great-circle paths are computed using the Haversine-based
+ * intermediate point formula for visually accurate curved arcs on the map.
  */
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
 import { useFlights, useStats } from '../hooks/useData';
+import { setParams, useRoute, type RouteParams } from '../route';
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
@@ -51,12 +52,24 @@ function greatCircleArc(
 type SortField = 'date' | 'distance' | 'duration';
 type SortDir = 'asc' | 'desc';
 
+/**
+ * The table's sort order lives in the URL: `sort=distance|duration` and
+ * `dir=asc`, each omitted at its default (newest first).
+ */
+function sortFromParams(params: RouteParams): { field: SortField; dir: SortDir } {
+  const { sort, dir } = params;
+  return {
+    field: sort === 'distance' || sort === 'duration' ? sort : 'date',
+    dir: dir === 'asc' ? 'asc' : 'desc',
+  };
+}
+
 export default function Flights() {
   const { data: flights, loading, error } = useFlights();
   const { data: stats, loading: sl } = useStats();
   const { range } = useTimeRange();
-  const [sortField, setSortField] = useState<SortField>('date');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const { params } = useRoute();
+  const { field: sortField, dir: sortDir } = sortFromParams(params);
 
   const inRangeFlights = useMemo(
     () => flights?.filter((f) => inRange(f.date, range)) ?? [],
@@ -94,9 +107,13 @@ export default function Flights() {
     );
   }
 
+  // Same column flips the direction; a new column starts descending
   const toggle = (field: SortField) => {
-    if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    else { setSortField(field); setSortDir('desc'); }
+    const dir: SortDir = field === sortField && sortDir === 'desc' ? 'asc' : 'desc';
+    setParams(
+      { sort: field === 'date' ? null : field, dir: dir === 'desc' ? null : dir },
+      { replace: true },
+    );
   };
 
   const sortIcon = (field: SortField) =>

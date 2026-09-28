@@ -9,10 +9,20 @@ Everything you can currently see and do with the tool, page by page. Planned add
 ### 📅 Global Time Range
 - One **date-range picker in the top bar**, visible on every page: pick a period once and every stat card, chart, table, heatmap, and map shows only that period
 - Presets for **All time** (the default), **Last 12 months** (up to your newest data), and **each year** in your data, plus **custom start/end dates** (leave one side empty for an open-ended range)
-- The selection persists while you switch pages; the ✕ next to the picker resets to All time
+- The selection persists while you switch pages and is kept in the URL (see [Shareable Links & History](#-shareable-links--history)); the ✕ next to the picker resets to All time
 - Trend charts adapt their granularity: per year for long ranges, **per month** for ranges up to three years
 - Day-precise: every number is recomputed from dated per-record data, so a custom range is exact rather than rounded to whole months, and All time reproduces the unfiltered totals exactly
 - A "no data in this range" hint (with a one-click reset) instead of empty charts when a period has nothing recorded
+
+### 🔗 Shareable Links & History
+- Every view has its own URL: the page, the time range, and per-page view settings live in the address bar's `#` hash, so **a reload restores exactly what you were looking at**, and a bookmark or shared link reproduces it (the URL holds view settings only, never your data, so a link opens wherever your copy of the dashboard runs)
+- One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`
+- Time range as compact parameters: `?range=2024` (a year), `?range=last12m`, or `?from=2024-03-01&to=2024-06-30` (either side may be left out); All time adds nothing
+- Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), and Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), e.g. `#/flights?range=2024&sort=distance`
+- Only settings that differ from the defaults are written, so an untouched page stays a clean `#/overview`
+- Browser **back/forward** step through page and time-range changes (typing a custom date range counts as one step); sorting, year picks, and layer toggles update the current entry instead of piling up history
+- The nav tabs are real links: middle-click or Ctrl/⌘-click opens a page in a new tab with the current time range. The browser tab title names the page and range, which also names your bookmarks
+- Unknown pages fall back to the Overview for all time, and unreadable parameters are ignored, so a mistyped link never breaks the app
 
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
@@ -207,10 +217,11 @@ timeline-visualizer/
 │   └── data/                  # Generated data files (gitignored)
 ├── src/
 │   ├── main.tsx               # App entry point, renders root component
-│   ├── App.tsx                # Root component with top-bar page navigation
+│   ├── App.tsx                # Root component: top-bar nav links + page switch driven by the URL
+│   ├── route.ts               # URL hash store: page, time range, and per-page state (no router library)
 │   ├── types.ts               # TypeScript interfaces for all data shapes
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
-│   ├── timeRange.ts           # Global time range: selection model, context, date/period helpers
+│   ├── timeRange.ts           # Global time range: selection model, URL params, context, date/period helpers
 │   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, series)
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
@@ -219,7 +230,7 @@ timeline-visualizer/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
 │   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
-│   │   ├── TimeRangeProvider.tsx # Holds the global range above the page switch
+│   │   ├── TimeRangeProvider.tsx # Provides the global range (read from the URL) above the page switch
 │   │   ├── TimeRangeControl.tsx  # Top-bar range picker (presets + custom dates)
 │   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
 │   │   ├── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
@@ -243,7 +254,6 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
-- **URL routing & shareable state** — hash-based routing so page/time-range selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Multi-home support** — home periods over time instead of a single static home, for people who have moved

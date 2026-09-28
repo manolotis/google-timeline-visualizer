@@ -4,13 +4,14 @@
  * Renders the movement segments in the globally selected time range on a
  * Leaflet map with CARTO dark tiles. Routes are color-coded by transport
  * mode (15 types). Controls include per-mode toggles and a layer of the
- * places visited in the range. Route polylines are downsampled to max 50
- * points each during preprocessing to keep the total payload manageable
- * (~3MB).
+ * places visited in the range, both kept in the URL. Route polylines are
+ * downsampled to max 50 points each during preprocessing to keep the total
+ * payload manageable (~3MB).
  */
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { useRoutes, useVisits, useHome } from '../hooks/useData';
+import { setParams, useRoute } from '../route';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
@@ -35,6 +36,31 @@ function FitBounds({ coords }: { coords: [number, number][] }) {
   return null;
 }
 
+/** Modes drawn unless toggled: everything but walking and unknown. */
+function isDefaultMode(mode: string): boolean {
+  return mode !== 'UNKNOWN_ACTIVITY_TYPE' && mode !== 'WALKING';
+}
+
+/**
+ * Mode toggles are stored in the URL as the differences from the defaults,
+ * in lower case: `show=walking&hide=flying,in_bus`. Returns mode → on.
+ */
+function parseModeOverrides(show?: string, hide?: string): Map<string, boolean> {
+  const overrides = new Map<string, boolean>();
+  for (const [list, on] of [[show, true], [hide, false]] as const) {
+    for (const mode of list?.split(',') ?? []) {
+      if (mode) overrides.set(mode.toUpperCase(), on);
+    }
+  }
+  return overrides;
+}
+
+function modeOverridesToParams(overrides: Map<string, boolean>): { show: string | null; hide: string | null } {
+  const list = (on: boolean) =>
+    [...overrides].filter(([, v]) => v === on).map(([mode]) => mode.toLowerCase()).sort().join(',') || null;
+  return { show: list(true), hide: list(false) };
+}
+
 export default function TravelMap() {
   const { data: routes, loading: rl, error } = useRoutes();
   const { data: visits, loading: vl } = useVisits();
@@ -47,15 +73,16 @@ export default function TravelMap() {
     return [...s].sort();
   }, [routes]);
 
-  // Per-mode user toggles layered over the default (major modes on,
-  // walking/unknown off) so no state initialization is needed on load.
-  const [modeOverrides, setModeOverrides] = useState<Map<string, boolean>>(new Map());
-  const [showVisits, setShowVisits] = useState(true);
+  // Layer toggles live in the URL as differences from the defaults
+  const { params } = useRoute();
+  const modeOverrides = useMemo(
+    () => parseModeOverrides(params.show, params.hide),
+    [params.show, params.hide],
+  );
+  const showVisits = params.places !== 'off';
 
   const activeModes = useMemo(() => {
-    const active = new Set(allModes.filter(
-      (m) => m !== 'UNKNOWN_ACTIVITY_TYPE' && m !== 'WALKING',
-    ));
+    const active = new Set(allModes.filter(isDefaultMode));
     for (const [mode, on] of modeOverrides) {
       if (on) active.add(mode);
       else active.delete(mode);
@@ -102,7 +129,11 @@ export default function TravelMap() {
   if (!routes) return <EmptyState error={error} />;
 
   const toggleMode = (mode: string) => {
-    setModeOverrides((prev) => new Map(prev).set(mode, !activeModes.has(mode)));
+    const on = !activeModes.has(mode);
+    const next = new Map(modeOverrides);
+    if (on === isDefaultMode(mode)) next.delete(mode);
+    else next.set(mode, on);
+    setParams(modeOverridesToParams(next), { replace: true });
   };
 
   const hasDataInRange = rangeRoutes.length > 0 || rangePlaces.length > 0;
@@ -135,7 +166,7 @@ export default function TravelMap() {
         <div className="h-5 w-px bg-gray-700" />
 
         <button
-          onClick={() => setShowVisits((v) => !v)}
+          onClick={() => setParams({ places: showVisits ? 'off' : null }, { replace: true })}
           className={`text-xs px-2 py-1 rounded-md border transition-colors ${
             showVisits
               ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'

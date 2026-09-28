@@ -9,7 +9,8 @@
  * because of the UTC-midnight bucketing).
  *
  * The provider lives in components/TimeRangeProvider.tsx and the top-bar UI
- * in components/TimeRangeControl.tsx.
+ * in components/TimeRangeControl.tsx. The selection itself is stored in the
+ * URL hash (route.ts), encoded by selectionToParams below.
  */
 import { createContext, useContext } from 'react';
 import type { Stats } from './types';
@@ -130,6 +131,74 @@ export function selectionLabel(selection: RangeSelection, range: DateRange): str
 
 export function isValidRange(range: DateRange): boolean {
   return !(range.start !== null && range.end !== null && range.start > range.end);
+}
+
+// ---------------------------------------------------------------------------
+// URL params (the global part of the hash route, see route.ts)
+// ---------------------------------------------------------------------------
+
+/**
+ * How a selection appears in the URL; All time has no params:
+ *   last12  → range=last12m
+ *   year    → range=2024
+ *   custom  → from=2024-03-01&to=2024-06-30 (either side may be absent)
+ */
+export type RangeParams = {
+  range?: string;
+  from?: string;
+  to?: string;
+};
+
+/** The range param names, in the order URLs list them (before any page params). */
+export const RANGE_PARAM_KEYS: readonly (keyof RangeParams)[] = ['range', 'from', 'to'];
+
+/** Every range param set to null: spread a selection's params over it to replace the range. */
+export const CLEARED_RANGE_PARAMS: Readonly<Record<keyof RangeParams, null>> = {
+  range: null,
+  from: null,
+  to: null,
+};
+
+const LAST_12_PARAM = 'last12m';
+
+/** A real calendar date in 'YYYY-MM-DD' form. */
+function isIsoDate(s: string | undefined): s is string {
+  if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(`${s}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+}
+
+export function selectionToParams(selection: RangeSelection): RangeParams {
+  switch (selection.kind) {
+    case 'all':
+      return {};
+    case 'last12':
+      return { range: LAST_12_PARAM };
+    case 'year':
+      return { range: String(selection.year) };
+    case 'custom': {
+      const params: RangeParams = {};
+      if (selection.start) params.from = selection.start;
+      if (selection.end) params.to = selection.end;
+      return params;
+    }
+  }
+}
+
+/** Inverse of selectionToParams; anything unrecognized means All time. */
+export function selectionFromParams({ range, from, to }: RangeParams): RangeSelection {
+  if (range === LAST_12_PARAM) return { kind: 'last12' };
+  if (range && /^[1-9]\d{3}$/.test(range)) return { kind: 'year', year: +range };
+  const start = isIsoDate(from) ? from : '';
+  const end = isIsoDate(to) ? to : '';
+  return start || end ? { kind: 'custom', start, end } : { kind: 'all' };
+}
+
+/** Whether two selections have the same URL, i.e. would filter identically. */
+export function sameRangeParams(a: RangeSelection, b: RangeSelection): boolean {
+  const pa = selectionToParams(a);
+  const pb = selectionToParams(b);
+  return RANGE_PARAM_KEYS.every((key) => pa[key] === pb[key]);
 }
 
 // ---------------------------------------------------------------------------

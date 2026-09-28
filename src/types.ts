@@ -141,5 +141,3 @@ export interface Stats {
     seconds: number[];
   };
 }
-
-export type Page = 'overview' | 'flights' | 'nights' | 'map' | 'stats' | 'geography';

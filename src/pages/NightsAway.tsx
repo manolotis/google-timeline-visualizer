@@ -2,13 +2,14 @@
  * Nights Away page — calendar heatmap and trip list.
  *
  * Renders per-year calendar heatmaps showing home/away status for each
- * night, a year selector, and a list of detected trips with their dates,
- * place counts, and distance from home, restricted to the globally selected
- * time range. The home location is auto-detected during preprocessing from
- * INFERRED_HOME / HOME visit entries.
+ * night, a year selector (kept in the URL), and a list of detected trips
+ * with their dates, place counts, and distance from home, restricted to the
+ * globally selected time range. The home location is auto-detected during
+ * preprocessing from INFERRED_HOME / HOME visit entries.
  */
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNightsAway, useTrips } from '../hooks/useData';
+import { setParams, useRoute } from '../route';
 import CalendarHeatmap from '../components/CalendarHeatmap';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
@@ -37,9 +38,13 @@ export default function NightsAway() {
     return [...s].sort((a, b) => b - a);
   }, [rangeNights]);
 
-  // The picked year only applies while it is still inside the global range
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const year = selectedYear !== null && years.includes(selectedYear) ? selectedYear : years[0];
+  // The picked year is kept in the URL (`year=2023`, absent for the default,
+  // the newest year) and only applies while it is inside the global range
+  const { params } = useRoute();
+  const pickedYear = /^\d{4}$/.test(params.year ?? '') ? Number(params.year) : null;
+  const year = pickedYear !== null && years.includes(pickedYear) ? pickedYear : years[0];
+  const pickYear = (y: number) =>
+    setParams({ year: y === years[0] ? null : String(y) }, { replace: true });
 
   // The part of the global range that falls inside the displayed year
   const yearWindow = useMemo(
@@ -111,7 +116,7 @@ export default function NightsAway() {
           {years.map((y) => (
             <button
               key={y}
-              onClick={() => setSelectedYear(y)}
+              onClick={() => pickYear(y)}
               className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
                 y === year
                   ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
