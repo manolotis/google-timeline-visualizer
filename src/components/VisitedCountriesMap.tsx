@@ -21,8 +21,8 @@ import { useTimeRange } from '../timeRange';
 import type { WorldCountryProperties } from '../types';
 import RegenerateHint from './RegenerateHint';
 
-/** Low → high days (Tailwind orange 700/600/400/300/200): brighter = more time on the dark map. */
-const RAMP = ['#c2410c', '#ea580c', '#fb923c', '#fdba74', '#fed7aa'];
+/** Low → high days (Tailwind orange 200/300/400/600/700): darker = more time, the usual choropleth convention. */
+const RAMP = ['#fed7aa', '#fdba74', '#fb923c', '#ea580c', '#c2410c'];
 const NOT_VISITED_COLOR = '#1f2937'; // gray-800
 const SEA_COLOR = '#030712'; // gray-950 — also the hairline gap between countries
 const HOVER_COLOR = '#f9fafb';
