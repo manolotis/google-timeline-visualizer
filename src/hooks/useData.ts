@@ -14,7 +14,7 @@ import type {
   NightEntry,
   Trip,
   Visit,
-  Home,
+  HomePeriod,
   RouteSegment,
   GeographyData,
   WorldCountries,
@@ -84,8 +84,9 @@ export function useVisits() {
   return useFetch<Visit[]>('/data/visits.json');
 }
 
-export function useHome() {
-  return useFetch<Home>('/data/home.json');
+/** Check the result with isStaleHome: older exports wrote a single {lat, lng}. */
+export function useHomePeriods() {
+  return useFetch<HomePeriod[]>('/data/home.json');
 }
 
 export function useRoutes() {

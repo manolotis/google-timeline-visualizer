@@ -15,9 +15,22 @@ import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
 // Types matching the preprocessed JSON output files
 
-export interface Home {
+/**
+ * home.json is a list of these, oldest first and non-overlapping: where you
+ * lived, and when. Nights outside every period (before the first, or in the
+ * gap between two) belong to the nearest period in time, ties to the earlier
+ * one — see homePeriodsInRange in aggregate.ts.
+ */
+export interface HomePeriod {
+  /** First night slept at this home (night key) */
+  start: string;
+  /** Last night slept there; null for the current (ongoing) home */
+  end: string | null;
   lat: number;
   lng: number;
+  /** Resolved from the offline city DB; null if not cached */
+  city: string | null;
+  country: string | null;
 }
 
 export interface Flight {
@@ -57,9 +70,11 @@ export interface Visit {
 
 export interface NightEntry {
   date: string;
+  /** Within 1 km of the home of this night's period (true when the night has no location) */
   isHome: boolean;
   lat?: number;
   lng?: number;
+  /** Distance from the home of this night's period */
   distKm?: number;
   placeId?: string;
 }

@@ -68,8 +68,13 @@ export function useTimeRange(): TimeRangeContextValue {
 const DAY_MS = 86_400_000;
 
 /** Days since 1970-01-01 (pure calendar arithmetic, no timezone involved). */
-function dayNumber(date: string): number {
+export function dayNumber(date: string): number {
   return Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / DAY_MS;
+}
+
+/** The date `days` days after `date` (negative goes back). */
+export function addDays(date: string, days: number): string {
+  return new Date((dayNumber(date) + days) * DAY_MS).toISOString().slice(0, 10);
 }
 
 /** 0 = Sunday … 6 = Saturday, for a 'YYYY-MM-DD' date. */

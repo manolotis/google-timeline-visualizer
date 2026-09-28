@@ -44,9 +44,11 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Summary stats: total flights, total distance, most repeated route, average duration
 
 ### 🌙 Nights Away from Home
+- **Multi-home support** — "home" is wherever you lived at the time. Home periods are detected automatically (see [Home Periods](#home-periods)), so after a move your new place counts as home and the old one becomes a destination like any other
+  - Every night, trip distance and away-night country is measured against the home of that night's period
+  - The page header lists the homes that apply to the selected range, e.g. "Eindhoven, Netherlands (2014–2026) → Tres Cantos, Spain (since 2026)"
 - **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
 - Year-by-year selector (years within the selected range) with per-year count and percentage
-- Auto-detection of **home location** from Google's `INFERRED_HOME` data
 - Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it)
 - Range stats: total nights away, total trips, longest trip, furthest trip
 
@@ -55,7 +57,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
 - Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
-- Home marker with permanent label
+- A home marker for every home that applies to the selected range, labelled with the years you lived there (e.g. "Home 2014–2026", "Home since 2026")
 
 ### 📈 Statistics
 - Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
@@ -93,14 +95,27 @@ Because every page respects the global time range, the preprocessor emits **date
 
 | File | Description |
 |---|---|
-| `home.json` | Auto-detected home coordinates (from `INFERRED_HOME` / `HOME` visits) |
+| `home.json` | Detected home periods, oldest first: `{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods)) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
 | `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
-| `nights-away.json` | Per-date home/away classification with distance from home |
+| `nights-away.json` | Per-date home/away classification, with distance from the home of that night's period |
 | `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
-| `trips.json` | Consecutive away-nights grouped into trips |
+| `trips.json` | Consecutive away-nights grouped into trips (distances from the home at the time) |
 | `routes.json` | All movement segments with polyline points and transport mode |
 | `stats.json` | Column-oriented log of every activity (date, start hour, mode, distance, duration) that the statistics are computed from |
+
+### Home Periods
+
+People move, so the preprocessor detects a list of home periods instead of one fixed home. Google's `HOME` / `INFERRED_HOME` labels tell it *which* places were homes, but not reliably *when*: whole months go unlabelled, and a family home you stay at over Christmas gets labelled `INFERRED_HOME` too. So the labels only nominate candidates, and the timeline comes from where you actually slept:
+
+1. **Candidate homes** — labelled visits are clustered by distance (within 1 km of each other). Distance rather than a coordinate grid, because a grid can split one home in two when it sits on a cell edge.
+2. **Monthly evidence** — each month is labelled with the candidate you slept at (within 1 km) most nights that month. Months with no such nights, or a tie, stay unlabelled.
+3. **Smoothing** — consecutive months with the same label form segments. The weakest segment shorter than `HOME_MIN_PERIOD_MONTHS` (default **5**) is dropped, again and again, until all segments are long enough. If a dropped segment sat between two segments of the same home, those two merge, and the months that interrupted them are subtracted from the merged total. So a Christmas at your parents', a summer away, or a three-month stint abroad stays a trip. Patchy early data that alternates between two places can't add up to a home either.
+4. **Dates** — a period ends on the last night slept at its home (up to the next home's first month, since moves happen mid-month). The next period starts on the first night at the new home after that. The first period starts on the first night ever slept at its home. The latest period is ongoing (`end: null`).
+
+Every night is then classified against the home of its period (more than 1 km away = a night away), and trips and the away-night geography follow. A night outside every period belongs to the **nearest period in time**, which covers nights before the first period and nights in the gap between moving out and moving in. When both periods are equally close, the earlier one wins. Days present are unaffected, since they don't depend on home.
+
+Limitations: a new home only shows up once you've mostly slept there for `HOME_MIN_PERIOD_MONTHS` months. Until then those nights count as away. A place Google never labels as home can't become one. Lower `HOME_MIN_PERIOD_MONTHS` if you want shorter stays, like a semester abroad, to count as homes.
 
 ### World Country Geometry
 
@@ -137,6 +152,7 @@ Environment variables for preprocess (all optional):
 | `CITY_DB_REFRESH_FALLBACK` | `1` | Retry existing fallback entries via online geocoding |
 | `CITY_DB_BUCKET_DEG` | `0.1` | Coordinate bucket size used for dedup/cache keys |
 | `CITY_DB_USER_AGENT` | `timeline-visualizer/1.0 (offline-db-auto-update)` | User-Agent header for Nominatim requests |
+| `HOME_MIN_PERIOD_MONTHS` | `5` | Months (net) a place must be where you slept most to count as a home period (see [Home Periods](#home-periods)) |
 
 Examples:
 
@@ -222,7 +238,7 @@ timeline-visualizer/
 │   ├── types.ts               # TypeScript interfaces for all data shapes
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
 │   ├── timeRange.ts           # Global time range: selection model, URL params, context, date/period helpers
-│   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, series)
+│   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, homes, series)
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
 │   │   └── useData.ts         # Cached fetch hooks for each data file
@@ -256,7 +272,6 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
-- **Multi-home support** — home periods over time instead of a single static home, for people who have moved
 - **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
 - **Firsts & streaks** — new countries/cities per year, longest travel streak, longest home streak
 - **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates
