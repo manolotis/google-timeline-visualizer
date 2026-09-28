@@ -205,7 +205,7 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order:
 
-- **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted (color intensity by days spent)
+- **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted, color intensity by days spent on a logarithmic (or quantile) scale so home/long-stay countries don't wash out briefly-visited ones
 - **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
 - **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
