@@ -19,9 +19,9 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Every view has its own URL: the page, the time range, and per-page view settings live in the address bar's `#` hash, so **a reload restores exactly what you were looking at**, and a bookmark or shared link reproduces it (the URL holds view settings only, never your data, so a link opens wherever your copy of the dashboard runs)
 - One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`, plus one per trip, named by its first night: `#/trip?start=2024-03-14`
 - Time range as compact parameters: `?range=2024` (a year), `?range=last12m`, or `?from=2024-03-01&to=2024-06-30` (either side may be left out); All time adds nothing
-- Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), and Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), e.g. `#/flights?range=2024&sort=distance`
+- Per-page settings: Flights sort order (`sort=distance` or `sort=duration`, `dir=asc`), the Nights Away year (`year=2023`), Travel Map layers (`show=walking`, `hide=flying,in_bus`, `places=off`), and whether the Travel Map player is open (`playback=on`), e.g. `#/flights?range=2024&sort=distance`
 - Only settings that differ from the defaults are written, so an untouched page stays a clean `#/overview`
-- Browser **back/forward** step through page and time-range changes (typing a custom date range counts as one step); sorting, year picks, and layer toggles update the current entry instead of piling up history
+- Browser **back/forward** step through page and time-range changes (typing a custom date range counts as one step); sorting, year picks, layer toggles, and opening the player update the current entry instead of piling up history
 - The nav tabs are real links: middle-click or Ctrl/⌘-click opens a page in a new tab with the current time range. The browser tab title names the page and range, which also names your bookmarks
 - Unknown pages fall back to the Overview for all time, and unreadable parameters are ignored, so a mistyped link never breaks the app. A trip link whose date falls inside a trip opens that trip (so links survive trips being regrouped by a later preprocess run); one that matches no trip opens that year's trip list
 
@@ -72,11 +72,19 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ### 🗺️ Travel Map
 - Full-screen interactive Leaflet map with dark CARTO basemap
-- Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
+- Thousands of route segments drawn on a canvas, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
 - Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
 - A home marker for every home that applies to the selected range, labelled with the years you lived there (e.g. "Home 2014–2026", "Home since 2026")
 - A teal ring for every [family home](#family-homes) stayed at in the selected range, labelled with its name
+- **▶ Playback** — watch your travel history draw itself. The Playback button opens a player bar over the map that replays the selected range (all your data for All time) in chronological order:
+  - Segments appear as the date passes their start. The newest glow wider and brighter for about a second before settling into their normal style, and a dot marks where the latest one ended, so your eye can follow the movement
+  - Places and homes appear as they are first visited in the range, so the last frame is the usual map
+  - Play/pause, a big current-date label (with the weekday and how many segments are drawn), and a scrubber spanning the range: click or drag anywhere to jump (playback pauses while you drag). A strip above it shows when you were on the move, filled in orange up to the current date
+  - Speeds of 1 day, 1 week, 1 month, 3 months or 1 year per second. The default is the slowest that plays the whole range within a minute: 3 months/s for all time, 1 week/s for a single year
+  - Mode toggles, the Places layer and the time-range picker keep working mid-playback; a new range keeps the current date if it falls inside it, otherwise playback jumps to the nearest end of the new range
+  - Keyboard, while the bar has focus: **Space** play/pause, **←/→** step a day, **Shift+←/→** step one second's worth at the current speed, **Home/End** jump to the ends
+  - Whether the player is open is part of the URL (`playback=on`), the position is not: a shared link opens the player at the start of the range
 
 ### 📈 Statistics
 - Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
@@ -338,6 +346,9 @@ timeline-visualizer/
 │   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, homes, series)
 │   ├── trip.ts                # Trip detail: finds a trip by date, derives its map, nights, cities, flights
 │   ├── flight.ts              # Great-circle arcs and duration formatting for flights
+│   ├── routeIndex.ts          # routes.json packed into chronological typed arrays for drawing
+│   ├── routeCanvas.ts         # Leaflet canvas layer drawing the Travel Map routes up to the playback time
+│   ├── playback.ts            # Travel Map playback clock, speeds, and hooks
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
 │   │   └── useData.ts         # Cached fetch hooks for each data file
@@ -350,6 +361,7 @@ timeline-visualizer/
 │   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
 │   │   ├── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
 │   │   ├── VisitedCountriesMap.tsx # Visited-countries choropleth (Overview)
+│   │   ├── PlaybackBar.tsx    # Travel Map player: play/pause, date, scrubber, speed
 │   │   └── FirstsAndStreaks.tsx # New countries/cities per year, travel/home streaks, firsts (Statistics)
 │   └── pages/
 │       ├── Overview.tsx       # Dashboard home with stat cards and summary charts
@@ -357,7 +369,7 @@ timeline-visualizer/
 │       ├── Geography.tsx      # Countries/cities by days spent
 │       ├── NightsAway.tsx     # Calendar heatmap + trip list
 │       ├── TripDetail.tsx     # One trip: map, night-by-night stops, cities, flights
-│       ├── TravelMap.tsx      # Full-screen map with route/mode/place layers
+│       ├── TravelMap.tsx      # Full-screen map with route/mode/place layers and playback
 │       └── Statistics.tsx     # Detailed charts, patterns, and top places
 ├── package.json
 ├── tsconfig.json
@@ -372,7 +384,6 @@ timeline-visualizer/
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
-- **Animated playback** — scrub through time and watch your travel history draw itself
 - **Year-vs-year comparison** view
 - Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
 
