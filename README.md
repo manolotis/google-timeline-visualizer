@@ -74,6 +74,10 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Day-of-week radar chart showing activity distribution
 - Hour-of-day bar chart for movement patterns
 - Top 20 most visited places in the range, showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
+- **🏆 Firsts & Streaks**, at the bottom of the page:
+  - **New countries/cities per year** — each country/city's *lifetime* first-visit year (from all-time data, not the selected range), listed as chip rows per year with an expandable list for long years; the selected range only limits which years are shown, it never changes which year counts as "new"
+  - **Longest travel streak** and **longest home streak** — the longest run of consecutive nights away from / at home, computed for the selected range and clipped at its edges like every other range-aware number in the app; a night with no tracked location data ends a streak, and the travel streak also lists the distinct cities visited during it
+  - **Firsts stat cards** — first flight on record, farthest-ever single night from home, and the year with the most newly visited countries (all all-time, like the per-year lists above)
 
 ### 🧭 Geography
 - Countries and cities ranked by away-days in the selected range, with summary cards and full share-of-total tables
@@ -261,7 +265,8 @@ timeline-visualizer/
 │   │   ├── TimeRangeControl.tsx  # Top-bar range picker (presets + custom dates)
 │   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
 │   │   ├── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
-│   │   └── VisitedCountriesMap.tsx # Visited-countries choropleth (Overview)
+│   │   ├── VisitedCountriesMap.tsx # Visited-countries choropleth (Overview)
+│   │   └── FirstsAndStreaks.tsx # New countries/cities per year, travel/home streaks, firsts (Statistics)
 │   └── pages/
 │       ├── Overview.tsx       # Dashboard home with stat cards and summary charts
 │       ├── Flights.tsx        # Flight log table + great-circle arc map
@@ -284,7 +289,6 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
-- **Firsts & streaks** — new countries/cities per year, longest travel streak, longest home streak
 - **Family-home option** — mark a place (e.g. a family home you visit every year) as never "away", so recurring stays there don't count as trips; complements home periods
 - **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates
 - **Animated playback** — scrub through time and watch your travel history draw itself

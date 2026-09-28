@@ -6,7 +6,7 @@
  * run in record order and round the same way preprocess used to round its
  * all-time totals, so the unfiltered numbers match exactly.
  */
-import type { Stats, Visit, Trip, GeographyData, HomePeriod } from './types';
+import type { Stats, Visit, Trip, GeographyData, HomePeriod, NightEntry, Flight } from './types';
 import {
   inRange,
   overlapsRange,
@@ -357,4 +357,160 @@ export function periodSeries(
     label: periodLabel(key),
     value: transform(values.get(key) ?? 0),
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Firsts & streaks (nights-away.json, geography.json, flights.json)
+//
+// "New" countries/cities are always all-time — the year of their first-ever
+// presence/night — never relative to the selected range (a range only
+// changes which of those years get displayed; see rangeOverlapsYear).
+// Streaks are the opposite: computed only from nights inside the selected
+// range, clipped at its edges like every other range-aware aggregation here.
+// ---------------------------------------------------------------------------
+
+export interface YearFirsts<T> {
+  year: number;
+  items: T[];
+}
+
+function groupFirstYears<T>(
+  firstYear: Map<number, number>,
+  build: (index: number) => T,
+  sortItems: (a: T, b: T) => number,
+): YearFirsts<T>[] {
+  const byYear = new Map<number, number[]>();
+  for (const [index, year] of firstYear) {
+    const list = byYear.get(year);
+    if (list) list.push(index);
+    else byYear.set(year, [index]);
+  }
+  return [...byYear.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([year, indices]) => ({ year, items: indices.map(build).sort(sortItems) }));
+}
+
+/**
+ * Countries grouped by the year of their first-ever day present (from
+ * `presence`, all-time, ISO-merged countries), ascending by year.
+ */
+export function newCountriesByYear(geo: GeographyData): YearFirsts<{ country: string; iso3: string | null }>[] {
+  const firstYear = new Map<number, number>();
+  for (const [date, countries] of geo.presence) {
+    const year = +date.slice(0, 4);
+    for (const c of countries) if (!firstYear.has(c)) firstYear.set(c, year);
+  }
+  return groupFirstYears(
+    firstYear,
+    (i) => geo.countries[i],
+    (a, b) => a.country.localeCompare(b.country),
+  );
+}
+
+/** Cities grouped by the year of their first-ever away night (from `nights`, all-time). */
+export function newCitiesByYear(geo: GeographyData): YearFirsts<{ city: string; country: string }>[] {
+  const firstYear = new Map<number, number>();
+  for (const n of geo.nights) {
+    if (n.city === null) continue;
+    const year = +n.date.slice(0, 4);
+    if (!firstYear.has(n.city)) firstYear.set(n.city, year);
+  }
+  return groupFirstYears(
+    firstYear,
+    (i) => ({ city: geo.cities[i].city, country: geo.countries[geo.cities[i].country].country }),
+    (a, b) => a.city.localeCompare(b.city),
+  );
+}
+
+/** Whether a calendar year has any day inside `range` (open bounds included). */
+export function rangeOverlapsYear(range: DateRange, year: number): boolean {
+  return overlapsRange(`${year}-01-01`, `${year}-12-31`, range);
+}
+
+/** The year with the most first-evers, ties keep the earliest year. */
+export function peakYear<T>(byYear: YearFirsts<T>[]): YearFirsts<T> | null {
+  return byYear.length
+    ? byYear.reduce((a, b) => (b.items.length > a.items.length ? b : a))
+    : null;
+}
+
+export interface Streak {
+  start: string;
+  end: string;
+  nights: number;
+}
+
+/**
+ * Longest run of consecutive calendar nights matching `matches`, within
+ * `range` (clipped at its edges, same rule as every range-aware aggregation
+ * here). A night missing from `nights` — untracked — breaks the streak just
+ * like a night that fails `matches`, since the run only advances between
+ * calendar-adjacent entries; nights-away.json is dated day by day, so this
+ * only matters if tracking itself has a gap.
+ */
+export function longestNightStreak(
+  nights: NightEntry[],
+  range: DateRange,
+  matches: (n: NightEntry) => boolean,
+): Streak | null {
+  let best: Streak | null = null;
+  let run: Streak | null = null;
+  let prevDate: string | null = null;
+
+  for (const n of nights) {
+    if (!inRange(n.date, range)) continue;
+    if (matches(n)) {
+      const contiguous = prevDate !== null && dayNumber(n.date) === dayNumber(prevDate) + 1;
+      run = contiguous && run
+        ? { start: run.start, end: n.date, nights: run.nights + 1 }
+        : { start: n.date, end: n.date, nights: 1 };
+      if (!best || run.nights > best.nights) best = run;
+    } else {
+      run = null;
+    }
+    prevDate = n.date;
+  }
+  return best;
+}
+
+/**
+ * Distinct cities slept in during a streak, first-seen order. Fully
+ * deduplicated (not just consecutive nights) since a streak can loop back
+ * through the same base city — e.g. a multi-stop trip with a home-base city
+ * revisited between side trips — and repeating that name in a chip list adds
+ * nothing.
+ */
+export function streakCities(geo: GeographyData, streak: Streak): string[] {
+  const span: DateRange = { start: streak.start, end: streak.end };
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const night of geo.nights) {
+    if (!inRange(night.date, span)) continue;
+    if (night.city === null) continue;
+    const name = geo.cities[night.city].city;
+    if (!seen.has(name)) {
+      seen.add(name);
+      names.push(name);
+    }
+  }
+  return names;
+}
+
+/** The single farthest-ever night from home (all-time, ignores the selected range). */
+export function farthestNightEver(nights: NightEntry[]): NightEntry | null {
+  let best: NightEntry | null = null;
+  for (const n of nights) {
+    if (n.isHome || n.distKm == null) continue;
+    if (!best || n.distKm > (best.distKm ?? -Infinity)) best = n;
+  }
+  return best;
+}
+
+/** The earliest-dated flight (all-time). */
+export function firstFlightEver(flights: Flight[]): Flight | null {
+  let best: Flight | null = null;
+  for (const f of flights) {
+    if (!best || f.date < best.date) best = f;
+  }
+  return best;
 }

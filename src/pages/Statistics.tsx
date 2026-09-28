@@ -4,14 +4,16 @@
  *
  * Includes: distance by transport mode (horizontal bar chart), activity
  * count by mode, distance trend and unique places per year (or per month
- * for short ranges), day-of-week activity radar, hour-of-day histogram,
- * and a top-20 most visited places table.
+ * for short ranges), day-of-week activity radar, hour-of-day histogram, a
+ * top-20 most visited places table, and a Firsts & Streaks section (new
+ * countries/cities per year, longest travel/home streaks, notable firsts).
  */
 import { useMemo } from 'react';
 import { useStats, useVisits } from '../hooks/useData';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
+import FirstsAndStreaks from '../components/FirstsAndStreaks';
 import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR, CHART_TOOLTIP_STYLE } from '../constants';
 import { summarizeActivities, summarizeVisits, periodSeries, isHomePlace } from '../aggregate';
 import { useTimeRange, rangePeriods, statsBounds, periodNoun } from '../timeRange';
@@ -51,6 +53,10 @@ export default function Statistics() {
       <div className="p-6 max-w-7xl mx-auto space-y-8">
         {header}
         <NoDataInRange />
+        {/* Self-contained: loads its own data, so it can still have something
+            to show (e.g. all-time new countries/cities) even when the mode
+            and place stats above are empty for this range. */}
+        <FirstsAndStreaks />
       </div>
     );
   }
@@ -314,6 +320,9 @@ export default function Statistics() {
           </div>
         )}
       </div>
+
+      {/* Firsts & Streaks (self-contained: loads its own data) */}
+      <FirstsAndStreaks />
     </div>
   );
 }
