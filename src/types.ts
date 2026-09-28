@@ -1,195 +1,44 @@
 /**
- * Shared TypeScript interfaces for all preprocessed data shapes.
+ * TypeScript types for all data shapes the frontend reads.
  *
- * These types mirror the JSON structure produced by scripts/preprocess.ts
- * and are consumed by the React hooks in hooks/useData.ts. Shapes derived
- * client-side for the selected time range live in aggregate.ts.
+ * The generated datasets' types are defined once, by the pipeline that
+ * produces them (src/pipeline/types.ts, shared by the CLI and the in-browser
+ * import), and re-exported here, so there is nothing to keep in sync by
+ * hand. Shapes derived client-side for the selected time range live in
+ * aggregate.ts.
  *
- * Dates are 'YYYY-MM-DD' local calendar dates: the date where the user was
- * at the time, from the UTC offsets the export records for every visit and
- * activity (not the phone's time zone). Timestamps are ISO strings written
- * in that local offset (e.g. '2024-12-10T13:35:57.000-08:00'), so their
- * 'YYYY-MM-DD' prefix is the local date and their hour the local hour;
- * compare them with Date.parse, not as strings, since offsets differ. A
- * night is keyed by the local date of the evening it begins.
+ * Dates are 'YYYY-MM-DD' local calendar dates and timestamps are ISO strings
+ * in the local UTC offset where things happened; see src/pipeline/types.ts.
  */
 
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 
-// Types matching the preprocessed JSON output files
-
-/**
- * home.json is a list of these, oldest first and non-overlapping: where you
- * lived, and when. Nights outside every period (before the first, or in the
- * gap between two) belong to the nearest period in time, ties to the earlier
- * one — see homePeriodsInRange in aggregate.ts.
- */
-export interface HomePeriod {
-  /** First night slept at this home (night key) */
-  start: string;
-  /** Last night slept there; null for the current (ongoing) home */
-  end: string | null;
-  lat: number;
-  lng: number;
-  /** Resolved from the offline city DB; null if not cached */
-  city: string | null;
-  country: string | null;
-}
-
-export interface Flight {
-  /** Local departure date */
-  date: string;
-  /** Local departure time (in the departure's UTC offset) */
-  startTime: string;
-  /** Local arrival time (in the arrival's UTC offset) */
-  endTime: string;
-  startLat: number;
-  startLng: number;
-  endLat: number;
-  endLng: number;
-  distanceKm: number;
-  durationMin: number;
-  path: [number, number][];
-  originPlaceId?: string;
-  destPlaceId?: string;
-  startCity?: string;
-  startCountry?: string;
-  endCity?: string;
-  endCountry?: string;
-  /** Nearest airport (within ~40 km) to the departure point; null if none matched */
-  startAirport?: { iata: string; name: string } | null;
-  /** Nearest airport (within ~40 km) to the arrival point; null if none matched */
-  endAirport?: { iata: string; name: string } | null;
-  /** Estimated kg CO2e for this flight (great-circle distance + detour, DEFRA-style factor by haul, RF-adjusted) */
-  co2Kg?: number;
-}
-
-export interface Visit {
-  placeId: string;
-  lat: number;
-  lng: number;
-  semanticType: string;
-  visitCount: number;
-  totalHours: number;
-  firstVisit: string;
-  lastVisit: string;
-  /** Every stay at this place: [local start date, duration in seconds] */
-  stays: [string, number][];
-  /** Resolved city/country name (offline city DB); absent if unresolved */
-  city?: string;
-  country?: string;
-}
-
-/**
- * family-homes.json: the family homes configured in timeline-config.json
- * (`[]` without one; missing in exports from before family homes). A night
- * spent at one isn't away; see NightEntry.family.
- */
-export interface FamilyHome {
-  /** From the config, else the resolved city name, else 'Family home' */
-  label: string;
-  lat: number;
-  lng: number;
-  /** Nights within this distance of the point count as spent there */
-  radiusKm: number;
-}
-
-export interface NightEntry {
-  /** The local date of the evening the night begins (20:00 → 08:00 local) */
-  date: string;
-  /**
-   * Not a night away: within 1 km of the home of this night's period, or at a
-   * family home (then `family` is set too). True when the night has no location.
-   */
-  isHome: boolean;
-  /**
-   * Label of the family home (family-homes.json) the night was spent at. Only
-   * on nights that would otherwise be away, so never while that place is the
-   * period's home. Use isOwnHomeNight (aggregate.ts) for nights at home proper.
-   */
-  family?: string;
-  lat?: number;
-  lng?: number;
-  /** Distance from the home of this night's period */
-  distKm?: number;
-  placeId?: string;
-}
-
-/** geography.json */
-export interface GeographyData {
-  /**
-   * One entry per country, merged by ISO code so geocoder spellings like
-   * "USA" / "United States" are a single country. `iso3` is the ISO 3166-1
-   * alpha-3 code of the matching world-countries.geo.json feature (null if
-   * unmatched) and `country` that feature's display name (else the raw name).
-   */
-  countries: { country: string; iso3: string | null }[];
-  /** Distinct cities that away nights resolved to; `country` indexes `countries` */
-  cities: { city: string; country: number; lat: number; lng: number }[];
-  /** One entry per away night; `city` indexes `cities` (null = unresolved) */
-  nights: { date: string; city: number | null }[];
-  /**
-   * Days present, sorted by date: every local calendar date with at least
-   * one recorded visit, with the countries (indices into `countries`) visited
-   * that day. Home time, day trips and layovers count; a visit spanning
-   * several dates counts for each, and a travel day lists both countries.
-   */
-  presence: [string, number[]][];
-}
+export type {
+  Datasets,
+  DatasetKey,
+  FamilyHome,
+  Flight,
+  GeographyData,
+  HomePeriod,
+  MatchedAirport,
+  NightEntry,
+  RouteSegment,
+  Stats,
+  Trip,
+  TripPlace,
+  Visit,
+} from './pipeline/types';
 
 /**
  * Feature properties of public/world-countries.geo.json — a vendored,
- * simplified Natural Earth admin-0 file (not generated by preprocess, which
- * only reads its names to attach ISO codes).
+ * simplified Natural Earth admin-0 file (not generated by the pipeline,
+ * which only reads its names to attach ISO codes).
  */
 export interface WorldCountryProperties {
   iso3: string;
   name: string;
-  /** Alternative names, used by preprocess for matching */
+  /** Alternative names, used by the pipeline for matching */
   names: string[];
 }
 
 export type WorldCountries = FeatureCollection<Polygon | MultiPolygon, WorldCountryProperties>;
-
-export interface TripPlace {
-  placeId: string;
-  lat: number;
-  lng: number;
-  nights: number;
-}
-
-export interface Trip {
-  startDate: string;
-  endDate: string;
-  nights: number;
-  places: TripPlace[];
-  maxDistKm: number;
-}
-
-export interface RouteSegment {
-  /** Local start time */
-  startTime: string;
-  mode: string;
-  points: [number, number][];
-}
-
-/**
- * stats.json — one row per activity (movement) segment, stored column-wise:
- * index i of every `activities` array describes the same activity.
- */
-export interface Stats {
-  /** Local timestamps of the first segment's start and the last segment's end (the first and last nights' dates) */
-  dateRange: { start: string; end: string };
-  /** Transport mode names; `activities.mode` holds indices into this list */
-  modes: string[];
-  activities: {
-    date: string[];
-    /** Local start hour, 0–23 */
-    hour: number[];
-    mode: number[];
-    /** Distance in meters, unrounded */
-    meters: number[];
-    /** Duration in seconds */
-    seconds: number[];
-  };
-}

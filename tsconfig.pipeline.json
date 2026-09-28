@@ -1,0 +1,11 @@
+{
+  // Type-checks src/pipeline/ with neither DOM nor Node types, proving the
+  // shared pipeline runs in both the browser (Web Worker) and Node (CLI).
+  // Run by `npm run typecheck` next to the main tsconfig.json.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/pipeline"]
+}

@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && tsc --noEmit -p tsconfig.pipeline.json && vite build",
     "preview": "vite preview",
     "preprocess": "npx tsx scripts/preprocess.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.pipeline.json",
     "lint": "eslint src scripts"
   },
   "dependencies": {
