@@ -27,6 +27,7 @@ import {
   familyHomesInRange,
 } from '../aggregate';
 import { useTimeRange, inRange } from '../timeRange';
+import RegenerateHint from '../components/RegenerateHint';
 import 'leaflet/dist/leaflet.css';
 
 // Fit map bounds to data
@@ -212,8 +213,7 @@ export default function TravelMap() {
 
         {staleHome && (
           <span className="text-xs text-gray-400">
-            Re-run <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
-            to show your homes
+            <RegenerateHint /> to show your homes
           </span>
         )}
 

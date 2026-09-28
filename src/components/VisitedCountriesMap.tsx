@@ -19,6 +19,7 @@ import { useGeography, useWorldCountries } from '../hooks/useData';
 import { isStaleGeography, summarizeGeography, type GeographyCountry } from '../aggregate';
 import { useTimeRange } from '../timeRange';
 import type { WorldCountryProperties } from '../types';
+import RegenerateHint from './RegenerateHint';
 
 /** Low → high days (Tailwind orange 700/600/400/300/200): brighter = more time on the dark map. */
 const RAMP = ['#c2410c', '#ea580c', '#fb923c', '#fdba74', '#fed7aa'];
@@ -241,8 +242,7 @@ export default function VisitedCountriesMap() {
   } else if (stale) {
     body = (
       <p className="text-sm text-gray-400 py-10 text-center">
-        Re-run <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
-        to generate per-country day totals for this map.
+        <RegenerateHint /> to generate per-country day totals for this map.
       </p>
     );
   } else {

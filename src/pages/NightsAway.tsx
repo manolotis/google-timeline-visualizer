@@ -37,6 +37,7 @@ import {
   yearRange,
   selectionToParams,
 } from '../timeRange';
+import RegenerateHint from '../components/RegenerateHint';
 
 export default function NightsAway() {
   const { data: nights, loading: nl, error } = useNightsAway();
@@ -102,8 +103,7 @@ export default function NightsAway() {
       <h1 className="text-3xl font-bold text-white">Nights Away from Home</h1>
       {staleHome ? (
         <p className="text-sm text-gray-400 mt-1">
-          Re-run <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
-          to detect where you lived over time.
+          <RegenerateHint /> to detect where you lived over time.
         </p>
       ) : rangeHomes.length > 0 && (
         <p className="text-gray-400 mt-1" title="Each night is measured from the home you lived in at the time">

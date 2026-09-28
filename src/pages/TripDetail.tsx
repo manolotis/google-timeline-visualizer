@@ -39,6 +39,7 @@ import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import type { Flight } from '../types';
+import RegenerateHint from '../components/RegenerateHint';
 import 'leaflet/dist/leaflet.css';
 
 const STAY_COLOR = '#f97316';
@@ -418,7 +419,7 @@ function Places({ summary }: { summary: TripSummary }) {
       <h2 className="text-lg font-semibold text-white mb-4">Cities &amp; Countries</h2>
       {!geography ? (
         <p className="text-sm text-gray-500">
-          City data is unavailable; re-run <code className="text-orange-400">npm run preprocess</code>.
+          City data is unavailable. <RegenerateHint />.
         </p>
       ) : (
         <div className="space-y-5">

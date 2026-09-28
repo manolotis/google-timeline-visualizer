@@ -170,9 +170,10 @@ export function isStaleHome(home: HomePeriod[]): boolean {
 
 /**
  * The home periods that apply to some night in the range, oldest first.
- * Mirrors preprocess: a night outside every period belongs to the nearest
- * one in time (ties to the earlier), so a period reaches halfway into the
- * gaps around it, and the first and last periods extend indefinitely.
+ * Mirrors periodIndexForDate (src/pipeline/homes.ts): a night outside every
+ * period belongs to the nearest one in time (ties to the earlier), so a
+ * period reaches halfway into the gaps around it, and the first and last
+ * periods extend indefinitely.
  */
 export function homePeriodsInRange(periods: HomePeriod[], range: DateRange): HomePeriod[] {
   const reach = (end: string, nextStart: string) =>

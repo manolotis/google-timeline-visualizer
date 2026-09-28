@@ -5,12 +5,14 @@
  * time-range control, and conditionally mounts the page named by the URL
  * hash below (see route.ts). TimeRangeProvider wraps the page switch so the
  * selected range survives navigation (pages unmount when you switch tabs).
+ * Below the page, DataFooter names the data source and offers re-import.
  */
 import { useEffect } from 'react';
 import { routeHref, useRoute, type Page, type Route } from './route';
 import { selectionToParams, useTimeRange } from './timeRange';
 import TimeRangeProvider from './components/TimeRangeProvider';
 import TimeRangeControl from './components/TimeRangeControl';
+import DataFooter from './components/DataFooter';
 import { APP_TITLE } from './constants';
 import Overview from './pages/Overview';
 import Flights from './pages/Flights';
@@ -111,6 +113,9 @@ export default function App() {
           {page === 'geography' && <Geography />}
           {page === 'trip' && <TripDetail />}
         </main>
+
+        {/* Data source + re-import / clear; the Travel Map fills the viewport instead */}
+        {page !== 'map' && <DataFooter />}
       </div>
     </TimeRangeProvider>
   );

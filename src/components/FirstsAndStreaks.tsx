@@ -33,6 +33,7 @@ import {
   type Streak,
 } from '../aggregate';
 import { useTimeRange, type DateRange } from '../timeRange';
+import RegenerateHint from './RegenerateHint';
 
 function Chip({ children }: { children: ReactNode }) {
   return (
@@ -230,9 +231,8 @@ export default function FirstsAndStreaks() {
       {stale ? (
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
           <p className="text-sm text-gray-400">
-            Re-run{' '}
-            <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
-            to generate the per-date country presence that new countries/cities per year needs.
+            <RegenerateHint /> to generate the per-date country presence that new countries/cities per
+            year needs.
           </p>
         </div>
       ) : (

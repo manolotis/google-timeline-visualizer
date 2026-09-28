@@ -11,14 +11,14 @@
  * data is public domain (Unlicense) — see https://ourairports.com/data/ for
  * the source's own terms.
  *
- * This script downloads that CSV (the only network use in this whole tool;
- * preprocess.ts itself never fetches it — see CLAUDE.md) and trims it down
- * to what the flights feature needs: `large_airport` and `medium_airport`
- * rows that have an IATA code, keeping only iata, name, lat/lng,
+ * This script downloads that CSV (a one-off network use; neither
+ * `npm run preprocess` nor the in-browser import fetches it — see CLAUDE.md)
+ * and trims it down to what the flights feature needs: `large_airport` and
+ * `medium_airport` rows that have an IATA code, keeping only iata, name, lat/lng,
  * municipality, and size (large/medium, used to break near-ties when
  * matching a flight's endpoint to the nearest airport — see
- * `findNearestAirport` in preprocess.ts). The result is committed at
- * scripts/data/airports.json so the app never fetches it at runtime.
+ * `findNearestAirport` in src/pipeline/airports.ts). The result is committed
+ * at scripts/data/airports.json so the app never fetches it at runtime.
  */
 import * as fs from 'fs';
 import * as path from 'path';
