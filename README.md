@@ -1,10 +1,20 @@
 # 🌍 Timeline Visualizer
 
-A personal travel dashboard that transforms your Google Maps Timeline export into rich, interactive visualizations. Explore your flights, trips, nights away from home, movement patterns, and more — all running locally in your browser.
+A personal travel dashboard that transforms your Google Maps Timeline export into rich, interactive visualizations. Explore your flights, trips, nights away from home, movement patterns, and more — all running locally in your browser. Drop your `Timeline.json` on the page and the dashboard builds itself; nothing is uploaded.
 
 ## Features
 
 Everything you can currently see and do with the tool, page by page. Planned additions live in the [Roadmap](#roadmap); when a roadmap item ships, it moves up into this list.
+
+### 📥 In-Browser Import
+- **Drag and drop your `Timeline.json`** onto the dashboard (or pick it with the file chooser): it's processed right in your browser, in a background thread (a Web Worker) so the page stays responsive. No Node.js step needed; a 13-year, 83 MB export takes about a second on a desktop
+- **Nothing leaves your machine**: the file is read and processed locally, and cities are resolved with the offline city database that ships with the app, never by asking an online service (see [Offline City Database](#offline-city-database))
+- Phase-by-phase progress (reading, parsing, visits, cities, flights, nights, home periods, geography, trips, activities, routes, saving), with a Cancel button
+- The result is **kept in your browser** (IndexedDB), so it's there on every reload until you clear it. A footer names where the data came from, with **Re-import** (for a newer export) and **Clear imported data**
+- Optional [family homes](#family-homes): paste or load a `timeline-config.json` at import time; it's validated as you type and kept in the browser with the imported data
+- Readable errors instead of a blank page: a JSON file that isn't a Timeline export, the old Google Takeout formats, a ZIP archive, an empty, truncated or malformed file, a file too large for the browser, running out of memory, or the browser refusing to store the result
+- The same data as the command-line [`npm run preprocess`](#command-line-preprocessing): both run the same pipeline code, and an import is byte-identical to an offline command-line run (`CITY_DB_ENABLE_ONLINE=0`) of the same export and config. When both exist, **the browser import wins** over `public/data/`; clearing it falls back to `public/data/`
+- The dashboard itself still runs from `npm run dev` (or any static host serving a build); what's gone is the separate Node preprocessing step
 
 ### 📅 Global Time Range
 - One **date-range picker in the top bar**, visible on every page: pick a period once and every stat card, chart, table, heatmap, and map shows only that period
@@ -97,26 +107,38 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ## Architecture
 
-The raw `Timeline.json` is too large (~100MB) to load directly in the browser. A preprocessing step extracts and computes derived datasets that the frontend loads on demand.
+The raw `Timeline.json` is large (~100 MB) and slow to crunch, so it's processed once into small derived datasets (a few MB) that the dashboard reads. That processing is one shared, environment-agnostic **pipeline** (`src/pipeline/`), run either in your browser or from the command line:
 
 ```
-Timeline.json (raw Google export)
-       │
-       ▼
- scripts/preprocess.ts   ← Node.js preprocessing script
-       │
-       ▼
- public/data/*.json      ← Lightweight derived datasets
-       │
-       ▼
- React + Vite SPA        ← Static site, loads JSON via fetch
+            In the browser (default)            Command line (optional)
+            ────────────────────────            ───────────────────────
+            drop Timeline.json on the page      npm run preprocess
+                        │                                   │
+                        ▼                                   ▼
+            src/import/worker.ts                scripts/preprocess.ts
+            Web Worker, offline-only            Node; optional online city
+                        │                       lookups + city-DB write-back
+                        │                                   │
+                        ├──── src/pipeline/ (shared) ───────┤
+                        ▼                                   ▼
+            IndexedDB (this browser)            public/data/*.json
+                        │                                   │
+                        └────────► src/hooks/useData.ts ◄───┘
+                             (the import wins if both exist)
+                                             │
+                                             ▼
+                                  React + Vite SPA pages
 ```
 
-Because every page respects the global time range, the preprocessor emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Every date is a **local calendar date**: where you were at the time, not where your phone's clock was set (see [Local Time](#local-time)).
+- **The pipeline** takes the parsed export plus the committed reference data (offline city database, airports, world-country names) and an optional family-home config, and returns every dataset. It has no file system, network, DOM or Node dependencies (a dedicated TypeScript config checks that), so the same code runs in both places, and it defines the datasets' TypeScript types that the frontend uses.
+- **In the browser**, a Web Worker reads and parses the file, runs the pipeline with city resolution offline-only, and hands back each dataset as JSON text; the page stores it in IndexedDB.
+- **On the command line**, `npm run preprocess` reads the files and environment variables, can plug in online Nominatim lookups (which also grow the committed offline city database), and writes `public/data/*.json`.
+
+Because every page respects the global time range, the pipeline emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Every date is a **local calendar date**: where you were at the time, not where your phone's clock was set (see [Local Time](#local-time)).
 
 ### Local Time
 
-The export writes all its timestamps in your phone's time zone, so a flight leaving San Francisco at 13:35 can read `22:35+01:00`. It also records the real UTC offset where every visit and every movement started and ended, and the preprocessor uses those offsets throughout:
+The export writes all its timestamps in your phone's time zone, so a flight leaving San Francisco at 13:35 can read `22:35+01:00`. It also records the real UTC offset where every visit and every movement started and ended, and the pipeline uses those offsets throughout:
 
 - Stays, activities (including the hour-of-day and day-of-week statistics), routes, and flights are dated by the local date and time where they started; a flight's date is its local departure date, and the trip detail page shows local departure times
 - Days present count each local calendar date a visit spans
@@ -124,6 +146,8 @@ The export writes all its timestamps in your phone's time zone, so a flight leav
 - Trips therefore run from the day you leave (the first night's date) to the day you get back (the morning after the last night)
 
 ### Generated Data Files
+
+The pipeline produces these datasets. `npm run preprocess` writes them as files to `public/data/`; the in-browser import keeps the same JSON text in IndexedDB (database `timeline-visualizer`, one record per dataset). Their TypeScript types live in `src/pipeline/types.ts`.
 
 | File | Description |
 |---|---|
@@ -139,7 +163,7 @@ The export writes all its timestamps in your phone's time zone, so a flight leav
 
 ### Home Periods
 
-People move, so the preprocessor detects a list of home periods instead of one fixed home. Google's `HOME` / `INFERRED_HOME` labels tell it *which* places were homes, but not reliably *when*: whole months go unlabelled, and a family home you stay at over Christmas gets labelled `INFERRED_HOME` too. So the labels only nominate candidates, and the timeline comes from where you actually slept:
+People move, so the pipeline detects a list of home periods instead of one fixed home. Google's `HOME` / `INFERRED_HOME` labels tell it *which* places were homes, but not reliably *when*: whole months go unlabelled, and a family home you stay at over Christmas gets labelled `INFERRED_HOME` too. So the labels only nominate candidates, and the timeline comes from where you actually slept:
 
 1. **Candidate homes** — labelled visits are clustered by distance (within 1 km of each other). Distance rather than a coordinate grid, because a grid can split one home in two when it sits on a cell edge.
 2. **Monthly evidence** — each month is labelled with the candidate you slept at (within 1 km) most nights that month. Months with no such nights, or a tie, stay unlabelled.
@@ -152,7 +176,7 @@ Limitations: a new home only shows up once you've mostly slept there for `HOME_M
 
 ### Family Homes
 
-Home periods keep a place you only visit, however often, from becoming home: a month at your parents' every Christmas and summer stays a string of trips. If you'd rather not count those stays as travel, list the place as a **family home** in an optional `timeline-config.json` in the project root, next to `Timeline.json`, and re-run `npm run preprocess`:
+Home periods keep a place you only visit, however often, from becoming home: a month at your parents' every Christmas and summer stays a string of trips. If you'd rather not count those stays as travel, list the place as a **family home** in an optional config in this format:
 
 ```json
 {
@@ -169,7 +193,12 @@ Home periods keep a place you only visit, however often, from becoming home: a m
 | `label` | no | Name shown in the dashboard; defaults to the city the place is in |
 | `radiusKm` | no | Nights spent within this distance count as spent there; default **1** (the same radius as home) |
 
-Copy `timeline-config.example.json` to get started. The file is gitignored, since it holds personal coordinates. Without it (or with an empty `familyHomes` list) nothing changes: every night, trip and number comes out exactly as it would without the feature, and `family-homes.json` is empty.
+Where the config goes depends on how you process your export:
+
+- **In the browser**: open **🏡 Family homes (optional)** under the drop zone (or in the footer's Re-import dialog), paste the JSON or load a `timeline-config.json`, then drop your `Timeline.json`. It's checked as you type, stored in your browser with the imported data (prefilled on the next re-import, removed by Clear imported data), and never uploaded.
+- **On the command line**: save it as `timeline-config.json` in the project root, next to `Timeline.json` (copy `timeline-config.example.json` to get started), and re-run `npm run preprocess`. The file is gitignored, since it holds personal coordinates.
+
+Without a config (or with an empty `familyHomes` list) nothing changes: every night, trip and number comes out exactly as it would without the feature, and `family-homes.json` is empty.
 
 How it works:
 
@@ -188,13 +217,13 @@ npx mapshaper ne_50m_admin_0_countries.geojson -simplify 12% weighted keep-shape
   -o format=geojson precision=0.01
 ```
 
-Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The preprocessor matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `scripts/preprocess.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and warns about any country it can't place on the map.
+Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The pipeline matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `src/pipeline/countries.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and `npm run preprocess` warns about any country it can't place on the map. (The in-browser import fetches this same file from the app itself to read the names.)
 
 Days present counts every local calendar day with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries. `geography.json` stores which countries were present on each date, so the map and the Geography table count days present for whatever time range is selected.
 
 ### Airport Data
 
-`scripts/data/airports.json` (~570 KB, committed) is a trimmed, vendored copy of [OurAirports](https://ourairports.com/data/)' `airports.csv` export (public domain / Unlicense), used to name each flight's nearest airport. It keeps only `large_airport` and `medium_airport` rows that have an IATA code, and only the fields the app needs: `iata`, `name`, `lat`, `lng`, `municipality`, and `size` (`large`/`medium`, used to break near-ties — see below). Like the offline city database and the world country geometry, it's read from disk only: no network fetch at preprocess or app runtime.
+`scripts/data/airports.json` (~570 KB, committed) is a trimmed, vendored copy of [OurAirports](https://ourairports.com/data/)' `airports.csv` export (public domain / Unlicense), used to name each flight's nearest airport. It keeps only `large_airport` and `medium_airport` rows that have an IATA code, and only the fields the app needs: `iata`, `name`, `lat`, `lng`, `municipality`, and `size` (`large`/`medium`, used to break near-ties — see below). Like the offline city database and the world country geometry, it ships with the project: `npm run preprocess` reads it from disk, and the in-browser import loads it from the app's own bundle (a separate chunk, loaded only when you import). Nothing is fetched from OurAirports at preprocess, import or app runtime.
 
 Regenerate it (a one-off, manual step — not part of `npm run preprocess`) with:
 
@@ -202,13 +231,13 @@ Regenerate it (a one-off, manual step — not part of `npm run preprocess`) with
 npx tsx scripts/generate-airports.ts
 ```
 
-That script downloads the current `airports.csv` from OurAirports, so it's the one place in this project that makes a network request; see its header comment for details.
+That script downloads the current `airports.csv` from OurAirports (a one-off network request); see its header comment for details.
 
-For each flight, preprocess finds the nearest airport to its start/end coordinates within 40 km, preferring a `large` airport over a `medium` one on a near-tie (a large airport gets a 5 km "discount" when scoring candidates, so a major hub a few km farther away still wins over a closer small field). A flight endpoint with no airport within 40 km gets `null` and the frontend falls back to the resolved city name.
+For each flight, the pipeline finds the nearest airport to its start/end coordinates within 40 km, preferring a `large` airport over a `medium` one on a near-tie (a large airport gets a 5 km "discount" when scoring candidates, so a major hub a few km farther away still wins over a closer small field). A flight endpoint with no airport within 40 km gets `null` and the frontend falls back to the resolved city name.
 
 ### CO2 Estimate
 
-Each flight in `flights.json` gets an estimated `co2Kg`: kg CO2e (economy class, per passenger), computed in `scripts/preprocess.ts` (`estimateFlightCo2Kg`) as:
+Each flight in `flights.json` gets an estimated `co2Kg`: kg CO2e (economy class, per passenger), computed in `src/pipeline/airports.ts` (`estimateFlightCo2Kg`) as:
 
 1. **Flown distance** = great-circle distance between the flight's endpoints + a fixed **95 km detour correction** (real routes aren't great circles — airway routing, holding, weather).
 2. A **per-km factor** (kg CO2/km, excluding radiative forcing) by haul, bucketed on the *raw* great-circle distance:
@@ -223,16 +252,18 @@ This is a simple distance-based estimate, not a per-aircraft/load-factor model �
 
 ### Offline City Database
 
-The preprocessor maintains a committed offline database at `scripts/data/offline-city-db.json`.
+Place names come from a committed offline database at `scripts/data/offline-city-db.json` (about 700 cities), plus a small built-in seed list.
 
 Resolution order for each location:
 1. Exact coordinate bucket hit in offline DB
-2. Online reverse geocoding (Nominatim) when enabled
+2. Online reverse geocoding (Nominatim) — **command line only**, when enabled
 3. Nearest known city fallback from offline DB/seed data
 
-When online lookup resolves a previously unseen location, it is automatically written back to the offline DB. This means the database keeps improving over time and future preprocess runs can resolve more locations without internet.
+When an online lookup resolves a previously unseen location, `npm run preprocess` writes it back to the offline DB. This means the database keeps improving over time and future runs — command line and in-browser alike, since the app bundles the committed file — can resolve more locations without internet.
 
-Environment variables for preprocess (all optional):
+The **in-browser import never looks anything up online**: it resolves cities from the bundled offline DB only (step 2 is skipped) and never writes the DB back. That keeps the privacy promise (your coordinates don't leave the browser) and Nominatim's usage policy. Places the DB doesn't cover get the nearest known city, exactly as in an offline command-line run (`CITY_DB_ENABLE_ONLINE=0`), whose output the import reproduces byte for byte. If your travels reach places the DB doesn't know, a command-line run with online lookups improves the DB; commit it, and later imports benefit too.
+
+Environment variables for `npm run preprocess` (all optional):
 
 | Variable | Default | Purpose |
 |---|---:|---|
@@ -260,18 +291,20 @@ CITY_DB_MAX_ONLINE_LOOKUPS=300 npm run preprocess
 | Library | Purpose |
 |---|---|
 | [React 19](https://react.dev/) | UI framework |
-| [Vite 6](https://vite.dev/) | Build tool and dev server |
+| [Vite 6](https://vite.dev/) | Build tool and dev server (also bundles the import Web Worker) |
 | [TypeScript 5](https://www.typescriptlang.org/) | Type safety |
 | [Tailwind CSS 3](https://tailwindcss.com/) | Utility-first styling (dark theme) |
 | [Leaflet](https://leafletjs.com/) + [React Leaflet](https://react-leaflet.js.org/) | Interactive maps |
 | [Recharts](https://recharts.org/) | Charts and graphs |
-| [tsx](https://github.com/privatenumber/tsx) | Run TypeScript preprocessing script directly |
+| Web Workers + IndexedDB (browser built-ins) | In-browser import off the main thread, and storing its result |
+| [tsx](https://github.com/privatenumber/tsx) | Run the TypeScript command-line preprocess directly |
 | [ESLint](https://eslint.org/) (typescript-eslint + react-hooks) | Linting |
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+
-- A Google Maps Timeline export (`Timeline.json`) placed in the project root
+- [Node.js](https://nodejs.org/) 18+, to run the dashboard (dev server or production build)
+- A Google Maps Timeline export (`Timeline.json`), see below
+- A current desktop browser (Chrome, Edge, Firefox or Safari) for the in-browser import
 
 ### How to Get Your Timeline Data
 
@@ -280,7 +313,7 @@ Google moved Timeline data **on-device** in 2024 — the old Google Takeout "Loc
 - **Android**: Settings → Location → Location Services → Timeline → **Export Timeline data**, or in the Google Maps app: profile picture → Your Timeline → ⋯ → Location & privacy settings → Export Timeline data
 - **iOS**: Google Maps app → profile picture → Your Timeline → ⋯ → Location & privacy settings → Export Timeline data
 
-Transfer the resulting `Timeline.json` to this project's root directory. The expected format is the on-device export with a top-level `semanticSegments` array (extra keys like `rawSignals` are ignored).
+Transfer the resulting `Timeline.json` to your computer. The expected format is the on-device export with a top-level `semanticSegments` array (extra keys like `rawSignals` are ignored).
 
 ## Getting Started
 
@@ -288,38 +321,59 @@ Transfer the resulting `Timeline.json` to this project's root directory. The exp
 # 1. Install dependencies
 npm install
 
-# 2. Optional: mark family homes (see "Family Homes"), then edit the copy
-cp timeline-config.example.json timeline-config.json
-
-# 3. Preprocess your timeline data (Timeline.json → public/data/*.json)
-npm run preprocess
-
-# 4. Start the dev server → http://localhost:5173
+# 2. Start the dev server → http://localhost:5173
 npm run dev
 ```
 
-Re-run `npm run preprocess` whenever you update your `Timeline.json` export or `timeline-config.json`.
+3. Open http://localhost:5173 and **drop your `Timeline.json` onto the page** (or click *choose the file*). Optionally, open **🏡 Family homes** first to paste a family-home config (see [Family Homes](#family-homes)).
+4. That's it: the dashboard appears once the import finishes, and it's still there the next time you open the page.
+
+To update later, use **Re-import** in the page footer with a newer export. **Clear imported data** removes everything the import stored in your browser.
+
+### Command-Line Preprocessing
+
+The command line does the same processing from a terminal and writes the datasets to `public/data/*.json`, where the dashboard picks them up whenever this browser has no imported data. Reach for it when you want:
+
+- **Online city lookups**: new places are resolved through OpenStreetMap's Nominatim (rate-limited) and written back to the committed offline city database, which later imports benefit from too (see [Offline City Database](#offline-city-database))
+- **Huge exports**: a browser can read a file of at most about 500 MB in one piece, while Node can be given more memory (`NODE_OPTIONS=--max-old-space-size=8192 npm run preprocess`)
+- **Scripting**, tuning knobs such as `HOME_MIN_PERIOD_MONTHS`, or a build with the data baked in
+
+```bash
+# Place Timeline.json in the project root, then:
+
+# Optional: mark family homes (see "Family Homes"), then edit the copy
+cp timeline-config.example.json timeline-config.json
+
+# Timeline.json → public/data/*.json
+npm run preprocess
+
+# → http://localhost:5173
+npm run dev
+```
+
+Re-run `npm run preprocess` whenever you update your `Timeline.json` export or `timeline-config.json`. If this browser also holds an in-browser import, that import wins; use **Clear imported data** in the footer to see `public/data/` instead.
 
 ## All Commands
 
 | Command | Description |
 |---|---|
 | `npm install` | Install dependencies |
-| `npm run preprocess` | Process `Timeline.json` → `public/data/*.json` |
 | `npm run dev` | Start dev server at localhost:5173 |
-| `npm run build` | TypeScript check + production build to `dist/` |
+| `npm run preprocess` | Optional, command-line alternative to the in-browser import: `Timeline.json` → `public/data/*.json` |
+| `npm run build` | TypeScript checks + production build to `dist/` |
 | `npm run preview` | Serve the production build locally |
-| `npm run typecheck` | Type-check `src/` and `scripts/` without emitting |
+| `npm run typecheck` | Type-check `src/` and `scripts/`, plus `src/pipeline/` without DOM or Node types (`tsconfig.pipeline.json`) |
 | `npm run lint` | Lint `src/` and `scripts/` with ESLint |
 
-The production build in `dist/` is a static site deployable to any static host — but remember `public/data/` contains your personal location history, so only deploy somewhere private.
+The production build in `dist/` is a static site deployable to any static host. Used with the in-browser import only, it contains no personal data: every visitor's import stays in their own browser. But `vite build` copies `public/data/` into `dist/`, so if you ran `npm run preprocess` before building, the build contains your location history; deploy that only somewhere private.
 
 ## Project Structure
 
 ```
 timeline-visualizer/
 ├── scripts/
-│   ├── preprocess.ts          # Data pipeline: Timeline.json → derived JSONs
+│   ├── preprocess.ts          # Command-line preprocess: files + env → shared pipeline → public/data/*.json
+│   ├── nominatim.ts           # Rate-limited online reverse geocoding (command line only)
 │   ├── generate-airports.ts   # One-off: regenerates scripts/data/airports.json from OurAirports
 │   └── data/
 │       ├── offline-city-db.json # Committed offline city/country resolver DB
@@ -327,24 +381,43 @@ timeline-visualizer/
 ├── timeline-config.example.json # Example family-home config (copy to timeline-config.json, gitignored)
 ├── public/
 │   ├── world-countries.geo.json # Vendored country shapes for the world map (Natural Earth)
-│   └── data/                  # Generated data files (gitignored)
+│   └── data/                  # Command-line output (gitignored)
 ├── src/
 │   ├── main.tsx               # App entry point, renders root component
 │   ├── App.tsx                # Root component: top-bar nav links + page switch driven by the URL
 │   ├── route.ts               # URL hash store: page, time range, and per-page state (no router library)
-│   ├── types.ts               # TypeScript interfaces for all data shapes
+│   ├── types.ts               # Data types for the frontend (re-exports the pipeline's dataset types)
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
 │   ├── timeRange.ts           # Global time range: selection model, URL params, context, date/period helpers
 │   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, homes, series)
 │   ├── trip.ts                # Trip detail: finds a trip by date, derives its map, nights, cities, flights
 │   ├── flight.ts              # Great-circle arcs and duration formatting for flights
 │   ├── index.css              # Tailwind directives and global styles
+│   ├── pipeline/              # Shared, environment-agnostic processing (browser worker + CLI)
+│   │   ├── index.ts           # Public API: runPipeline, validateTimeline, city DB helpers, types
+│   │   ├── run.ts             # runPipeline: Timeline.json → every dataset, with progress callbacks
+│   │   ├── types.ts           # Raw export, reference inputs, and dataset types (single source of truth)
+│   │   ├── datasets.ts        # Dataset file names and pipeline phases
+│   │   ├── cities.ts          # Offline city DB + CityResolver (optional online geocoder hook)
+│   │   ├── countries.ts       # Country names → ISO codes (COUNTRY_ALIASES)
+│   │   ├── homes.ts           # Home-period detection
+│   │   ├── familyHomes.ts     # timeline-config.json validation, family-home matching
+│   │   ├── airports.ts        # Nearest-airport matching and the CO2 estimate
+│   │   └── util.ts            # Coordinates, distances, calendar days, local time
+│   ├── import/                # In-browser import
+│   │   ├── worker.ts          # Web Worker: read + parse the file, run the pipeline offline-only
+│   │   ├── importJob.ts       # The running import (progress, cancel, save), shared by all import UIs
+│   │   ├── storage.ts         # IndexedDB: imported datasets, import meta, family-home config
+│   │   └── protocol.ts        # Worker messages and import phases
 │   ├── hooks/
-│   │   └── useData.ts         # Cached fetch hooks for each data file
+│   │   └── useData.ts         # Cached data hooks: IndexedDB import if present, else public/data
 │   ├── components/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
-│   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
+│   │   ├── EmptyState.tsx     # Shown when there's no data: the import drop zone
+│   │   ├── ImportPanel.tsx    # Drop zone, file picker, family-home config, progress and errors
+│   │   ├── DataFooter.tsx     # Data source line with Re-import (dialog) and Clear imported data
+│   │   ├── RegenerateHint.tsx # "Import again or re-run preprocess" hint for outdated data
 │   │   ├── TimeRangeProvider.tsx # Provides the global range (read from the URL) above the page switch
 │   │   ├── TimeRangeControl.tsx  # Top-bar range picker (presets + custom dates)
 │   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
@@ -361,6 +434,7 @@ timeline-visualizer/
 │       └── Statistics.tsx     # Detailed charts, patterns, and top places
 ├── package.json
 ├── tsconfig.json
+├── tsconfig.pipeline.json     # Type-checks src/pipeline/ with no DOM/Node types
 ├── vite.config.ts
 ├── eslint.config.js
 ├── tailwind.config.js
@@ -371,11 +445,10 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
-- **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Animated playback** — scrub through time and watch your travel history draw itself
 - **Year-vs-year comparison** view
 - Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
 
 ## Privacy
 
-All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited); the world map's country borders ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
+All data processing happens locally on your machine. The in-browser import reads your file and processes it inside your browser (a Web Worker); the result is stored in your browser's IndexedDB, for this site only, until you use **Clear imported data** (or clear the site's data in your browser). It never looks places up online. The only external requests are for map tiles (CARTO dark basemap) and, with the command-line `npm run preprocess` only, optional Nominatim reverse geocoding (coordinates only, rate-limited); the world map's country borders, the city database and the airport list ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
