@@ -11,6 +11,7 @@ import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-
 import { useFlights, useStats } from '../hooks/useData';
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
+import EmptyState from '../components/EmptyState';
 import 'leaflet/dist/leaflet.css';
 
 function greatCircleArc(
@@ -48,7 +49,7 @@ type SortField = 'date' | 'distance' | 'duration';
 type SortDir = 'asc' | 'desc';
 
 export default function Flights() {
-  const { data: flights, loading } = useFlights();
+  const { data: flights, loading, error } = useFlights();
   const { data: stats } = useStats();
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -65,17 +66,17 @@ export default function Flights() {
     let f = [...flights];
     if (yearFilter !== 'all') f = f.filter((fl) => fl.date.startsWith(yearFilter));
     f.sort((a, b) => {
-      let cmp = 0;
-      if (sortField === 'date') cmp = a.date.localeCompare(b.date);
-      else if (sortField === 'distance') cmp = a.distanceKm - b.distanceKm;
-      else cmp = a.durationMin - b.durationMin;
+      const cmp =
+        sortField === 'date' ? a.date.localeCompare(b.date)
+        : sortField === 'distance' ? a.distanceKm - b.distanceKm
+        : a.durationMin - b.durationMin;
       return sortDir === 'asc' ? cmp : -cmp;
     });
     return f;
   }, [flights, sortField, sortDir, yearFilter]);
 
   if (loading) return <Loader />;
-  if (!flights) return <div className="p-6 text-gray-400">No flight data</div>;
+  if (!flights) return <EmptyState error={error} />;
 
   const toggle = (field: SortField) => {
     if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));

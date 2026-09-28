@@ -11,9 +11,10 @@ import { useNightsAway, useTrips, useStats } from '../hooks/useData';
 import CalendarHeatmap from '../components/CalendarHeatmap';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
+import EmptyState from '../components/EmptyState';
 
 export default function NightsAway() {
-  const { data: nights, loading: nl } = useNightsAway();
+  const { data: nights, loading: nl, error } = useNightsAway();
   const { data: trips, loading: tl } = useTrips();
   const { data: stats, loading: sl } = useStats();
 
@@ -41,8 +42,7 @@ export default function NightsAway() {
   );
 
   if (nl || tl || sl) return <Loader />;
-  if (!nights || !trips || !stats)
-    return <div className="p-6 text-gray-400">No data available</div>;
+  if (!nights || !trips || !stats) return <EmptyState error={error} />;
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">

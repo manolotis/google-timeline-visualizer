@@ -15,7 +15,7 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 - Full log of every flight detected in your timeline data
 - Sortable table by date, distance, or duration with year filter
 - Interactive world map with **great-circle arcs** for each flight route
-- Origin/destination coordinate markers
+- Origin/destination coordinate markers with resolved city names
 - Summary stats: total flights, total distance, most repeated route, average duration
 
 ### 🌙 Nights Away from Home
@@ -27,9 +27,9 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 
 ### 🗺️ Travel Map
 - Full-screen interactive Leaflet map with dark CARTO basemap
-- 14,000+ route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
+- Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
-- Year range filter to explore specific time periods
+- Year range filter (derived from your data) to explore specific time periods
 - Place markers (top 500 visited locations) sized by visit frequency
 - Home marker with permanent label
 
@@ -41,10 +41,7 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 - Top 20 most visited places table with coordinates, semantic type, visit count, and hours spent
 
 ### 🧭 Geography
-- Countries ranked by total away-days
-- Cities ranked by total away-days
-- Top country and top city summary cards
-- Full country/city tables with share of total away days
+- Countries and cities ranked by total away-days, with summary cards and full share-of-total tables
 - Uses a self-updating offline city database so known locations are reused offline
 
 ## Architecture
@@ -95,7 +92,7 @@ Environment variables for preprocess (all optional):
 | `CITY_DB_ENABLE_ONLINE` | `1` | Enable/disable online Nominatim lookups (`0` disables) |
 | `CITY_DB_MAX_ONLINE_LOOKUPS` | `80` | Max online geocoding calls per preprocess run |
 | `CITY_DB_ONLINE_TIMEOUT_MS` | `4000` | Per-request timeout for online geocoding |
-| `CITY_DB_ONLINE_RPS` | `2` | Throttle for online calls (requests per second) |
+| `CITY_DB_ONLINE_RPS` | `1` | Throttle for online calls (requests per second; Nominatim's usage policy allows at most 1) |
 | `CITY_DB_REFRESH_FALLBACK` | `1` | Retry existing fallback entries via online geocoding |
 | `CITY_DB_BUCKET_DEG` | `0.1` | Coordinate bucket size used for dedup/cache keys |
 | `CITY_DB_USER_AGENT` | `timeline-visualizer/1.0 (offline-db-auto-update)` | User-Agent header for Nominatim requests |
@@ -121,6 +118,7 @@ CITY_DB_MAX_ONLINE_LOOKUPS=300 npm run preprocess
 | [Leaflet](https://leafletjs.com/) + [React Leaflet](https://react-leaflet.js.org/) | Interactive maps |
 | [Recharts](https://recharts.org/) | Charts and graphs |
 | [tsx](https://github.com/privatenumber/tsx) | Run TypeScript preprocessing script directly |
+| [ESLint](https://eslint.org/) (typescript-eslint + react-hooks) | Linting |
 
 ## Prerequisites
 
@@ -129,52 +127,27 @@ CITY_DB_MAX_ONLINE_LOOKUPS=300 npm run preprocess
 
 ### How to Get Your Timeline Data
 
-1. Go to [Google Takeout](https://takeout.google.com/)
-2. Deselect all products, then select only **Location History**
-3. Choose JSON format and download
-4. Extract the archive and find `Timeline.json`
-5. Copy it into the project root directory
-[Note: this no longer works. Now you must extract your timeline data from your mobile device, it is stored locally there.]
+Google moved Timeline data **on-device** in 2024 — the old Google Takeout "Location History" export no longer works. Export from your phone instead:
+
+- **Android**: Settings → Location → Location Services → Timeline → **Export Timeline data**, or in the Google Maps app: profile picture → Your Timeline → ⋯ → Location & privacy settings → Export Timeline data
+- **iOS**: Google Maps app → profile picture → Your Timeline → ⋯ → Location & privacy settings → Export Timeline data
+
+Transfer the resulting `Timeline.json` to this project's root directory. The expected format is the on-device export with a top-level `semanticSegments` array (extra keys like `rawSignals` are ignored).
 
 ## Getting Started
 
-### 1. Install dependencies
-
 ```bash
+# 1. Install dependencies
 npm install
-```
 
-### 2. Preprocess your timeline data
-
-Parses `Timeline.json` and generates derived JSON files into `public/data/`:
-
-```bash
+# 2. Preprocess your timeline data (Timeline.json → public/data/*.json)
 npm run preprocess
-```
 
-This extracts flights, visits, nights away, trips, routes, and aggregate statistics. Run this once after placing your `Timeline.json`, or again whenever you update the export.
-
-### 3. Start the development server
-
-```bash
+# 3. Start the dev server → http://localhost:5173
 npm run dev
 ```
 
-Opens the dashboard at [http://localhost:5173](http://localhost:5173).
-
-### 4. Build for production (optional)
-
-```bash
-npm run build
-```
-
-Outputs a static site to `dist/` deployable to any static host (GitHub Pages, Netlify, Vercel, etc.).
-
-### 5. Preview production build (optional)
-
-```bash
-npm run preview
-```
+Re-run `npm run preprocess` whenever you update your `Timeline.json` export.
 
 ## All Commands
 
@@ -185,6 +158,10 @@ npm run preview
 | `npm run dev` | Start dev server at localhost:5173 |
 | `npm run build` | TypeScript check + production build to `dist/` |
 | `npm run preview` | Serve the production build locally |
+| `npm run typecheck` | Type-check `src/` and `scripts/` without emitting |
+| `npm run lint` | Lint `src/` and `scripts/` with ESLint |
+
+The production build in `dist/` is a static site deployable to any static host — but remember `public/data/` contains your personal location history, so only deploy somewhere private.
 
 ## Project Structure
 
@@ -200,12 +177,14 @@ timeline-visualizer/
 │   ├── main.tsx               # App entry point, renders root component
 │   ├── App.tsx                # Root component with top-bar page navigation
 │   ├── types.ts               # TypeScript interfaces for all data shapes
+│   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
-│   │   └── useData.ts         # React hooks for fetching each data file
+│   │   └── useData.ts         # Cached fetch hooks for each data file
 │   ├── components/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
+│   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
 │   │   └── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
 │   └── pages/
 │       ├── Overview.tsx       # Dashboard home with stat cards and summary charts
@@ -217,11 +196,29 @@ timeline-visualizer/
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
+├── eslint.config.js
 ├── tailwind.config.js
 └── postcss.config.js
 ```
 
+## Roadmap
+
+Planned improvements, roughly in priority order:
+
+- **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted (color intensity by days spent)
+- **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
+- **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
+- **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
+- **Place name resolution** — show resolved city names (via the offline city DB) instead of raw place IDs in top-places tables and map tooltips
+- **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
+- **Multi-home support** — home periods over time instead of a single static home, for people who have moved
+- **Timezone-aware night bucketing** — use the export's UTC-offset fields instead of UTC midnight
+- **Firsts & streaks** — new countries/cities per year, longest travel streak, longest home streak
+- **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates
+- **Animated playback** — scrub through time and watch your travel history draw itself
+- **Year-vs-year comparison** view
+- Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
+
 ## Privacy
 
-All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap via OpenStreetMap). Your timeline data is never uploaded anywhere.
-# timeline-visualizer
+All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited). Your timeline data is never uploaded anywhere. `Timeline.json` and `public/data/` are gitignored so your location history can't be committed accidentally.

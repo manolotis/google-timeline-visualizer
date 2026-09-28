@@ -6,6 +6,8 @@
  */
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
+import EmptyState from '../components/EmptyState';
+import { CHART_TOOLTIP_STYLE } from '../constants';
 import { useGeography } from '../hooks/useData';
 import {
   Bar,
@@ -21,20 +23,13 @@ import {
 const COUNTRY_COLOR = '#f59e0b';
 const CITY_COLOR = '#06b6d4';
 
-const tooltipStyle = {
-  contentStyle: {
-    backgroundColor: '#1f2937',
-    border: '1px solid #374151',
-    borderRadius: '8px',
-  },
-  labelStyle: { color: '#fff' },
-};
+const tooltipStyle = CHART_TOOLTIP_STYLE;
 
 export default function Geography() {
-  const { data, loading } = useGeography();
+  const { data, loading, error } = useGeography();
 
   if (loading) return <Loader />;
-  if (!data) return <div className="p-6 text-gray-400">No geography data available</div>;
+  if (!data) return <EmptyState error={error} />;
 
   const topCountries = data.countries.slice(0, 12).map((country) => ({
     ...country,

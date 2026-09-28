@@ -7,52 +7,18 @@
  * Route polylines are downsampled to max 50 points each during
  * preprocessing to keep the total payload manageable (~3MB).
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { useRoutes, useVisits, useHome } from '../hooks/useData';
 import Loader from '../components/Loader';
+import EmptyState from '../components/EmptyState';
+import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR } from '../constants';
 import 'leaflet/dist/leaflet.css';
-
-const MODE_COLORS: Record<string, string> = {
-  FLYING: '#f59e0b',
-  WALKING: '#22c55e',
-  CYCLING: '#3b82f6',
-  IN_VEHICLE: '#a855f7',
-  IN_PASSENGER_VEHICLE: '#ec4899',
-  IN_TRAIN: '#06b6d4',
-  IN_BUS: '#14b8a6',
-  IN_SUBWAY: '#8b5cf6',
-  IN_TRAM: '#64748b',
-  IN_FERRY: '#0ea5e9',
-  MOTORCYCLING: '#ef4444',
-  RUNNING: '#10b981',
-  SAILING: '#0284c7',
-  SKIING: '#e2e8f0',
-  UNKNOWN_ACTIVITY_TYPE: '#374151',
-};
-
-const MODE_LABELS: Record<string, string> = {
-  FLYING: 'Flying',
-  WALKING: 'Walking',
-  CYCLING: 'Cycling',
-  IN_VEHICLE: 'Driving',
-  IN_PASSENGER_VEHICLE: 'Taxi/Ride',
-  IN_TRAIN: 'Train',
-  IN_BUS: 'Bus',
-  IN_SUBWAY: 'Subway',
-  IN_TRAM: 'Tram',
-  IN_FERRY: 'Ferry',
-  MOTORCYCLING: 'Motorcycle',
-  RUNNING: 'Running',
-  SAILING: 'Sailing',
-  SKIING: 'Skiing',
-  UNKNOWN_ACTIVITY_TYPE: 'Unknown',
-};
 
 // Fit map bounds to data
 function FitBounds({ coords }: { coords: [number, number][] }) {
   const map = useMap();
-  useMemo(() => {
+  useEffect(() => {
     if (coords.length > 0) {
       const lats = coords.map((c) => c[0]);
       const lngs = coords.map((c) => c[1]);
@@ -76,39 +42,59 @@ export default function TravelMap() {
     return [...s].sort();
   }, [routes]);
 
-  const [activeModes, setActiveModes] = useState<Set<string>>(new Set());
-  const [yearRange, setYearRange] = useState<[number, number]>([2013, 2026]);
-  const [showVisits, setShowVisits] = useState(true);
-
-  // Initialize active modes once routes load
-  useMemo(() => {
-    if (allModes.length > 0 && activeModes.size === 0) {
-      // Default: show major transport modes, not walking/unknown
-      setActiveModes(new Set(allModes.filter(
-        (m) => m !== 'UNKNOWN_ACTIVITY_TYPE' && m !== 'WALKING',
-      )));
+  // Year span present in the data (fallback covers the empty/loading case)
+  const [minYear, maxYear] = useMemo(() => {
+    if (!routes || routes.length === 0) {
+      const y = new Date().getFullYear();
+      return [y, y];
     }
-  }, [allModes]);
+    let min = Infinity;
+    let max = -Infinity;
+    for (const r of routes) {
+      const y = new Date(r.startTime).getFullYear();
+      if (y < min) min = y;
+      if (y > max) max = y;
+    }
+    return [min, max];
+  }, [routes]);
+
+  // Per-mode user toggles layered over the default (major modes on,
+  // walking/unknown off) so no state initialization is needed on load.
+  const [modeOverrides, setModeOverrides] = useState<Map<string, boolean>>(new Map());
+  const [yearRange, setYearRange] = useState<[number, number] | null>(null);
+  const [showVisits, setShowVisits] = useState(true);
+  const [fromYear, toYear] = yearRange ?? [minYear, maxYear];
+
+  const activeModes = useMemo(() => {
+    const active = new Set(allModes.filter(
+      (m) => m !== 'UNKNOWN_ACTIVITY_TYPE' && m !== 'WALKING',
+    ));
+    for (const [mode, on] of modeOverrides) {
+      if (on) active.add(mode);
+      else active.delete(mode);
+    }
+    return active;
+  }, [allModes, modeOverrides]);
 
   const filteredRoutes = useMemo(() => {
     if (!routes) return [];
     return routes.filter((r) => {
       if (!activeModes.has(r.mode)) return false;
       const y = new Date(r.startTime).getFullYear();
-      return y >= yearRange[0] && y <= yearRange[1];
+      return y >= fromYear && y <= toYear;
     });
-  }, [routes, activeModes, yearRange]);
+  }, [routes, activeModes, fromYear, toYear]);
 
   const filteredVisits = useMemo(() => {
     if (!visits || !showVisits) return [];
     return visits
       .filter((v) => {
         const y = new Date(v.firstVisit).getFullYear();
-        return y >= yearRange[0] && y <= yearRange[1];
+        return y >= fromYear && y <= toYear;
       })
       .filter((v) => v.semanticType !== 'INFERRED_HOME' && v.semanticType !== 'HOME')
       .slice(0, 500); // cap for performance
-  }, [visits, showVisits, yearRange]);
+  }, [visits, showVisits, fromYear, toYear]);
 
   // Gather some bounds points from filtered data
   const boundsCoords = useMemo((): [number, number][] => {
@@ -124,19 +110,14 @@ export default function TravelMap() {
   }, [filteredRoutes, home]);
 
   if (rl || vl) return <Loader />;
-  if (!routes) return <div className="p-6 text-gray-400">No route data</div>;
+  if (!routes) return <EmptyState />;
 
   const toggleMode = (mode: string) => {
-    setActiveModes((prev) => {
-      const next = new Set(prev);
-      if (next.has(mode)) next.delete(mode);
-      else next.add(mode);
-      return next;
-    });
+    setModeOverrides((prev) => new Map(prev).set(mode, !activeModes.has(mode)));
   };
 
   const years = [];
-  for (let y = 2013; y <= 2026; y++) years.push(y);
+  for (let y = minYear; y <= maxYear; y++) years.push(y);
 
   return (
     <div className="flex flex-col h-[calc(100vh-56px)]">
@@ -145,8 +126,8 @@ export default function TravelMap() {
         {/* Year range */}
         <div className="flex items-center gap-2 text-sm">
           <select
-            value={yearRange[0]}
-            onChange={(e) => setYearRange([parseInt(e.target.value), yearRange[1]])}
+            value={fromYear}
+            onChange={(e) => setYearRange([parseInt(e.target.value), toYear])}
             className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-xs"
           >
             {years.map((y) => (
@@ -155,8 +136,8 @@ export default function TravelMap() {
           </select>
           <span className="text-gray-500">–</span>
           <select
-            value={yearRange[1]}
-            onChange={(e) => setYearRange([yearRange[0], parseInt(e.target.value)])}
+            value={toYear}
+            onChange={(e) => setYearRange([fromYear, parseInt(e.target.value)])}
             className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-200 text-xs"
           >
             {years.map((y) => (
@@ -239,7 +220,7 @@ export default function TravelMap() {
               key={i}
               positions={r.points}
               pathOptions={{
-                color: MODE_COLORS[r.mode] || '#6b7280',
+                color: MODE_COLORS[r.mode] || FALLBACK_MODE_COLOR,
                 weight: r.mode === 'FLYING' ? 1.5 : 1,
                 opacity: 0.4,
               }}

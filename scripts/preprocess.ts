@@ -18,13 +18,9 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import * as process from 'process';
 
-const ENV =
-  (
-    globalThis as {
-      process?: { env?: Record<string, string | undefined> };
-    }
-  ).process?.env ?? {};
+const ENV = process.env;
 
 // ---------------------------------------------------------------------------
 // Types matching the raw Timeline.json schema
@@ -527,7 +523,8 @@ async function main() {
   const CITY_ONLINE_ENABLED = (ENV.CITY_DB_ENABLE_ONLINE ?? '1') !== '0';
   const CITY_MAX_ONLINE = Number(ENV.CITY_DB_MAX_ONLINE_LOOKUPS ?? '80');
   const CITY_TIMEOUT_MS = Number(ENV.CITY_DB_ONLINE_TIMEOUT_MS ?? '4000');
-  const CITY_RPS = Number(ENV.CITY_DB_ONLINE_RPS ?? '2');
+  // Nominatim usage policy allows at most 1 request per second
+  const CITY_RPS = Number(ENV.CITY_DB_ONLINE_RPS ?? '1');
   const CITY_REFRESH_FALLBACK =
     (ENV.CITY_DB_REFRESH_FALLBACK ?? '1') !== '0';
   const CITY_USER_AGENT =
@@ -617,16 +614,19 @@ async function main() {
 
   // Flatten and sort by visit count descending
   const visits = [...visitMap.values()]
-    .map((v) => ({
-      placeId: v.placeId,
-      lat: v.lat,
-      lng: v.lng,
-      semanticType: v.semanticType,
-      visitCount: v.visitCount,
-      totalHours: Math.round(v.totalMinutes / 6) / 10,
-      firstVisit: v.arrivals.sort()[0],
-      lastVisit: v.arrivals.sort().at(-1),
-    }))
+    .map((v) => {
+      const arrivals = [...v.arrivals].sort();
+      return {
+        placeId: v.placeId,
+        lat: v.lat,
+        lng: v.lng,
+        semanticType: v.semanticType,
+        visitCount: v.visitCount,
+        totalHours: Math.round(v.totalMinutes / 6) / 10,
+        firstVisit: arrivals[0],
+        lastVisit: arrivals.at(-1),
+      };
+    })
     .sort((a, b) => b.visitCount - a.visitCount);
 
   console.log(`  ${visits.length} unique places`);
@@ -707,7 +707,6 @@ async function main() {
   function findNearestVisit(
     idx: number,
     direction: -1 | 1,
-    maxDistance: number,
   ): { placeId: string; lat: number; lng: number } | null {
     for (
       let j = idx + direction;
@@ -749,8 +748,8 @@ async function main() {
     const flight = flights[fIdx];
     if (!flight) continue;
 
-    const origin = findNearestVisit(i, -1, 50);
-    const dest = findNearestVisit(i, 1, 50);
+    const origin = findNearestVisit(i, -1);
+    const dest = findNearestVisit(i, 1);
 
     const startCity = await cityResolver.resolve(flight.startLat, flight.startLng);
     const endCity = await cityResolver.resolve(flight.endLat, flight.endLng);
@@ -1317,9 +1316,5 @@ async function main() {
 
 main().catch((e) => {
   console.error(e);
-  (
-    globalThis as {
-      process?: { exit?: (code: number) => void };
-    }
-  ).process?.exit?.(1);
+  process.exit(1);
 });

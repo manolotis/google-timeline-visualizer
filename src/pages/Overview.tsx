@@ -9,54 +9,20 @@
 import { useStats, useFlights, useVisits } from '../hooks/useData';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
+import EmptyState from '../components/EmptyState';
+import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR, CHART_TOOLTIP_STYLE } from '../constants';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
 
-const MODE_COLORS: Record<string, string> = {
-  FLYING: '#f59e0b',
-  WALKING: '#22c55e',
-  CYCLING: '#3b82f6',
-  IN_VEHICLE: '#a855f7',
-  IN_PASSENGER_VEHICLE: '#ec4899',
-  IN_TRAIN: '#06b6d4',
-  IN_BUS: '#14b8a6',
-  IN_SUBWAY: '#8b5cf6',
-  IN_TRAM: '#64748b',
-  IN_FERRY: '#0ea5e9',
-  MOTORCYCLING: '#ef4444',
-  RUNNING: '#10b981',
-  SAILING: '#0284c7',
-  SKIING: '#e2e8f0',
-  UNKNOWN_ACTIVITY_TYPE: '#374151',
-};
-
-const MODE_LABELS: Record<string, string> = {
-  FLYING: 'Flying',
-  WALKING: 'Walking',
-  CYCLING: 'Cycling',
-  IN_VEHICLE: 'Driving',
-  IN_PASSENGER_VEHICLE: 'Taxi/Ride',
-  IN_TRAIN: 'Train',
-  IN_BUS: 'Bus',
-  IN_SUBWAY: 'Subway',
-  IN_TRAM: 'Tram',
-  IN_FERRY: 'Ferry',
-  MOTORCYCLING: 'Motorcycle',
-  RUNNING: 'Running',
-  SAILING: 'Sailing',
-  SKIING: 'Skiing',
-  UNKNOWN_ACTIVITY_TYPE: 'Unknown',
-};
-
 export default function Overview() {
-  const { data: stats, loading: sl } = useStats();
+  const { data: stats, loading: sl, error } = useStats();
   const { data: flights, loading: fl } = useFlights();
   const { data: visits, loading: vl } = useVisits();
 
   if (sl || fl || vl) return <Loader />;
-  if (!stats || !flights || !visits) return <div className="p-6 text-gray-400">No data available</div>;
+  if (!stats || !flights || !visits) return <EmptyState error={error} />;
 
   const startYear = new Date(stats.dateRange.start).getFullYear();
   const endYear = new Date(stats.dateRange.end).getFullYear();
@@ -68,7 +34,7 @@ export default function Overview() {
     .map(([mode, km]) => ({
       name: MODE_LABELS[mode] || mode,
       km,
-      color: MODE_COLORS[mode] || '#6b7280',
+      color: MODE_COLORS[mode] || FALLBACK_MODE_COLOR,
     }));
 
   return (
@@ -117,10 +83,7 @@ export default function Overview() {
             <BarChart data={stats.yearly}>
               <XAxis dataKey="year" tick={{ fill: '#9ca3af', fontSize: 12 }} />
               <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                labelStyle={{ color: '#fff' }}
-              />
+              <Tooltip {...CHART_TOOLTIP_STYLE} />
               <Bar dataKey="flights" fill="#f59e0b" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -132,10 +95,7 @@ export default function Overview() {
             <BarChart data={stats.yearly}>
               <XAxis dataKey="year" tick={{ fill: '#9ca3af', fontSize: 12 }} />
               <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                labelStyle={{ color: '#fff' }}
-              />
+              <Tooltip {...CHART_TOOLTIP_STYLE} />
               <Bar dataKey="nightsAway" fill="#f97316" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -164,7 +124,7 @@ export default function Overview() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                {...CHART_TOOLTIP_STYLE}
                 formatter={(value: number) => `${value.toLocaleString()} km`}
               />
             </PieChart>

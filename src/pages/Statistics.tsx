@@ -8,58 +8,21 @@
  */
 import { useStats } from '../hooks/useData';
 import Loader from '../components/Loader';
+import EmptyState from '../components/EmptyState';
+import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR, CHART_TOOLTIP_STYLE } from '../constants';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
   LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
 
-const MODE_COLORS: Record<string, string> = {
-  FLYING: '#f59e0b',
-  WALKING: '#22c55e',
-  CYCLING: '#3b82f6',
-  IN_VEHICLE: '#a855f7',
-  IN_PASSENGER_VEHICLE: '#ec4899',
-  IN_TRAIN: '#06b6d4',
-  IN_BUS: '#14b8a6',
-  IN_SUBWAY: '#8b5cf6',
-  IN_TRAM: '#64748b',
-  IN_FERRY: '#0ea5e9',
-  MOTORCYCLING: '#ef4444',
-  RUNNING: '#10b981',
-  SAILING: '#0284c7',
-  SKIING: '#e2e8f0',
-  UNKNOWN_ACTIVITY_TYPE: '#374151',
-};
-
-const MODE_LABELS: Record<string, string> = {
-  FLYING: 'Flying',
-  WALKING: 'Walking',
-  CYCLING: 'Cycling',
-  IN_VEHICLE: 'Driving',
-  IN_PASSENGER_VEHICLE: 'Taxi/Ride',
-  IN_TRAIN: 'Train',
-  IN_BUS: 'Bus',
-  IN_SUBWAY: 'Subway',
-  IN_TRAM: 'Tram',
-  IN_FERRY: 'Ferry',
-  MOTORCYCLING: 'Motorcycle',
-  RUNNING: 'Running',
-  SAILING: 'Sailing',
-  SKIING: 'Skiing',
-  UNKNOWN_ACTIVITY_TYPE: 'Unknown',
-};
-
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const tooltipStyle = {
-  contentStyle: { backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' },
-  labelStyle: { color: '#fff' },
-};
+const tooltipStyle = CHART_TOOLTIP_STYLE;
 
 export default function Statistics() {
-  const { data: stats, loading } = useStats();
+  const { data: stats, loading, error } = useStats();
 
   if (loading) return <Loader />;
-  if (!stats) return <div className="p-6 text-gray-400">No data</div>;
+  if (!stats) return <EmptyState error={error} />;
 
   // Mode bar chart data
   const modeBarData = Object.entries(stats.distanceByMode)
@@ -68,7 +31,7 @@ export default function Statistics() {
     .map(([mode, km]) => ({
       mode: MODE_LABELS[mode] || mode,
       km,
-      fill: MODE_COLORS[mode] || '#6b7280',
+      fill: MODE_COLORS[mode] || FALLBACK_MODE_COLOR,
     }));
 
   // Duration by mode chart data
@@ -78,7 +41,7 @@ export default function Statistics() {
     .map(([mode, hours]) => ({
       mode: MODE_LABELS[mode] || mode,
       hours,
-      fill: MODE_COLORS[mode] || '#6b7280',
+      fill: MODE_COLORS[mode] || FALLBACK_MODE_COLOR,
     }));
 
   // Activity count by mode
@@ -88,7 +51,7 @@ export default function Statistics() {
     .map(([mode, count]) => ({
       mode: MODE_LABELS[mode] || mode,
       count,
-      fill: MODE_COLORS[mode] || '#6b7280',
+      fill: MODE_COLORS[mode] || FALLBACK_MODE_COLOR,
     }));
 
   // Day of week radar

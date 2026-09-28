@@ -1,9 +1,10 @@
 /**
  * Data-fetching hooks for the preprocessed JSON files.
  *
- * Each hook lazily loads its corresponding file from /data/ on first render
- * and returns { data, loading } state. The generic useFetch helper handles
- * caching via React state and cleanup on unmount.
+ * Each hook loads its corresponding file from /data/ and returns
+ * { data, loading, error } state. Responses are cached at module level so
+ * switching between pages (which unmounts them) does not refetch the
+ * multi-megabyte JSON files.
  */
 import { useState, useEffect } from 'react';
 import type {
@@ -17,27 +18,48 @@ import type {
   GeographyStats,
 } from '../types';
 
-function useFetch<T>(url: string): { data: T | null; loading: boolean } {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+const cache = new Map<string, Promise<unknown>>();
+
+function fetchJson(url: string): Promise<unknown> {
+  let promise = cache.get(url);
+  if (!promise) {
+    promise = fetch(url).then((r) => {
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    });
+    // Drop failed fetches from the cache so a reload can retry
+    promise.catch(() => cache.delete(url));
+    cache.set(url, promise);
+  }
+  return promise;
+}
+
+export interface FetchState<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+}
+
+function useFetch<T>(url: string): FetchState<T> {
+  const [state, setState] = useState<FetchState<T>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
 
   useEffect(() => {
     let cancelled = false;
-    fetch(url)
-      .then((r) => r.json())
+    fetchJson(url)
       .then((d) => {
-        if (!cancelled) {
-          setData(d);
-          setLoading(false);
-        }
+        if (!cancelled) setState({ data: d as T, loading: false, error: null });
       })
-      .catch(() => {
-        if (!cancelled) setLoading(false);
+      .catch((e: Error) => {
+        if (!cancelled) setState({ data: null, loading: false, error: e.message });
       });
     return () => { cancelled = true; };
   }, [url]);
 
-  return { data, loading };
+  return state;
 }
 
 export function useStats() {
