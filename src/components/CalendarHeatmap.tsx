@@ -2,15 +2,15 @@
  * GitHub-style calendar heatmap component.
  *
  * Renders a grid of 52–53 weekly columns × 7 day rows for a given year.
- * Each cell is colored based on whether the user was home (dark) or away
- * (orange gradient by distance from home). Days outside the optional
- * `range` are drawn as faint outlines. Includes month labels, day labels,
- * and a color legend.
+ * Each cell is colored based on whether the user was home (dark), at a
+ * family home (teal), or away (orange gradient by distance from home). Days
+ * outside the optional `range` are drawn as faint outlines. Includes month
+ * labels, day labels, and a color legend.
  */
 import { useMemo } from 'react';
 import type { NightEntry } from '../types';
 import { addDays, dayOfWeek, inRange, type DateRange } from '../timeRange';
-import { AWAY_NIGHT_COLORS, HOME_NIGHT_COLOR, nightColor } from '../constants';
+import { AWAY_NIGHT_COLORS, FAMILY_NIGHT_COLOR, HOME_NIGHT_COLOR, nightColor } from '../constants';
 
 interface Props {
   nights: NightEntry[];
@@ -23,6 +23,12 @@ const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 const OPEN_RANGE: DateRange = { start: null, end: null };
 const EXCLUDED_STYLE = { backgroundColor: 'transparent', boxShadow: 'inset 0 0 0 1px #1f2937' };
+
+function nightTitle(night: NightEntry): string {
+  if (night.family) return `${night.date}: Family home, ${night.family}`;
+  if (night.isHome) return `${night.date}: Home`;
+  return `${night.date}: Away (${night.distKm ?? '?'} km)`;
+}
 
 export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Props) {
   const grid = useMemo(() => {
@@ -48,6 +54,10 @@ export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Pr
 
   const hasExcluded = useMemo(
     () => grid.some((week) => week.some((day) => day !== null && !inRange(day.date, range))),
+    [grid, range],
+  );
+  const hasFamily = useMemo(
+    () => grid.some((week) => week.some((day) => day?.family && inRange(day.date, range))),
     [grid, range],
   );
 
@@ -109,7 +119,7 @@ export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Pr
                   <div
                     key={di}
                     className="cal-cell"
-                    title={day ? `${day.date}: ${day.isHome ? 'Home' : `Away (${day.distKm ?? '?'} km)`}` : ''}
+                    title={day ? nightTitle(day) : ''}
                     style={{ backgroundColor: day ? nightColor(day) : 'transparent' }}
                   />
                 ),
@@ -123,6 +133,12 @@ export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Pr
             <div key={color} className="cal-cell" style={{ backgroundColor: color }} />
           ))}
           <span>Far away</span>
+          {hasFamily && (
+            <>
+              <div className="cal-cell ml-3" style={{ backgroundColor: FAMILY_NIGHT_COLOR }} />
+              <span>Family home</span>
+            </>
+          )}
           {hasExcluded && (
             <>
               <div className="cal-cell ml-3" style={EXCLUDED_STYLE} />

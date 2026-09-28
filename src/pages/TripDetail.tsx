@@ -29,6 +29,7 @@ import {
   APP_TITLE,
   AWAY_NIGHT_COLORS,
   FALLBACK_MODE_COLOR,
+  FAMILY_HOME_COLOR,
   HOME_NIGHT_COLOR,
   MODE_COLORS,
   MODE_LABELS,
@@ -148,7 +149,8 @@ export default function TripDetail() {
         <p className="text-gray-400">
           {trip.startDate === trip.endDate ? trip.startDate : `${trip.startDate} → ${trip.endDate}`}
           {' · '}
-          {plural(trip.nights, 'night')} away · back home {returnDay}
+          {plural(trip.nights, 'night')} away ·{' '}
+          {summary.returnFamily ? `then 🏡 ${summary.returnFamily} from ${returnDay}` : `back home ${returnDay}`}
         </p>
         {!allTime && (
           <p className="text-xs text-gray-500">
@@ -199,7 +201,10 @@ export default function TripDetail() {
 // ---------------------------------------------------------------------------
 
 function TripMap({ tripKey, summary }: { tripKey: string; summary: TripSummary }) {
-  const { routes, flights, flightArcs, stays, places, home, bounds, activity } = summary;
+  const { routes, flights, flightArcs, stays, places, home, homeFamily, bounds, activity } = summary;
+  // The trip may have left from a family home rather than home itself
+  const homeColor = homeFamily ? FAMILY_HOME_COLOR : HOME_COLOR;
+  const homeName = homeFamily ? `${homeFamily} (family home)` : 'Home';
 
   // Modes by distance for the legend (unknown movement isn't drawn)
   const modes = Object.entries(activity.distanceByMode)
@@ -294,9 +299,9 @@ function TripMap({ tripKey, summary }: { tripKey: string; summary: TripSummary }
             <CircleMarker
               center={home}
               radius={6}
-              pathOptions={{ color: HOME_COLOR, fillColor: HOME_COLOR, fillOpacity: 0.8, weight: 2 }}
+              pathOptions={{ color: homeColor, fillColor: homeColor, fillOpacity: 0.8, weight: 2 }}
             >
-              <Tooltip>🏠 Home</Tooltip>
+              <Tooltip>{homeFamily ? '🏡' : '🏠'} {homeName}</Tooltip>
             </CircleMarker>
           )}
         </MapContainer>
@@ -325,8 +330,8 @@ function TripMap({ tripKey, summary }: { tripKey: string; summary: TripSummary }
         </span>
         {home && (
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: HOME_COLOR }} />
-            Home
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: homeColor }} />
+            {homeName}
           </span>
         )}
       </div>

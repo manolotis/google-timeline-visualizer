@@ -6,7 +6,7 @@
  * run in record order and round the same way preprocess used to round its
  * all-time totals, so the unfiltered numbers match exactly.
  */
-import type { Stats, Visit, Trip, GeographyData, HomePeriod, NightEntry, Flight } from './types';
+import type { Stats, Visit, Trip, GeographyData, HomePeriod, FamilyHome, NightEntry, Flight } from './types';
 import {
   inRange,
   overlapsRange,
@@ -198,6 +198,35 @@ export function homePeriodYears(period: HomePeriod): string {
 export function homePlaceName(period: HomePeriod): string {
   if (period.city) return period.country ? `${period.city}, ${period.country}` : period.city;
   return `${period.lat.toFixed(4)}, ${period.lng.toFixed(4)}`;
+}
+
+// ---------------------------------------------------------------------------
+// Family homes (family-homes.json, `family` on nights-away.json)
+//
+// A family-home night is not away (isHome is true, so every "!isHome" count
+// already leaves it out) but not at home either: it is its own, third kind.
+// ---------------------------------------------------------------------------
+
+/** A night at your own home: not away, and not at a family home. */
+export function isOwnHomeNight(night: NightEntry): boolean {
+  return night.isHome && !night.family;
+}
+
+/** Labels of the family homes slept at among `nights`, first-seen order. */
+export function familyNightLabels(nights: NightEntry[]): string[] {
+  const labels = new Set<string>();
+  for (const n of nights) if (n.family) labels.add(n.family);
+  return [...labels];
+}
+
+/**
+ * The family homes with a family night spent there in the range (matched by
+ * label). Nights there while it was your home are plain home nights, so a
+ * family home you later moved into drops out of ranges after the move.
+ */
+export function familyHomesInRange(homes: FamilyHome[], nights: NightEntry[], range: DateRange): FamilyHome[] {
+  const labels = new Set(familyNightLabels(nights.filter((n) => n.family && inRange(n.date, range))));
+  return homes.filter((h) => labels.has(h.label));
 }
 
 // ---------------------------------------------------------------------------

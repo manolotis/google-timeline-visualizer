@@ -8,7 +8,9 @@
  * (TripDetail). "Home" is wherever you lived at the time: preprocessing
  * detects home periods (from INFERRED_HOME / HOME visits and where you
  * slept) and measures every night against the home of its period; the
- * header lists the homes that apply to the range.
+ * header lists the homes that apply to the range. Nights at a configured
+ * family home aren't away (nor home): they get their own heatmap color and
+ * count, and never belong to a trip.
  */
 import { useMemo } from 'react';
 import { useNightsAway, useTrips, useHomePeriods } from '../hooks/useData';
@@ -25,6 +27,7 @@ import {
   homePeriodsInRange,
   homePeriodYears,
   homePlaceName,
+  familyNightLabels,
 } from '../aggregate';
 import {
   useTimeRange,
@@ -55,6 +58,8 @@ export default function NightsAway() {
     () => trips?.filter((t) => overlapsRange(t.startDate, t.endDate, range)) ?? [],
     [trips, range],
   );
+  const rangeFamilyHomes = useMemo(() => familyNightLabels(rangeNights), [rangeNights]);
+  const familyHomesNoun = rangeFamilyHomes.length > 1 ? 'family homes' : 'family home';
 
   // Years with tracked nights inside the range, newest first
   const years = useMemo(() => {
@@ -111,6 +116,13 @@ export default function NightsAway() {
           ))}
         </p>
       )}
+      {rangeFamilyHomes.length > 0 && (
+        <p className="text-gray-400 mt-1" title="Configured in timeline-config.json">
+          🏡 {rangeFamilyHomes.length > 1 ? 'Family homes' : 'Family home'}:{' '}
+          <span className="text-gray-200">{rangeFamilyHomes.join(', ')}</span>
+          <span className="text-gray-500"> · nights there don't count as away</span>
+        </p>
+      )}
     </div>
   );
   if (year === undefined) {
@@ -124,6 +136,8 @@ export default function NightsAway() {
 
   const awayTotal = rangeNights.filter((n) => !n.isHome).length;
   const awayThisYear = yearNights.filter((n) => !n.isHome).length;
+  const familyTotal = rangeNights.filter((n) => n.family).length;
+  const familyThisYear = yearNights.filter((n) => n.family).length;
   const totalDaysYear = yearNights.length;
   const longest = longestTrip(rangeTrips);
   const furthest = furthestTrip(rangeTrips);
@@ -139,7 +153,10 @@ export default function NightsAway() {
           icon="🌙"
           label="Total Nights Away"
           value={awayTotal}
-          sub={`${Math.round((awayTotal / rangeNights.length) * 100)}% of all nights`}
+          sub={
+            `${Math.round((awayTotal / rangeNights.length) * 100)}% of all nights` +
+            (familyTotal > 0 ? ` · ${familyTotal.toLocaleString()} at ${familyHomesNoun}` : '')
+          }
         />
         <StatCard icon="🧳" label="Total Trips" value={rangeTrips.length} />
         <StatCard
@@ -181,6 +198,13 @@ export default function NightsAway() {
           <div className="text-sm text-gray-400">
             <span className="text-orange-400 font-semibold">{awayThisYear}</span>{' '}
             nights away out of {totalDaysYear} ({Math.round((awayThisYear / totalDaysYear) * 100) || 0}%)
+            {familyThisYear > 0 && (
+              <>
+                {' · '}
+                <span className="text-teal-400 font-semibold">{familyThisYear}</span>{' '}
+                at {familyHomesNoun}
+              </>
+            )}
           </div>
         </div>
         <CalendarHeatmap nights={yearNights} year={year} range={range} />

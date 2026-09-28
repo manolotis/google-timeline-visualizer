@@ -5,25 +5,26 @@
  * Leaflet map with CARTO dark tiles. Routes are color-coded by transport
  * mode (15 types). Controls include per-mode toggles and a layer of the
  * places visited in the range, both kept in the URL; every home that applies
- * to the range gets a marker labelled with the years you lived there. Route
- * polylines are
- * downsampled to max 50 points each during preprocessing to keep the total
- * payload manageable (~3MB).
+ * to the range gets a marker labelled with the years you lived there, and
+ * every family home stayed at in the range a ring labelled with its name.
+ * Route polylines are downsampled to max 50 points each during preprocessing
+ * to keep the total payload manageable (~3MB).
  */
 import { useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
-import { useRoutes, useVisits, useHomePeriods } from '../hooks/useData';
+import { useRoutes, useVisits, useHomePeriods, useFamilyHomes, useNightsAway } from '../hooks/useData';
 import { setParams, useRoute } from '../route';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
-import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR } from '../constants';
+import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR, FAMILY_HOME_COLOR } from '../constants';
 import {
   summarizeVisits,
   isHomePlace,
   isStaleHome,
   homePeriodsInRange,
   homePeriodYears,
+  familyHomesInRange,
 } from '../aggregate';
 import { useTimeRange, inRange } from '../timeRange';
 import 'leaflet/dist/leaflet.css';
@@ -73,6 +74,9 @@ export default function TravelMap() {
   const { data: routes, loading: rl, error } = useRoutes();
   const { data: visits, loading: vl } = useVisits();
   const { data: homeData } = useHomePeriods();
+  // Both optional: family homes are missing from older exports (fetch fails)
+  const { data: familyHomeData, loading: fhl } = useFamilyHomes();
+  const { data: nights, loading: nl } = useNightsAway();
   const { range } = useTimeRange();
 
   // One marker per home place that applies to the range; a place lived in
@@ -90,6 +94,12 @@ export default function TravelMap() {
     return [...byPlace.values()];
   }, [homeData, staleHome, range]);
   const latestHome = homes.at(-1);
+
+  // Family homes with a night spent there in the range
+  const familyHomes = useMemo(
+    () => (familyHomeData?.length && nights ? familyHomesInRange(familyHomeData, nights, range) : []),
+    [familyHomeData, nights, range],
+  );
 
   const allModes = useMemo(() => {
     if (!routes) return [];
@@ -146,10 +156,10 @@ export default function TravelMap() {
       }
     }
     if (pts.length === 0) return pts;
-    return [...homes.map((h): [number, number] => [h.lat, h.lng]), ...pts];
-  }, [filteredRoutes, homes]);
+    return [...[...homes, ...familyHomes].map((h): [number, number] => [h.lat, h.lng]), ...pts];
+  }, [filteredRoutes, homes, familyHomes]);
 
-  if (rl || vl) return <Loader />;
+  if (rl || vl || fhl || nl) return <Loader />;
   if (!routes) return <EmptyState error={error} />;
 
   const toggleMode = (mode: string) => {
@@ -232,6 +242,27 @@ export default function TravelMap() {
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
             {boundsCoords.length > 0 && <FitBounds coords={boundsCoords} />}
+
+            {/* Family-home rings, one per family home stayed at in the range. Drawn
+                first, so a home at the same spot (after moving in) sits on top,
+                and labelled below the point, clear of the home's label */}
+            {familyHomes.map((h) => (
+              <CircleMarker
+                key={`family-${h.lat},${h.lng}`}
+                center={[h.lat, h.lng]}
+                radius={9}
+                pathOptions={{ color: FAMILY_HOME_COLOR, fillColor: FAMILY_HOME_COLOR, fillOpacity: 0.15, weight: 2.5 }}
+              >
+                <Tooltip
+                  permanent
+                  direction="bottom"
+                  offset={[0, 8]}
+                  className="!bg-gray-900 !text-teal-300 !border-teal-800 !text-xs"
+                >
+                  🏡 {h.label} · family home
+                </Tooltip>
+              </CircleMarker>
+            ))}
 
             {/* Home markers, one per home place in the range */}
             {homes.map((h) => (

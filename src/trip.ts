@@ -142,8 +142,12 @@ export interface TripSummary {
   placeCount: number;
   /** Distance and time per mode during the trip (stats.json) */
   activity: ActivitySummary;
-  /** Home before the trip (the last home night with coordinates), for the map */
+  /** Home before the trip (the last not-away night with coordinates), for the map */
   home: LatLng | null;
+  /** Label of the family home the trip left from, when `home` is one */
+  homeFamily: string | null;
+  /** Label of the family home the trip ended at (the night after it), if any */
+  returnFamily: string | null;
   /** Bounding box of everything drawn for the trip, home excluded; null if nothing */
   bounds: [LatLng, LatLng] | null;
 }
@@ -178,20 +182,27 @@ export function summarizeTrip(trip: Trip, data: TripData): TripSummary {
   const nights: TripNight[] = [];
   const legs: TripLeg[] = [];
   const stayById = new Map<string, TripStay>();
-  // The last night before the trip that was verifiably at home (nights
-  // without any visit data default to home but carry no coordinates)
+  // The last night before the trip that was verifiably at home, or at a
+  // family home (nights without any visit data default to home but carry no
+  // coordinates), and whether the trip ended at a family home
   let home: LatLng | null = null;
   let homeDate: string | null = null;
+  let homeFamily: string | null = null;
+  let returnFamily: string | null = null;
   let legKey = '';
   for (const n of data.nights) {
     if (n.date < windows.nights.start) {
       if (n.isHome && n.lat != null && n.lng != null) {
         home = [n.lat, n.lng];
         homeDate = n.date;
+        homeFamily = n.family ?? null;
       }
       continue;
     }
-    if (n.date > windows.nights.end) break;
+    if (n.date > windows.nights.end) {
+      returnFamily = n.family ?? null;
+      break;
+    }
 
     const visit = n.placeId ? visitsById.get(n.placeId) : undefined;
     const named = n.isHome ? undefined : cityOfNight.get(n.date);
@@ -263,6 +274,8 @@ export function summarizeTrip(trip: Trip, data: TripData): TripSummary {
     placeCount: visited.length,
     activity: summarizeActivities(data.stats, windows.days),
     home,
+    homeFamily,
+    returnFamily,
     bounds: boundsOf([
       ...routes.flatMap((r) => r.points),
       ...flightArcs.flat(),
@@ -272,7 +285,7 @@ export function summarizeTrip(trip: Trip, data: TripData): TripSummary {
   };
 }
 
-/** `homeDate`: a date spent at home before the trip, whose countries aren't "passed through". */
+/** `homeDate`: a date spent at (family) home before the trip, whose countries aren't "passed through". */
 function tripGeography(
   geo: GeographyData,
   windows: TripWindows,
