@@ -23,11 +23,14 @@
  *   range keys.
  * - Anything unparseable falls back to defaults: an unknown page shows the
  *   Overview for all time, and each page ignores params it can't read.
+ * - Trip detail pages are named by the trip's first night, which is stable
+ *   across preprocess reruns: `#/trip?start=2024-03-14` (see tripHref). The
+ *   page isn't in the nav; without a valid `start` it shows Nights Away.
  */
 import { useSyncExternalStore } from 'react';
-import { RANGE_PARAM_KEYS } from './timeRange';
+import { RANGE_PARAM_KEYS, isIsoDate } from './timeRange';
 
-export const PAGES = ['overview', 'flights', 'nights', 'map', 'statistics', 'geography'] as const;
+export const PAGES = ['overview', 'flights', 'nights', 'map', 'statistics', 'geography', 'trip'] as const;
 
 export type Page = (typeof PAGES)[number];
 
@@ -44,6 +47,8 @@ export interface Route {
 function isPage(slug: string): slug is Page {
   return (PAGES as readonly string[]).includes(slug);
 }
+
+const GLOBAL_KEYS: readonly string[] = RANGE_PARAM_KEYS;
 
 // ---------------------------------------------------------------------------
 // Parsing and serialization (pure)
@@ -64,6 +69,15 @@ export function parseHash(hash: string): Route {
       if (value !== '') params[key] = value;
     }
   }
+
+  // A trip page needs the trip's start date; without one, show the trip
+  // list (Nights Away) for the same time range
+  if (slug === 'trip' && !isIsoDate(params.start)) {
+    const rangeParams: Record<string, string> = {};
+    for (const key of GLOBAL_KEYS) if (Object.hasOwn(params, key)) rangeParams[key] = params[key];
+    return { page: 'nights', params: rangeParams };
+  }
+
   return { page: slug === '' ? DEFAULT_PAGE : slug, params };
 }
 
@@ -71,8 +85,6 @@ export function parseHash(hash: string): Route {
 function encode(s: string): string {
   return encodeURIComponent(s).replace(/%2C/gi, ',');
 }
-
-const GLOBAL_KEYS: readonly string[] = RANGE_PARAM_KEYS;
 
 /**
  * The href for a route, e.g. '#/flights?range=2024&sort=distance'. The range
@@ -89,6 +101,14 @@ export function routeHref({ page, params }: Route): string {
     .map((key) => `${encode(key)}=${encode(params[key])}`)
     .join('&');
   return `#/${page}${query ? `?${query}` : ''}`;
+}
+
+/**
+ * The detail page of the trip whose first night is `start`; pass the
+ * current range params so the range survives the round trip.
+ */
+export function tripHref(start: string, rangeParams: RouteParams): string {
+  return routeHref({ page: 'trip', params: { ...rangeParams, start } });
 }
 
 // ---------------------------------------------------------------------------
@@ -148,8 +168,19 @@ export function setParams(
     else params[key] = value;
   }
 
-  const href = routeHref({ page: current.page, params });
-  if (href === routeHref(current)) return;
+  const next = { page: current.page, params };
+  if (routeHref(next) === routeHref(current)) return;
+  navigate(next, { replace });
+}
+
+/**
+ * Goes to another route from code (links are plain <a href>s). `replace`
+ * amends the current history entry, e.g. for a redirect, so back doesn't
+ * return to a URL that immediately redirects again.
+ */
+export function navigate(route: Route, { replace }: { replace: boolean }): void {
+  const href = routeHref(route);
+  if (href === window.location.hash) return;
 
   if (replace) window.history.replaceState(window.history.state, '', href);
   else window.history.pushState(null, '', href);

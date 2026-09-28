@@ -10,6 +10,7 @@
 import { useMemo } from 'react';
 import type { NightEntry } from '../types';
 import { inRange, type DateRange } from '../timeRange';
+import { AWAY_NIGHT_COLORS, HOME_NIGHT_COLOR, nightColor } from '../constants';
 
 interface Props {
   nights: NightEntry[];
@@ -120,17 +121,7 @@ export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Pr
                     key={di}
                     className="cal-cell"
                     title={day ? `${day.date}: ${day.isHome ? 'Home' : `Away (${day.distKm ?? '?'} km)`}` : ''}
-                    style={{
-                      backgroundColor: !day
-                        ? 'transparent'
-                        : day.isHome
-                          ? '#1a1a2e'
-                          : day.distKm && day.distKm > 1000
-                            ? '#f97316'
-                            : day.distKm && day.distKm > 100
-                              ? '#fb923c'
-                              : '#fdba74',
-                    }}
+                    style={{ backgroundColor: day ? nightColor(day) : 'transparent' }}
                   />
                 ),
               )}
@@ -139,10 +130,9 @@ export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Pr
         </div>
         <div className="flex items-center gap-2 mt-3 ml-8 text-gray-500">
           <span>Home</span>
-          <div className="cal-cell" style={{ backgroundColor: '#1a1a2e' }} />
-          <div className="cal-cell" style={{ backgroundColor: '#fdba74' }} />
-          <div className="cal-cell" style={{ backgroundColor: '#fb923c' }} />
-          <div className="cal-cell" style={{ backgroundColor: '#f97316' }} />
+          {[HOME_NIGHT_COLOR, ...AWAY_NIGHT_COLORS].map((color) => (
+            <div key={color} className="cal-cell" style={{ backgroundColor: color }} />
+          ))}
           <span>Far away</span>
           {hasExcluded && (
             <>
