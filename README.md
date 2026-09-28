@@ -4,7 +4,7 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 
 ## Features
 
-Everything you can currently see and do with the tool, page by page. Planned additions live in the [Roadmap](#roadmap); when a roadmap item ships, it moves up into this list.
+Everything you can currently see and do with the tool, page by page.
 
 ### 📥 In-Browser Import
 - **Drag and drop your `Timeline.json`** onto the dashboard (or pick it with the file chooser): it's processed right in your browser, in a background thread (a Web Worker) so the page stays responsive. No Node.js step needed; a 13-year, 83 MB export takes about a second on a desktop
@@ -315,6 +315,8 @@ CITY_DB_MAX_ONLINE_LOOKUPS=300 npm run preprocess
 | Web Workers + IndexedDB (browser built-ins) | In-browser import off the main thread, and storing its result |
 | [tsx](https://github.com/privatenumber/tsx) | Run the TypeScript command-line preprocess directly |
 | [ESLint](https://eslint.org/) (typescript-eslint + react-hooks) | Linting |
+| [Vitest](https://vitest.dev/) | Unit tests for the pipeline's pure helpers and `src/timeRange.ts` |
+| [GitHub Actions](https://github.com/features/actions) | CI: typecheck, lint, test, build on every push/PR to `main` |
 
 ## Prerequisites
 
@@ -380,13 +382,24 @@ Re-run `npm run preprocess` whenever you update your `Timeline.json` export or `
 | `npm run preview` | Serve the production build locally |
 | `npm run typecheck` | Type-check `src/` and `scripts/`, plus `src/pipeline/` without DOM or Node types (`tsconfig.pipeline.json`) |
 | `npm run lint` | Lint `src/` and `scripts/` with ESLint |
+| `npm run test` | Run the test suite once (Vitest) |
+| `npm run test:watch` | Run the test suite in watch mode |
 
 The production build in `dist/` is a static site deployable to any static host. Used with the in-browser import only, it contains no personal data: every visitor's import stays in their own browser. But `vite build` copies `public/data/` into `dist/`, so if you ran `npm run preprocess` before building, the build contains your location history; deploy that only somewhere private.
+
+## Tests & CI
+
+Vitest covers the pure, environment-agnostic pieces of the app: every helper in `src/pipeline/` (coordinate/local-time math, night bucketing, home-period detection, family homes, nearest-airport matching and the CO2 estimate, country/ISO matching) plus one end-to-end `runPipeline` smoke test on a tiny synthetic export, and the frontend's pure time-range helpers (`src/timeRange.ts`). Tests are colocated as `src/**/*.test.ts` and use only small, hand-built, synthetic fixtures (obviously fake coordinates and dates) — never `Timeline.json` or real personal data, which the suite never touches. `npm run test` runs them once; `npm run test:watch` re-runs on change.
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build` on every push and pull request to `main`. `Timeline.json` and `public/data/` are gitignored, so CI never has personal data — the build succeeds without them, since `EmptyState` handles missing data at runtime.
 
 ## Project Structure
 
 ```
 timeline-visualizer/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # typecheck + lint + test + build, on every push/PR to main
 ├── scripts/
 │   ├── preprocess.ts          # Command-line preprocess: files + env → shared pipeline → public/data/*.json
 │   ├── nominatim.ts           # Rate-limited online reverse geocoding (command line only)
@@ -405,6 +418,7 @@ timeline-visualizer/
 │   ├── types.ts               # Data types for the frontend (re-exports the pipeline's dataset types)
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
 │   ├── timeRange.ts           # Global time range: selection model, URL params, context, date/period helpers
+│   ├── timeRange.test.ts      # Tests: inRange, yearRange, dayNumber/addDays across month/leap boundaries
 │   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, homes, series)
 │   ├── trip.ts                # Trip detail: finds a trip by date, derives its map, nights, cities, flights
 │   ├── flight.ts              # Great-circle arcs and duration formatting for flights
@@ -422,7 +436,8 @@ timeline-visualizer/
 │   │   ├── homes.ts           # Home-period detection
 │   │   ├── familyHomes.ts     # timeline-config.json validation, family-home matching
 │   │   ├── airports.ts        # Nearest-airport matching and the CO2 estimate
-│   │   └── util.ts            # Coordinates, distances, calendar days, local time
+│   │   ├── util.ts            # Coordinates, distances, calendar days, local time
+│   │   └── *.test.ts          # Vitest: one file per module above, plus run.test.ts (end-to-end) and nights.test.ts (night bucketing)
 │   ├── import/                # In-browser import
 │   │   ├── worker.ts          # Web Worker: read + parse the file, run the pipeline offline-only
 │   │   ├── importJob.ts       # The running import (progress, cancel, save), shared by all import UIs
@@ -457,16 +472,11 @@ timeline-visualizer/
 ├── tsconfig.json
 ├── tsconfig.pipeline.json     # Type-checks src/pipeline/ with no DOM/Node types
 ├── vite.config.ts
+├── vitest.config.ts           # Test config: src/**/*.test.ts, node environment
 ├── eslint.config.js
 ├── tailwind.config.js
 └── postcss.config.js
 ```
-
-## Roadmap
-
-Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
-
-- Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
 
 ## Privacy
 

@@ -7,5 +7,9 @@
     "lib": ["ES2022"],
     "types": []
   },
-  "include": ["src/pipeline"]
+  "include": ["src/pipeline"],
+  // Tests import the vitest package (fine at runtime under Vitest's own
+  // esbuild transform) but are checked by the main tsconfig instead, which
+  // has DOM lib and can resolve vitest's ambient types cleanly.
+  "exclude": ["src/pipeline/**/*.test.ts"]
 }

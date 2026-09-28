@@ -10,9 +10,10 @@ npm run build       # tsc -b + pipeline typecheck && vite build → dist/
 npm run preprocess  # CLI: Timeline.json → public/data/*.json (needs Timeline.json in root)
 npm run typecheck   # tsc --noEmit over src/ and scripts/, then src/pipeline/ alone via tsconfig.pipeline.json (no DOM/Node types)
 npm run lint        # ESLint over src/ and scripts/
+npm run test        # Vitest, once (src/**/*.test.ts): pure pipeline helpers + src/timeRange.ts, synthetic fixtures only
 ```
 
-There are no tests. Verification = `typecheck` + `lint` + `build`, plus a manual check in the dev server. The app renders the import drop zone (EmptyState) when there's no data (no IndexedDB import, no `public/data/`), so the frontend can be exercised without preprocessing. For any change under `src/pipeline/`, also diff the CLI output before/after (`CITY_DB_ENABLE_ONLINE=0 npm run preprocess`, `cmp` every `public/data/*.json`; revert `scripts/data/offline-city-db.json` afterwards) — the browser import runs the same code, so byte-identical CLI output covers both paths.
+Verification = `typecheck` + `lint` + `test` + `build`, plus a manual check in the dev server (also run in CI, `.github/workflows/ci.yml`, on push/PR to `main`). The app renders the import drop zone (EmptyState) when there's no data (no IndexedDB import, no `public/data/`), so the frontend can be exercised without preprocessing. For any change under `src/pipeline/`, also diff the CLI output before/after (`CITY_DB_ENABLE_ONLINE=0 npm run preprocess`, `cmp` every `public/data/*.json`; revert `scripts/data/offline-city-db.json` afterwards) — the browser import runs the same code, so byte-identical CLI output covers both paths. Tests never touch `Timeline.json` or `public/data/`: they build tiny synthetic timelines by hand (obviously fake coordinates/dates), colocated as `src/**/*.test.ts` (kept out of `tsconfig.pipeline.json`'s strict no-DOM/no-Node check via its `exclude`, since they're checked by the main `tsconfig.json` instead).
 
 ## Data flow & key invariant
 
@@ -66,7 +67,7 @@ Raw input format: on-device Timeline export with a top-level `semanticSegments` 
 - **Playback position is not React state**: `PlaybackClock` (`src/playback.ts`) is an external store advanced by its own rAF loop, like route.ts but ephemeral (only `playback=on` is in the URL). The route layer redraws from `clock.subscribe`; components read it with `usePlaybackSelect`, whose selector must return a primitive so they re-render only when it changes (e.g. how many markers have appeared). Don't lift the time into `TravelMap` state — it would re-render the whole page (and 500 markers) every frame. Playback time is event-local wall-clock ms (`localTime`: the timestamp's local time read as UTC), so `playbackDate()` matches the dates the range filters by.
 - `public/world-countries.geo.json` is vendored (simplified Natural Earth, see README) and read by **both** the pipeline (feature names → ISO codes for `geography.json`, whose `countries` are merged by ISO code and referenced by index from `cities` and `presence`; the CLI reads the file, the worker fetches it) and the Overview map (shapes). If preprocess warns "No map geometry for: X", add X to `COUNTRY_ALIASES` (`src/pipeline/countries.ts`) rather than editing the GeoJSON.
 - `vite build` copies `public/data/` into `dist/` when it exists: a build made after `npm run preprocess` contains personal data. An import-only build doesn't.
-- README's **Features** section is the canonical user-facing list of what the app can do. Whenever a Roadmap item is implemented, move it out of Roadmap and describe it under Features in the same change — keep the two sections in sync.
+- README's **Features** section is the canonical user-facing list of what the app can do; describe a new capability there in the same change that ships it.
 
 ## Style
 
