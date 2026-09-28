@@ -211,7 +211,9 @@ export interface NightEntry {
   date: string;
   /**
    * Not a night away: within 1 km of the home of this night's period, or at a
-   * family home (then `family` is set too). True when the night has no location.
+   * family home (then `family` is set too). True when the night has no
+   * location — except a gap between two away nights (a mid-trip tracking
+   * loss), which counts as away at the last located night's place.
    */
   isHome: boolean;
   /**

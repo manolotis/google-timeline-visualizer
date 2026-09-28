@@ -7,6 +7,7 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 Everything you can currently see and do with the tool, page by page.
 
 ### 📥 In-Browser Import
+
 - **Drag and drop your `Timeline.json`** onto the dashboard (or pick it with the file chooser): it's processed right in your browser, in a background thread (a Web Worker) so the page stays responsive. No Node.js step needed; a 13-year, 83 MB export takes about a second on a desktop
 - **Nothing leaves your machine**: the file is read and processed locally, and cities are resolved with the offline city database that ships with the app, never by asking an online service (see [Offline City Database](#offline-city-database))
 - Phase-by-phase progress (reading, parsing, visits, cities, flights, nights, home periods, geography, trips, activities, routes, saving), with a Cancel button
@@ -17,15 +18,17 @@ Everything you can currently see and do with the tool, page by page.
 - The dashboard itself still runs from `npm run dev` (or any static host serving a build); what's gone is the separate Node preprocessing step
 
 ### 📅 Global Time Range
+
 - One **date-range picker in the top bar**, visible on every page: pick a period once and every stat card, chart, table, heatmap, and map shows only that period
 - Presets for **All time** (the default), **Last 12 months** (up to your newest data), and **each year** in your data, plus **custom start/end dates** (leave one side empty for an open-ended range)
-- The selection persists while you switch pages and is kept in the URL (see [Shareable Links & History](#-shareable-links--history)); the ✕ next to the picker resets to All time
+- The selection persists while you switch pages and is kept in the URL (see [Shareable Links &amp; History](#-shareable-links--history)); the ✕ next to the picker resets to All time
 - Trend charts adapt their granularity: per year for long ranges, **per month** for ranges up to three years
 - Day-precise: every number is recomputed from dated per-record data, so a custom range is exact rather than rounded to whole months, and All time reproduces the unfiltered totals exactly
 - Time-zone aware: every date is the local date wherever you were, not your phone's clock (see [Local Time](#local-time))
 - A "no data in this range" hint (with a one-click reset) instead of empty charts when a period has nothing recorded
 
 ### 🔗 Shareable Links & History
+
 - Every view has its own URL: the page, the time range, and per-page view settings live in the address bar's `#` hash, so **a reload restores exactly what you were looking at**, and a bookmark or shared link reproduces it (the URL holds view settings only, never your data, so a link opens wherever your copy of the dashboard runs)
 - One path per page: `#/overview`, `#/flights`, `#/nights`, `#/map`, `#/statistics`, `#/geography`, `#/compare`, plus one per trip, named by its first night: `#/trip?start=2024-03-14`
 - Time range as compact parameters: `?range=2024` (a year), `?range=last12m`, or `?from=2024-03-01&to=2024-06-30` (either side may be left out); All time adds nothing
@@ -36,6 +39,7 @@ Everything you can currently see and do with the tool, page by page.
 - Unknown pages fall back to the Overview for all time, and unreadable parameters are ignored, so a mistyped link never breaks the app. A trip link whose date falls inside a trip opens that trip (so links survive trips being regrouped by a later preprocess run); one that matches no trip opens that year's trip list
 
 ### 📊 Overview Dashboard
+
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
 - "Times around the Earth" distance comparison
 - **Visited-countries world map** — choropleth with every country visited in the selected range highlighted, colored by days present in that range (home time, day trips and layovers included) on a **quantile scale** recomputed per range, so a weekend trip stays clearly visible next to countries you've lived in for years
@@ -48,6 +52,7 @@ Everything you can currently see and do with the tool, page by page.
 - Longest and furthest trip highlights, each opening its [trip detail page](#-trip-detail)
 
 ### ✈️ Flights
+
 - Full log of every flight detected in the selected range, dated by local departure date
 - Sortable table by date, distance, duration, or CO₂
 - **Route column** shows the nearest-airport IATA codes, e.g. "AMS → SFO" (full airport name on hover), falling back to resolved city names when a flight endpoint has no nearby airport match (see [Airport Data](#airport-data))
@@ -57,6 +62,7 @@ Everything you can currently see and do with the tool, page by page.
 - Summary stats: total flights, total distance, most repeated route, average duration, estimated CO₂
 
 ### 🌙 Nights Away from Home
+
 - **Multi-home support** — "home" is wherever you lived at the time. Home periods are detected automatically (see [Home Periods](#home-periods)), so after a move your new place counts as home and the old one becomes a destination like any other
   - Every night, trip distance and away-night country is measured against the home of that night's period
   - The page header lists the homes that apply to the selected range, e.g. "Eindhoven, Netherlands (2014–2026) → Tres Cantos, Spain (since 2026)"
@@ -65,12 +71,13 @@ Everything you can currently see and do with the tool, page by page.
   - They are their own kind of night, neither home nor away: a teal square on the calendar heatmap, their own count next to the nights away, and a line in the page header naming the family homes stayed at in the range
   - A family home you later move into is simply home from then on
 - **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away), with family-home nights in teal; days outside the selected range are shown as outlines
-- **Time-zone aware nights** — each night is dated by the local evening it begins and placed where you spent that local night (20:00–08:00), wherever in the world you were, and a night spent on a plane counts as a night away (see [Local Time](#local-time))
+- **Time-zone aware nights** — each night is dated by the local evening it begins and placed where you spent that local night (20:00–08:00), wherever in the world you were, and a night spent on a plane counts as a night away; a mid-trip tracking gap (no recorded stay between two away nights) counts as away at the last known place instead of splitting the trip (see [Local Time](#local-time))
 - Year-by-year selector (years within the selected range) with per-year count and percentage
 - Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it); click a trip (or Tab to it and press Enter) to open its [detail page](#-trip-detail)
 - Range stats: total nights away, total trips, longest trip, furthest trip
 
 ### 🧳 Trip Detail
+
 - One page per trip, opened from the Nights Away trip list or the Overview highlights, with its own shareable URL (`#/trip?start=2024-03-14`); browser back returns to where you came from, and **← Trips in 2024** goes to that year's trip list
 - Header with the dates, nights away, return day, farthest distance from home (and where), cities, countries, places visited, total distance traveled, and flights taken
 - **Trip map** (dark Esri basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home (or the family home the trip left from); the legend lists the distance covered per mode
@@ -81,6 +88,7 @@ Everything you can currently see and do with the tool, page by page.
 - Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
 
 ### 🗺️ Travel Map
+
 - Full-screen interactive Leaflet map with dark Esri basemap
 - Thousands of route segments drawn on a canvas, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
@@ -97,6 +105,7 @@ Everything you can currently see and do with the tool, page by page.
   - Whether the player is open is part of the URL (`playback=on`), the position is not: a shared link opens the player at the start of the range
 
 ### 📈 Statistics
+
 - Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
 - Distance traveled (line chart) and unique places visited (bar chart) per year, or per month for shorter ranges
 - Day-of-week radar chart showing activity distribution
@@ -108,12 +117,14 @@ Everything you can currently see and do with the tool, page by page.
   - **Firsts stat cards** — first flight on record, farthest-ever single night from home, and the year with the most newly visited countries (all all-time, like the per-year lists above)
 
 ### 🧭 Geography
+
 - Countries and cities ranked by away-days in the selected range, with summary cards and full share-of-total tables
 - Country table also lists **days present** in the range (home time included), the measure behind the Overview world map
 - Country name variants from different sources ("USA" / "United States", "Czechia" / "Czech Republic") are merged by ISO code
 - Uses a self-updating offline city database so known locations are reused offline
 
 ### ⚖️ Compare Years
+
 - Two full calendar years, side by side, with its own shareable URL (`#/compare?a=2024&b=2025`); year pickers default to the two most recent **full** years in your data (fully covered start-to-end), with a swap button
 - **Ignores the global time range** (the picker stays usable and a small note says so, the same pattern as the trip detail page) — a year here is always compared in full, whatever period is selected elsewhere
 - **Side-by-side stat rows** with delta badges (an arrow plus a percent, or "+N" when the earlier year was zero): total distance, flights, flight distance, estimated CO₂, nights away and the percentage of the year spent away, trips, unique places, countries/cities visited, and new countries/cities that year (each a *lifetime* first-visit year, like the Statistics page's Firsts & Streaks)
@@ -159,23 +170,24 @@ The export writes all its timestamps in your phone's time zone, so a flight leav
 - Stays, activities (including the hour-of-day and day-of-week statistics), routes, and flights are dated by the local date and time where they started; a flight's date is its local departure date, and the trip detail page shows local departure times
 - Days present count each local calendar date a visit spans
 - **Nights** are dated by the local evening they begin: the night of 14 March is 20:00 on the 14th to 08:00 on the 15th, local time wherever you were, spent at the place you were during most of that window. A night spent on a plane counts as a night away, at the airport you left from, so an overnight flight home still ends the trip the next morning
+- A night with no recorded stay at all defaults to a night at home — except mid-trip: when the nearest located nights on both sides are away (an overnight bus, a dead phone abroad), the gap counts as away at the last known place, so one tracking gap doesn't split a trip in two. A located night at home or at a family home still ends the trip
 - Trips therefore run from the day you leave (the first night's date) to the day you get back (the morning after the last night)
 
 ### Generated Data Files
 
 The pipeline produces these datasets. `npm run preprocess` writes them as files to `public/data/`; the in-browser import keeps the same JSON text in IndexedDB (database `timeline-visualizer`, one record per dataset). Their TypeScript types live in `src/pipeline/types.ts`.
 
-| File | Description |
-|---|---|
-| `home.json` | Detected home periods, oldest first: `{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods)) |
-| `flights.json` | All flight segments with coordinates, distance, duration, and path, plus the nearest-airport match at each end (`startAirport`/`endAirport: {iata, name} \| null`, see [Airport Data](#airport-data)) and an estimated `co2Kg` (see [CO2 Estimate](#co2-estimate)) |
-| `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
-| `nights-away.json` | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period; nights at a family home are not away (`isHome: true`) and carry the family home's label (`family`) |
-| `family-homes.json` | The family homes from `timeline-config.json`: `{label, lat, lng, radiusKm}[]`, `[]` without a config (see [Family Homes](#family-homes)) |
-| `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
-| `trips.json` | Consecutive away-nights grouped into trips (distances from the home at the time) |
-| `routes.json` | All movement segments with polyline points and transport mode |
-| `stats.json` | Column-oriented log of every activity (date, start hour, mode, distance, duration) that the statistics are computed from |
+| File                  | Description                                                                                                                                                                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `home.json`         | Detected home periods, oldest first:`{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods))                                                                       |
+| `flights.json`      | All flight segments with coordinates, distance, duration, and path, plus the nearest-airport match at each end (`startAirport`/`endAirport: {iata, name} \| null`, see [Airport Data](#airport-data)) and an estimated `co2Kg` (see [CO2 Estimate](#co2-estimate))                               |
+| `visits.json`       | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`)                                                                                                                                                            |
+| `nights-away.json`  | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period; nights at a family home are not away (`isHome: true`) and carry the family home's label (`family`)                                                  |
+| `family-homes.json` | The family homes from`timeline-config.json`: `{label, lat, lng, radiusKm}[]`, `[]` without a config (see [Family Homes](#family-homes))                                                                                                                                                        |
+| `geography.json`    | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
+| `trips.json`        | Consecutive away-nights grouped into trips (distances from the home at the time)                                                                                                                                                                                                                    |
+| `routes.json`       | All movement segments with polyline points and transport mode                                                                                                                                                                                                                                       |
+| `stats.json`        | Column-oriented log of every activity (date, start hour, mode, distance, duration) that the statistics are computed from                                                                                                                                                                            |
 
 ### Home Periods
 
@@ -203,11 +215,11 @@ Home periods keep a place you only visit, however often, from becoming home: a m
 }
 ```
 
-| Field | Required | Meaning |
-|---|---|---|
-| `lat`, `lng` | yes | The place, in degrees (e.g. from "What's here?" in Google Maps) |
-| `label` | no | Name shown in the dashboard; defaults to the city the place is in |
-| `radiusKm` | no | Nights spent within this distance count as spent there; default **1** (the same radius as home) |
+| Field            | Required | Meaning                                                                                              |
+| ---------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| `lat`, `lng` | yes      | The place, in degrees (e.g. from "What's here?" in Google Maps)                                      |
+| `label`        | no       | Name shown in the dashboard; defaults to the city the place is in                                    |
+| `radiusKm`     | no       | Nights spent within this distance count as spent there; default**1** (the same radius as home) |
 
 Where the config goes depends on how you process your export:
 
@@ -257,6 +269,7 @@ Each flight in `flights.json` gets an estimated `co2Kg`: kg CO2e (economy class,
 
 1. **Flown distance** = great-circle distance between the flight's endpoints + a fixed **95 km detour correction** (real routes aren't great circles — airway routing, holding, weather).
 2. A **per-km factor** (kg CO2/km, excluding radiative forcing) by haul, bucketed on the *raw* great-circle distance:
+
    - short (< 1,500 km): **0.15100** kg/km
    - medium (1,500–4,000 km): **0.13402** kg/km
    - long (> 4,000 km): **0.11704** kg/km
@@ -271,6 +284,7 @@ This is a simple distance-based estimate, not a per-aircraft/load-factor model �
 Place names come from a committed offline database at `scripts/data/offline-city-db.json` (about 700 cities), plus a small built-in seed list.
 
 Resolution order for each location:
+
 1. Exact coordinate bucket hit in offline DB
 2. Online reverse geocoding (Nominatim) — **command line only**, when enabled
 3. Nearest known city fallback from offline DB/seed data
@@ -281,16 +295,16 @@ The **in-browser import never looks anything up online**: it resolves cities fro
 
 Environment variables for `npm run preprocess` (all optional):
 
-| Variable | Default | Purpose |
-|---|---:|---|
-| `CITY_DB_ENABLE_ONLINE` | `1` | Enable/disable online Nominatim lookups (`0` disables) |
-| `CITY_DB_MAX_ONLINE_LOOKUPS` | `80` | Max online geocoding calls per preprocess run |
-| `CITY_DB_ONLINE_TIMEOUT_MS` | `4000` | Per-request timeout for online geocoding |
-| `CITY_DB_ONLINE_RPS` | `1` | Throttle for online calls (requests per second; Nominatim's usage policy allows at most 1) |
-| `CITY_DB_REFRESH_FALLBACK` | `1` | Retry existing fallback entries via online geocoding |
-| `CITY_DB_BUCKET_DEG` | `0.1` | Coordinate bucket size used for dedup/cache keys |
-| `CITY_DB_USER_AGENT` | `timeline-visualizer/1.0 (offline-db-auto-update)` | User-Agent header for Nominatim requests |
-| `HOME_MIN_PERIOD_MONTHS` | `5` | Months (net) a place must be where you slept most to count as a home period (see [Home Periods](#home-periods)) |
+| Variable                       |                                              Default | Purpose                                                                                                         |
+| ------------------------------ | ---------------------------------------------------: | --------------------------------------------------------------------------------------------------------------- |
+| `CITY_DB_ENABLE_ONLINE`      |                                                `1` | Enable/disable online Nominatim lookups (`0` disables)                                                        |
+| `CITY_DB_MAX_ONLINE_LOOKUPS` |                                               `80` | Max online geocoding calls per preprocess run                                                                   |
+| `CITY_DB_ONLINE_TIMEOUT_MS`  |                                             `4000` | Per-request timeout for online geocoding                                                                        |
+| `CITY_DB_ONLINE_RPS`         |                                                `1` | Throttle for online calls (requests per second; Nominatim's usage policy allows at most 1)                      |
+| `CITY_DB_REFRESH_FALLBACK`   |                                                `1` | Retry existing fallback entries via online geocoding                                                            |
+| `CITY_DB_BUCKET_DEG`         |                                              `0.1` | Coordinate bucket size used for dedup/cache keys                                                                |
+| `CITY_DB_USER_AGENT`         | `timeline-visualizer/1.0 (offline-db-auto-update)` | User-Agent header for Nominatim requests                                                                        |
+| `HOME_MIN_PERIOD_MONTHS`     |                                                `5` | Months (net) a place must be where you slept most to count as a home period (see [Home Periods](#home-periods)) |
 
 Examples:
 
@@ -304,19 +318,19 @@ CITY_DB_MAX_ONLINE_LOOKUPS=300 npm run preprocess
 
 ## Tech Stack
 
-| Library | Purpose |
-|---|---|
-| [React 19](https://react.dev/) | UI framework |
-| [Vite 6](https://vite.dev/) | Build tool and dev server (also bundles the import Web Worker) |
-| [TypeScript 5](https://www.typescriptlang.org/) | Type safety |
-| [Tailwind CSS 3](https://tailwindcss.com/) | Utility-first styling (dark theme) |
-| [Leaflet](https://leafletjs.com/) + [React Leaflet](https://react-leaflet.js.org/) | Interactive maps |
-| [Recharts](https://recharts.org/) | Charts and graphs |
-| Web Workers + IndexedDB (browser built-ins) | In-browser import off the main thread, and storing its result |
-| [tsx](https://github.com/privatenumber/tsx) | Run the TypeScript command-line preprocess directly |
-| [ESLint](https://eslint.org/) (typescript-eslint + react-hooks) | Linting |
-| [Vitest](https://vitest.dev/) | Unit tests for the pipeline's pure helpers and `src/timeRange.ts` |
-| [GitHub Actions](https://github.com/features/actions) | CI: typecheck, lint, test, build on every push/PR to `main` |
+| Library                                                                          | Purpose                                                            |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [React 19](https://react.dev/)                                                    | UI framework                                                       |
+| [Vite 6](https://vite.dev/)                                                       | Build tool and dev server (also bundles the import Web Worker)     |
+| [TypeScript 5](https://www.typescriptlang.org/)                                   | Type safety                                                        |
+| [Tailwind CSS 3](https://tailwindcss.com/)                                        | Utility-first styling (dark theme)                                 |
+| [Leaflet](https://leafletjs.com/) + [React Leaflet](https://react-leaflet.js.org/) | Interactive maps                                                   |
+| [Recharts](https://recharts.org/)                                                 | Charts and graphs                                                  |
+| Web Workers + IndexedDB (browser built-ins)                                      | In-browser import off the main thread, and storing its result      |
+| [tsx](https://github.com/privatenumber/tsx)                                       | Run the TypeScript command-line preprocess directly                |
+| [ESLint](https://eslint.org/) (typescript-eslint + react-hooks)                   | Linting                                                            |
+| [Vitest](https://vitest.dev/)                                                     | Unit tests for the pipeline's pure helpers and`src/timeRange.ts` |
+| [GitHub Actions](https://github.com/features/actions)                             | CI: typecheck, lint, test, build on every push/PR to`main`       |
 
 ## Prerequisites
 
@@ -373,17 +387,17 @@ Re-run `npm run preprocess` whenever you update your `Timeline.json` export or `
 
 ## All Commands
 
-| Command | Description |
-|---|---|
-| `npm install` | Install dependencies |
-| `npm run dev` | Start dev server at localhost:5173 |
-| `npm run preprocess` | Optional, command-line alternative to the in-browser import: `Timeline.json` → `public/data/*.json` |
-| `npm run build` | TypeScript checks + production build to `dist/` |
-| `npm run preview` | Serve the production build locally |
-| `npm run typecheck` | Type-check `src/` and `scripts/`, plus `src/pipeline/` without DOM or Node types (`tsconfig.pipeline.json`) |
-| `npm run lint` | Lint `src/` and `scripts/` with ESLint |
-| `npm run test` | Run the test suite once (Vitest) |
-| `npm run test:watch` | Run the test suite in watch mode |
+| Command                | Description                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `npm install`        | Install dependencies                                                                                               |
+| `npm run dev`        | Start dev server at localhost:5173                                                                                 |
+| `npm run preprocess` | Optional, command-line alternative to the in-browser import:`Timeline.json` → `public/data/*.json`            |
+| `npm run build`      | TypeScript checks + production build to`dist/`                                                                   |
+| `npm run preview`    | Serve the production build locally                                                                                 |
+| `npm run typecheck`  | Type-check`src/` and `scripts/`, plus `src/pipeline/` without DOM or Node types (`tsconfig.pipeline.json`) |
+| `npm run lint`       | Lint`src/` and `scripts/` with ESLint                                                                          |
+| `npm run test`       | Run the test suite once (Vitest)                                                                                   |
+| `npm run test:watch` | Run the test suite in watch mode                                                                                   |
 
 The production build in `dist/` is a static site deployable to any static host. Used with the in-browser import only, it contains no personal data: every visitor's import stays in their own browser. But `vite build` copies `public/data/` into `dist/`, so if you ran `npm run preprocess` before building, the build contains your location history; deploy that only somewhere private.
 

@@ -603,6 +603,42 @@ export async function runPipeline(
     };
   });
 
+  // A night with no visit defaulted to home above — right for the common case
+  // (sparse early data, phone off at home), but mid-trip it is a tracking gap
+  // (an overnight bus, a dead phone abroad), and the phantom home night would
+  // split the trip in two. When the nearest located nights on both sides are
+  // away, the gap nights were spent away too: carry the previous located
+  // night's place forward (never backward — its coordinates have then already
+  // been through the CityResolver, so resolution order is unchanged), with
+  // distKm re-measured against the gap night's own period home. A located
+  // home or family night on either side keeps the default: coming home for a
+  // night must still end the trip.
+  let filledGapNights = 0;
+  let prevLocated = -1;
+  for (let i = 0; i < nightsAway.length; i++) {
+    if (nightsAway[i].lat === undefined) continue;
+    if (prevLocated >= 0 && i > prevLocated + 1 && !nightsAway[prevLocated].isHome && !nightsAway[i].isHome) {
+      const from = nightsAway[prevLocated];
+      for (let j = prevLocated + 1; j < i; j++) {
+        const date = nightsAway[j].date;
+        const home = homePeriods[periodIndexForDate(homePeriods, date)];
+        nightsAway[j] = {
+          date,
+          isHome: false,
+          lat: from.lat!,
+          lng: from.lng!,
+          distKm: Math.round(haversineDist(home.lat, home.lng, from.lat!, from.lng!) * 10) / 10,
+          placeId: from.placeId,
+        };
+        filledGapNights++;
+      }
+    }
+    prevLocated = i;
+  }
+  if (filledGapNights > 0) {
+    log(`  ${filledGapNights} unlocated nights between away nights counted at the last known place`);
+  }
+
   const totalAway = nightsAway.filter((n) => !n.isHome).length;
   const totalFamily = nightsAway.filter((n) => n.family).length;
   log(

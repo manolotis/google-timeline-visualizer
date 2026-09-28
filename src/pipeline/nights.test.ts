@@ -247,3 +247,88 @@ describe('night bucketing', () => {
     expect(firstNight).toMatchObject({ isHome: true, lat: 5, lng: 5, distKm: 0, placeId: 'home' });
   });
 });
+
+describe('mid-trip gap nights', () => {
+  const home = visitSeg({
+    start: '2021-06-01T00:00:00Z',
+    end: '2021-06-03T08:00:00Z',
+    lat: 1,
+    lng: 1,
+    placeId: 'home',
+    semanticType: 'HOME',
+  });
+
+  it('unlocated nights between two away nights count as away at the last located place, keeping the trip whole', async () => {
+    // Away night 06-03 at hostel-a; nights 06-04 and 06-05 have no visit at
+    // all (overnight bus, dead phone); away nights 06-06/07 at hostel-b.
+    const awayA = visitSeg({
+      start: '2021-06-03T12:00:00Z',
+      end: '2021-06-04T08:00:00Z',
+      lat: 50,
+      lng: 50,
+      placeId: 'hostel-a',
+    });
+    const awayB = visitSeg({
+      start: '2021-06-06T10:00:00Z',
+      end: '2021-06-08T08:00:00Z',
+      lat: 51,
+      lng: 51,
+      placeId: 'hostel-b',
+    });
+    const homeAgain = visitSeg({
+      start: '2021-06-08T12:00:00Z',
+      end: '2021-06-10T08:00:00Z',
+      lat: 1,
+      lng: 1,
+      placeId: 'home',
+      semanticType: 'HOME',
+    });
+    const timeline: RawTimeline = { semanticSegments: [home, awayA, awayB, homeAgain] };
+
+    const { datasets } = await runPipeline(timeline, inputs, { homeMinPeriodMonths: 1 });
+
+    const anchor = nightOn(datasets.nightsAway, '2021-06-03');
+    for (const date of ['2021-06-04', '2021-06-05']) {
+      const gap = nightOn(datasets.nightsAway, date);
+      expect(gap.isHome).toBe(false);
+      expect(gap.lat).toBe(50); // carried forward from hostel-a, not back from hostel-b
+      expect(gap.lng).toBe(50);
+      expect(gap.placeId).toBe('hostel-a');
+      expect(gap.distKm).toBe(anchor.distKm);
+    }
+
+    // One unbroken trip instead of two split by the phantom home nights
+    expect(datasets.trips).toHaveLength(1);
+    expect(datasets.trips[0]).toMatchObject({ startDate: '2021-06-03', endDate: '2021-06-07', nights: 5 });
+    expect(datasets.trips[0].places).toContainEqual({ placeId: 'hostel-a', lat: 50, lng: 50, nights: 3 });
+  });
+
+  it('an unlocated night bordered by a located home night stays home: coming home still ends the trip', async () => {
+    const away = visitSeg({
+      start: '2021-06-03T12:00:00Z',
+      end: '2021-06-04T08:00:00Z',
+      lat: 50,
+      lng: 50,
+      placeId: 'hostel-a',
+    });
+    // Night 06-04 has no visit; the next located night (06-05) is at home.
+    const homeAgain = visitSeg({
+      start: '2021-06-05T12:00:00Z',
+      end: '2021-06-07T08:00:00Z',
+      lat: 1,
+      lng: 1,
+      placeId: 'home',
+      semanticType: 'HOME',
+    });
+    const timeline: RawTimeline = { semanticSegments: [home, away, homeAgain] };
+
+    const { datasets } = await runPipeline(timeline, inputs, { homeMinPeriodMonths: 1 });
+
+    const gap = nightOn(datasets.nightsAway, '2021-06-04');
+    expect(gap.isHome).toBe(true);
+    expect(gap.lat).toBeUndefined();
+
+    expect(datasets.trips).toHaveLength(1);
+    expect(datasets.trips[0]).toMatchObject({ startDate: '2021-06-03', endDate: '2021-06-03', nights: 1 });
+  });
+});
