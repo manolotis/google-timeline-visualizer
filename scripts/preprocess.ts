@@ -10,7 +10,8 @@
  *   - flights.json     — Flight segments with coords, distance, duration, and paths
  *   - visits.json      — Deduplicated places with counts, time spent, and dated stays
  *   - nights-away.json — Per-date home/away classification against the home
- *                        period active that night
+ *                        period active that night (plus family-home nights)
+ *   - family-homes.json — The family homes configured in timeline-config.json
  *   - geography.json   — Countries (with ISO codes matched against
  *                        public/world-countries.geo.json), the city of every
  *                        away night, and the countries present on every date
@@ -24,6 +25,10 @@
  * frontend (src/aggregate.ts) sums whatever falls inside the selected range.
  * Every date is a local calendar date where the user was at the time, taken
  * from the export's per-segment UTC offsets (see "Local time" below).
+ *
+ * An optional timeline-config.json in the project root configures family
+ * homes (see "Family homes" below); without it the output is the same as
+ * with an empty config.
  *
  * Usage: npm run preprocess
  */
@@ -510,6 +515,104 @@ function periodIndexForDate(periods: { start: string; end: string | null }[], da
     if (p.end === null || date <= p.end) return i;
   }
   return periods.length - 1;
+}
+
+// ---------------------------------------------------------------------------
+// Family homes (timeline-config.json)
+// ---------------------------------------------------------------------------
+// A family home is a place you stay at again and again without living there,
+// like your parents' house every Christmas and summer. Nothing in the export
+// tells it apart from any other destination, so it is configured by hand in
+// the optional, gitignored timeline-config.json (it holds personal
+// coordinates):
+//
+//   { "familyHomes": [{ "lat": 48.8584, "lng": 2.2945, "label": "Parents", "radiusKm": 1 }] }
+//
+// A night that would be away but was spent within radiusKm of a family home
+// is a family night: not away (isHome stays true, so nothing counts it as a
+// night away, and trips end at it like at home) but marked with the family
+// home's label (`family`). Its distKm is still measured from the period's
+// home. A night at home is never a family night, so while a family home is
+// also the home of the period (you moved in), its nights are simply home.
+
+/** timeline-config.json: every key optional */
+interface TimelineConfig {
+  familyHomes?: FamilyHomeConfig[];
+}
+
+interface FamilyHomeConfig {
+  lat: number;
+  lng: number;
+  /** Shown in the dashboard; defaults to the resolved city name */
+  label?: string;
+  /** Nights within this distance count as spent there; defaults to HOME_RADIUS_KM */
+  radiusKm?: number;
+}
+
+/** A family home as written to family-homes.json */
+interface FamilyHome {
+  label: string;
+  lat: number;
+  lng: number;
+  radiusKm: number;
+}
+
+/**
+ * The family homes configured in `configPath`, or none when the file doesn't
+ * exist. A malformed file fails the run rather than quietly counting every
+ * stay there as away.
+ */
+function readFamilyHomeConfig(configPath: string): FamilyHomeConfig[] {
+  if (!fs.existsSync(configPath)) return [];
+  const name = path.basename(configPath);
+  let config: unknown;
+  try {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+  } catch (err) {
+    throw new Error(`Could not parse ${name}: ${(err as Error).message}`, { cause: err });
+  }
+  if (typeof config !== 'object' || config === null || Array.isArray(config)) {
+    throw new Error(`${name} must hold a JSON object, e.g. { "familyHomes": [] }`);
+  }
+  const known: (keyof TimelineConfig)[] = ['familyHomes'];
+  for (const key of Object.keys(config)) {
+    if (!known.includes(key as keyof TimelineConfig)) console.warn(`  Ignoring unknown key "${key}" in ${name}`);
+  }
+
+  const list = (config as Record<string, unknown>).familyHomes;
+  if (list === undefined) return [];
+  if (!Array.isArray(list)) throw new Error(`${name}: "familyHomes" must be an array`);
+  return list.map((entry: unknown, i): FamilyHomeConfig => {
+    const e = (typeof entry === 'object' && entry !== null ? entry : {}) as Record<string, unknown>;
+    const { lat, lng, label, radiusKm } = e;
+    const isNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+    if (
+      !isNumber(lat) || Math.abs(lat) > 90 ||
+      !isNumber(lng) || Math.abs(lng) > 180 ||
+      (label !== undefined && typeof label !== 'string') ||
+      (radiusKm !== undefined && !(isNumber(radiusKm) && radiusKm > 0))
+    ) {
+      throw new Error(
+        `${name}: familyHomes[${i}] needs numeric "lat" and "lng" (degrees), ` +
+          'plus optionally a "label" (text) and a "radiusKm" (> 0)',
+      );
+    }
+    return { lat, lng, label, radiusKm };
+  });
+}
+
+/** The family home a place lies within, the nearest one if several; null if none. */
+function familyHomeAt(homes: FamilyHome[], lat: number, lng: number): FamilyHome | null {
+  let best: FamilyHome | null = null;
+  let bestDist = Infinity;
+  for (const h of homes) {
+    const d = haversineDist(h.lat, h.lng, lat, lng);
+    if (d < h.radiusKm && d < bestDist) {
+      best = h;
+      bestDist = d;
+    }
+  }
+  return best;
 }
 
 // ---------------------------------------------------------------------------
@@ -1034,6 +1137,7 @@ async function main() {
   const CITY_DB_PATH = path.join(ROOT, 'scripts', 'data', 'offline-city-db.json');
   const WORLD_GEO_PATH = path.join(ROOT, 'public', 'world-countries.geo.json');
   const AIRPORTS_PATH = path.join(ROOT, 'scripts', 'data', 'airports.json');
+  const CONFIG_PATH = path.join(ROOT, 'timeline-config.json');
 
   const CITY_BUCKET_DEG = Number(ENV.CITY_DB_BUCKET_DEG ?? '0.1');
   const CITY_ONLINE_ENABLED = (ENV.CITY_DB_ENABLE_ONLINE ?? '1') !== '0';
@@ -1051,6 +1155,12 @@ async function main() {
   // abroad, short enough that a move shows up within half a year.
   const envMinMonths = parseInt(ENV.HOME_MIN_PERIOD_MONTHS ?? '', 10);
   const HOME_MIN_PERIOD_MONTHS = envMinMonths >= 1 ? envMinMonths : 5;
+
+  // Read the config first, so a mistake in it fails before the slow parse below
+  const familyHomeConfig = readFamilyHomeConfig(CONFIG_PATH);
+  if (familyHomeConfig.length > 0) {
+    console.log(`${path.basename(CONFIG_PATH)}: ${familyHomeConfig.length} family home(s)`);
+  }
 
   fs.mkdirSync(OUT, { recursive: true });
 
@@ -1353,7 +1463,7 @@ async function main() {
   // a night in San Francisco is the San Francisco evening's date and hours,
   // whatever zone the phone was set to. Home periods are detected from these,
   // then each night is checked against the home of its period
-  // (>HOME_RADIUS_KM away = a night away).
+  // (>HOME_RADIUS_KM away = a night away, unless spent at a family home).
   const NIGHT_BEFORE_MIDNIGHT_MS = 4 * 3_600_000;
   const NIGHT_AFTER_MIDNIGHT_MS = 8 * 3_600_000;
   // A "flight" longer than this is a gap-filling artifact (phone off), not a flight
@@ -1514,9 +1624,22 @@ async function main() {
   }
   fs.writeFileSync(path.join(OUT, 'home.json'), JSON.stringify(homePeriods));
 
+  // Family homes, labelled after their city unless the config names them
+  // (cache only, like the home periods' names)
+  const familyHomes: FamilyHome[] = familyHomeConfig.map((c) => ({
+    label: c.label?.trim() || cityResolver.peek(c.lat, c.lng)?.name || 'Family home',
+    lat: c.lat,
+    lng: c.lng,
+    radiusKm: c.radiusKm ?? HOME_RADIUS_KM,
+  }));
+  fs.writeFileSync(path.join(OUT, 'family-homes.json'), JSON.stringify(familyHomes));
+
   interface NightEntry {
     date: string;
+    /** Not a night away: at the home of the night's period, or at a family home (`family`) */
     isHome: boolean;
+    /** Label of the family home the night was spent at, on nights that would otherwise be away */
+    family?: string;
     lat?: number;
     lng?: number;
     /** Distance from the home of the period this night belongs to */
@@ -1524,14 +1647,19 @@ async function main() {
     placeId?: string;
   }
 
+  const familyNights = new Map<FamilyHome, number>();
   const nightsAway: NightEntry[] = nightVisits.map(({ date, visit }) => {
     // No visit data for this date (or no home at all) — unknown, treat as home
     if (!visit || homePeriods.length === 0) return { date, isHome: true };
     const home = homePeriods[periodIndexForDate(homePeriods, date)];
     const dist = haversineDist(home.lat, home.lng, visit.lat, visit.lng);
+    const atHome = dist < HOME_RADIUS_KM;
+    const family = atHome ? null : familyHomeAt(familyHomes, visit.lat, visit.lng);
+    if (family) familyNights.set(family, (familyNights.get(family) ?? 0) + 1);
     return {
       date,
-      isHome: dist < HOME_RADIUS_KM,
+      isHome: atHome || family !== null,
+      ...(family ? { family: family.label } : {}),
       lat: visit.lat,
       lng: visit.lng,
       distKm: Math.round(dist * 10) / 10,
@@ -1540,9 +1668,17 @@ async function main() {
   });
 
   const totalAway = nightsAway.filter((n) => !n.isHome).length;
+  const totalFamily = nightsAway.filter((n) => n.family).length;
   console.log(
-    `  ${nightsAway.length} nights tracked, ${totalAway} away from home`,
+    `  ${nightsAway.length} nights tracked, ${totalAway} away from home` +
+      (familyHomes.length > 0 ? `, ${totalFamily} at family homes` : ''),
   );
+  for (const h of familyHomes) {
+    console.log(
+      `  Family home ${h.label} (${h.lat.toFixed(4)}, ${h.lng.toFixed(4)}, within ${h.radiusKm} km): ` +
+        `${familyNights.get(h) ?? 0} nights not counted as away`,
+    );
+  }
   fs.writeFileSync(
     path.join(OUT, 'nights-away.json'),
     JSON.stringify(nightsAway),
@@ -1597,7 +1733,7 @@ async function main() {
   const geoNights: GeographyNight[] = [];
 
   for (const night of nightsAway) {
-    if (night.isHome) continue;
+    if (night.isHome) continue; // family-home nights included: they aren't away
 
     const cityMatch =
       night.lat != null && night.lng != null
@@ -1674,6 +1810,10 @@ async function main() {
   // 6. Group into trips
   // ========================================================================
   console.log('Grouping trips…');
+  // A trip is a run of consecutive away nights. Family-home nights are isHome
+  // too, so like nights at home they never start or extend a trip: a stay at a
+  // family home is no trip at all, and a trip with a family-home stopover in
+  // the middle splits into the parts before and after it.
   interface Trip {
     startDate: string;
     endDate: string;

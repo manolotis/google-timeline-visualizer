@@ -25,6 +25,7 @@ import {
   rangeOverlapsYear,
   peakYear,
   longestNightStreak,
+  isOwnHomeNight,
   streakCities,
   farthestNightEver,
   firstFlightEver,
@@ -185,9 +186,11 @@ export default function FirstsAndStreaks() {
     [nights, range],
   );
   const homeStreak = useMemo(
-    () => (nights ? longestNightStreak(nights, range, (n) => n.isHome) : null),
+    // At your own home: a family-home night ends both streaks
+    () => (nights ? longestNightStreak(nights, range, isOwnHomeNight) : null),
     [nights, range],
   );
+  const hasFamilyNights = useMemo(() => !!nights?.some((n) => n.family), [nights]);
   const travelCities = useMemo(
     () => (geo && !stale && travelStreak ? streakCities(geo, travelStreak) : []),
     [geo, stale, travelStreak],
@@ -219,7 +222,8 @@ export default function FirstsAndStreaks() {
         <p className="text-sm text-gray-400 mt-1">
           New countries and cities are lifetime firsts — the year each was first visited, not
           relative to the selected range. Streaks are computed for {streakRangeText}; a night
-          without tracked location data ends a streak.
+          without tracked location data ends a streak
+          {hasFamilyNights ? ', and so does a night at a family home (neither away nor home)' : ''}.
         </p>
       </div>
 

@@ -53,7 +53,17 @@ export const HOME_NIGHT_COLOR = '#1a1a2e';
 /** Away nights by distance from home, near (≤ 100 km) → far (> 1000 km). */
 export const AWAY_NIGHT_COLORS = ['#fdba74', '#fb923c', '#f97316'] as const;
 
-export function nightColor(night: { isHome: boolean; distKm?: number }): string {
+/**
+ * Nights at a family home (neither home nor away): a muted teal, validated
+ * against every away orange for color-vision-deficiency separation.
+ */
+export const FAMILY_NIGHT_COLOR = '#0d9488';
+
+/** Family-home markers on maps: a lighter step of the same teal, for the dark basemap. */
+export const FAMILY_HOME_COLOR = '#2dd4bf';
+
+export function nightColor(night: { isHome: boolean; family?: string; distKm?: number }): string {
+  if (night.family) return FAMILY_NIGHT_COLOR;
   if (night.isHome) return HOME_NIGHT_COLOR;
   const km = night.distKm ?? 0;
   return AWAY_NIGHT_COLORS[km > 1000 ? 2 : km > 100 ? 1 : 0];

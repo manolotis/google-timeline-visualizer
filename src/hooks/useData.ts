@@ -12,6 +12,7 @@ import type {
   Stats,
   Flight,
   NightEntry,
+  FamilyHome,
   Trip,
   Visit,
   HomePeriod,
@@ -87,6 +88,14 @@ export function useVisits() {
 /** Check the result with isStaleHome: older exports wrote a single {lat, lng}. */
 export function useHomePeriods() {
   return useFetch<HomePeriod[]>('/data/home.json');
+}
+
+/**
+ * Exports from before family homes have no family-homes.json: the fetch then
+ * fails, which means no family homes (their nights carry no `family` either).
+ */
+export function useFamilyHomes() {
+  return useFetch<FamilyHome[]>('/data/family-homes.json');
 }
 
 export function useRoutes() {

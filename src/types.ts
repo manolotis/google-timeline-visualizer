@@ -80,11 +80,34 @@ export interface Visit {
   country?: string;
 }
 
+/**
+ * family-homes.json: the family homes configured in timeline-config.json
+ * (`[]` without one; missing in exports from before family homes). A night
+ * spent at one isn't away; see NightEntry.family.
+ */
+export interface FamilyHome {
+  /** From the config, else the resolved city name, else 'Family home' */
+  label: string;
+  lat: number;
+  lng: number;
+  /** Nights within this distance of the point count as spent there */
+  radiusKm: number;
+}
+
 export interface NightEntry {
   /** The local date of the evening the night begins (20:00 → 08:00 local) */
   date: string;
-  /** Within 1 km of the home of this night's period (true when the night has no location) */
+  /**
+   * Not a night away: within 1 km of the home of this night's period, or at a
+   * family home (then `family` is set too). True when the night has no location.
+   */
   isHome: boolean;
+  /**
+   * Label of the family home (family-homes.json) the night was spent at. Only
+   * on nights that would otherwise be away, so never while that place is the
+   * period's home. Use isOwnHomeNight (aggregate.ts) for nights at home proper.
+   */
+  family?: string;
   lat?: number;
   lng?: number;
   /** Distance from the home of this night's period */

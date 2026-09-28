@@ -50,7 +50,11 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - **Multi-home support** — "home" is wherever you lived at the time. Home periods are detected automatically (see [Home Periods](#home-periods)), so after a move your new place counts as home and the old one becomes a destination like any other
   - Every night, trip distance and away-night country is measured against the home of that night's period
   - The page header lists the homes that apply to the selected range, e.g. "Eindhoven, Netherlands (2014–2026) → Tres Cantos, Spain (since 2026)"
-- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
+- **Family homes** — mark places you keep going back to without living there, like your parents' house every Christmas, in an optional config file (see [Family Homes](#family-homes)). Nights there are never "away":
+  - They don't count as nights away (totals, percentages, per-year charts, the away-night geography) and never form or extend a trip: a Christmas stay there is no trip at all, and a trip with a stopover there splits in two
+  - They are their own kind of night, neither home nor away: a teal square on the calendar heatmap, their own count next to the nights away, and a line in the page header naming the family homes stayed at in the range
+  - A family home you later move into is simply home from then on
+- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away), with family-home nights in teal; days outside the selected range are shown as outlines
 - **Time-zone aware nights** — each night is dated by the local evening it begins and placed where you spent that local night (20:00–08:00), wherever in the world you were, and a night spent on a plane counts as a night away (see [Local Time](#local-time))
 - Year-by-year selector (years within the selected range) with per-year count and percentage
 - Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it); click a trip (or Tab to it and press Enter) to open its [detail page](#-trip-detail)
@@ -59,7 +63,8 @@ Everything you can currently see and do with the tool, page by page. Planned add
 ### 🧳 Trip Detail
 - One page per trip, opened from the Nights Away trip list or the Overview highlights, with its own shareable URL (`#/trip?start=2024-03-14`); browser back returns to where you came from, and **← Trips in 2024** goes to that year's trip list
 - Header with the dates, nights away, return day, farthest distance from home (and where), cities, countries, places visited, total distance traveled, and flights taken
-- **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home; the legend lists the distance covered per mode
+- **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home (or the family home the trip left from); the legend lists the distance covered per mode
+- A trip that ends at a family home says so ("then 🏡 Tres Cantos from …") instead of "back home"
 - **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
 - **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
 - **Flights** taken during the trip, in order, with local departure time, IATA route labels (city as a sub-label), distance, and duration
@@ -71,6 +76,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Toggle individual transport modes on/off
 - Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
 - A home marker for every home that applies to the selected range, labelled with the years you lived there (e.g. "Home 2014–2026", "Home since 2026")
+- A teal ring for every [family home](#family-homes) stayed at in the selected range, labelled with its name
 
 ### 📈 Statistics
 - Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
@@ -80,7 +86,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - Top 20 most visited places in the range, showing resolved city/country name (via the offline city database, with coordinates as a sub-label), semantic type, visit count, and hours spent
 - **🏆 Firsts & Streaks**, at the bottom of the page:
   - **New countries/cities per year** — each country/city's *lifetime* first-visit year (from all-time data, not the selected range), listed as chip rows per year with an expandable list for long years; the selected range only limits which years are shown, it never changes which year counts as "new"
-  - **Longest travel streak** and **longest home streak** — the longest run of consecutive nights away from / at home, computed for the selected range and clipped at its edges like every other range-aware number in the app; a night with no tracked location data ends a streak, and the travel streak also lists the distinct cities visited during it
+  - **Longest travel streak** and **longest home streak** — the longest run of consecutive nights away from / at home, computed for the selected range and clipped at its edges like every other range-aware number in the app; a night with no tracked location data ends a streak, and so does a night at a family home (it is neither), and the travel streak also lists the distinct cities visited during it
   - **Firsts stat cards** — first flight on record, farthest-ever single night from home, and the year with the most newly visited countries (all all-time, like the per-year lists above)
 
 ### 🧭 Geography
@@ -124,7 +130,8 @@ The export writes all its timestamps in your phone's time zone, so a flight leav
 | `home.json` | Detected home periods, oldest first: `{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods)) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path, plus the nearest-airport match at each end (`startAirport`/`endAirport: {iata, name} \| null`, see [Airport Data](#airport-data)) and an estimated `co2Kg` (see [CO2 Estimate](#co2-estimate)) |
 | `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
-| `nights-away.json` | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period |
+| `nights-away.json` | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period; nights at a family home are not away (`isHome: true`) and carry the family home's label (`family`) |
+| `family-homes.json` | The family homes from `timeline-config.json`: `{label, lat, lng, radiusKm}[]`, `[]` without a config (see [Family Homes](#family-homes)) |
 | `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
 | `trips.json` | Consecutive away-nights grouped into trips (distances from the home at the time) |
 | `routes.json` | All movement segments with polyline points and transport mode |
@@ -139,9 +146,38 @@ People move, so the preprocessor detects a list of home periods instead of one f
 3. **Smoothing** — consecutive months with the same label form segments. The weakest segment shorter than `HOME_MIN_PERIOD_MONTHS` (default **5**) is dropped, again and again, until all segments are long enough. If a dropped segment sat between two segments of the same home, those two merge, and the months that interrupted them are subtracted from the merged total. So a Christmas at your parents', a summer away, or a three-month stint abroad stays a trip. Patchy early data that alternates between two places can't add up to a home either.
 4. **Dates** — a period ends on the last night slept at its home (up to the next home's first month, since moves happen mid-month). The next period starts on the first night at the new home after that. The first period starts on the first night ever slept at its home. The latest period is ongoing (`end: null`).
 
-Every night is then classified against the home of its period (more than 1 km away = a night away), and trips and the away-night geography follow. A night outside every period belongs to the **nearest period in time**, which covers nights before the first period and nights in the gap between moving out and moving in. When both periods are equally close, the earlier one wins. Days present are unaffected, since they don't depend on home.
+Every night is then classified against the home of its period (more than 1 km away = a night away, unless it was at a [family home](#family-homes)), and trips and the away-night geography follow. A night outside every period belongs to the **nearest period in time**, which covers nights before the first period and nights in the gap between moving out and moving in. When both periods are equally close, the earlier one wins. Days present are unaffected, since they don't depend on home.
 
 Limitations: a new home only shows up once you've mostly slept there for `HOME_MIN_PERIOD_MONTHS` months. Until then those nights count as away. A place Google never labels as home can't become one. Lower `HOME_MIN_PERIOD_MONTHS` if you want shorter stays, like a semester abroad, to count as homes.
+
+### Family Homes
+
+Home periods keep a place you only visit, however often, from becoming home: a month at your parents' every Christmas and summer stays a string of trips. If you'd rather not count those stays as travel, list the place as a **family home** in an optional `timeline-config.json` in the project root, next to `Timeline.json`, and re-run `npm run preprocess`:
+
+```json
+{
+  "familyHomes": [
+    { "lat": 48.8584, "lng": 2.2945, "label": "Parents' house" },
+    { "lat": 43.2965, "lng": 5.3698, "label": "Grandma's", "radiusKm": 2 }
+  ]
+}
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `lat`, `lng` | yes | The place, in degrees (e.g. from "What's here?" in Google Maps) |
+| `label` | no | Name shown in the dashboard; defaults to the city the place is in |
+| `radiusKm` | no | Nights spent within this distance count as spent there; default **1** (the same radius as home) |
+
+Copy `timeline-config.example.json` to get started. The file is gitignored, since it holds personal coordinates. Without it (or with an empty `familyHomes` list) nothing changes: every night, trip and number comes out exactly as it would without the feature, and `family-homes.json` is empty.
+
+How it works:
+
+- A night that would be away but was spent within `radiusKm` of a family home is a **family-home night** instead: not away and not home. When several family homes are in range, the nearest wins.
+- Its distance from home is still measured from the home of its period, so a family home 1,500 km away still shows as 1,500 km from home in tooltips.
+- Trips are runs of consecutive nights away, and a family-home night ends a run just like a night at home. A stay that is all at the family home is no trip at all, and a trip with a stopover there splits into the part before and the part after: a summer drive through France to your parents', then on to Portugal, is a France trip and a Portugal trip, with the stay at your parents' in between belonging to neither.
+- Away-night countries and cities (Geography, the world map's nights) leave family-home nights out too. Days present don't change, since they don't depend on home.
+- Only nights that would otherwise be away are affected: when a family home is the home of the period (you moved in, and home periods picked it up), its nights are plain home nights. So the same place can be a family home for years and your home afterwards.
 
 ### World Country Geometry
 
@@ -252,14 +288,17 @@ Transfer the resulting `Timeline.json` to this project's root directory. The exp
 # 1. Install dependencies
 npm install
 
-# 2. Preprocess your timeline data (Timeline.json → public/data/*.json)
+# 2. Optional: mark family homes (see "Family Homes"), then edit the copy
+cp timeline-config.example.json timeline-config.json
+
+# 3. Preprocess your timeline data (Timeline.json → public/data/*.json)
 npm run preprocess
 
-# 3. Start the dev server → http://localhost:5173
+# 4. Start the dev server → http://localhost:5173
 npm run dev
 ```
 
-Re-run `npm run preprocess` whenever you update your `Timeline.json` export.
+Re-run `npm run preprocess` whenever you update your `Timeline.json` export or `timeline-config.json`.
 
 ## All Commands
 
@@ -285,6 +324,7 @@ timeline-visualizer/
 │   └── data/
 │       ├── offline-city-db.json # Committed offline city/country resolver DB
 │       └── airports.json      # Committed, trimmed OurAirports data (nearest-airport matching)
+├── timeline-config.example.json # Example family-home config (copy to timeline-config.json, gitignored)
 ├── public/
 │   ├── world-countries.geo.json # Vendored country shapes for the world map (Natural Earth)
 │   └── data/                  # Generated data files (gitignored)
@@ -332,11 +372,10 @@ timeline-visualizer/
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
-- **Family-home option** — mark a place (e.g. a family home you visit every year) as never "away", so recurring stays there don't count as trips; complements home periods
 - **Animated playback** — scrub through time and watch your travel history draw itself
 - **Year-vs-year comparison** view
 - Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI
 
 ## Privacy
 
-All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited); the world map's country borders ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json` and `public/data/` are gitignored so your location history can't be committed accidentally.
+All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited); the world map's country borders ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
