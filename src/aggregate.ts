@@ -15,6 +15,7 @@ import {
   addDays,
   periodKey,
   periodLabel,
+  yearRange,
   type DateRange,
   type Periods,
 } from './timeRange';
@@ -513,4 +514,87 @@ export function firstFlightEver(flights: Flight[]): Flight | null {
     if (!best || f.date < best.date) best = f;
   }
   return best;
+}
+
+// ---------------------------------------------------------------------------
+// Year vs. year comparison (Compare page)
+//
+// Two whole calendar years shown side by side, independent of the global
+// time range. Reuses summarizeActivities/summarizeVisits/summarizeGeography
+// and the "firsts" helpers above (called once per year, range = yearRange(y))
+// — these two helpers add the piece those don't cover: aligning two years'
+// monthly series by calendar month (Jan first) for an overlay chart, and
+// merging two years' per-mode figures into comparison rows.
+// ---------------------------------------------------------------------------
+
+const MONTH_ABBR = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+export interface MonthlyPair {
+  /** 1–12 */
+  month: number;
+  label: string;
+  a: number;
+  b: number;
+}
+
+/**
+ * Two years of a monthly metric aligned by calendar month (Jan → Dec), for
+ * overlaying as two series on one chart. `valuesA`/`valuesB` are 'YYYY-MM' →
+ * value maps for their own year — e.g. summarizeActivities(stats,
+ * yearRange(year), { granularity: 'month', keys: [] }).distanceByPeriod, or
+ * monthlyAwayNights below. Missing months are zero-filled.
+ */
+export function alignMonths(
+  yearA: number,
+  valuesA: Map<string, number>,
+  yearB: number,
+  valuesB: Map<string, number>,
+): MonthlyPair[] {
+  return MONTH_ABBR.map((label, i) => {
+    const mm = String(i + 1).padStart(2, '0');
+    return {
+      month: i + 1,
+      label,
+      a: Math.round(valuesA.get(`${yearA}-${mm}`) ?? 0),
+      b: Math.round(valuesB.get(`${yearB}-${mm}`) ?? 0),
+    };
+  });
+}
+
+/** Away nights per month ('YYYY-MM' → count) within one calendar year. */
+export function monthlyAwayNights(nights: NightEntry[], year: number): Map<string, number> {
+  const range = yearRange(year);
+  const counts = new Map<string, number>();
+  for (const n of nights) {
+    if (n.isHome || !inRange(n.date, range)) continue;
+    const key = n.date.slice(0, 7);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+}
+
+export interface ModeComparisonRow {
+  mode: string;
+  a: number;
+  b: number;
+}
+
+/**
+ * Two years' per-mode figures (e.g. distanceByMode) merged into rows sorted
+ * by combined size, for a grouped bar chart or a stat-row list. Excludes
+ * UNKNOWN_ACTIVITY_TYPE, like every other mode breakdown in this app.
+ */
+export function compareByMode(
+  a: Record<string, number>,
+  b: Record<string, number>,
+  topN = 8,
+): ModeComparisonRow[] {
+  const modes = new Set([...Object.keys(a), ...Object.keys(b)]);
+  modes.delete('UNKNOWN_ACTIVITY_TYPE');
+  return [...modes]
+    .map((mode) => ({ mode, a: a[mode] ?? 0, b: b[mode] ?? 0 }))
+    .sort((x, y) => y.a + y.b - (x.a + x.b))
+    .slice(0, topN);
 }
