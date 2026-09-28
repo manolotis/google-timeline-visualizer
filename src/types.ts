@@ -56,6 +56,12 @@ export interface Flight {
   startCountry?: string;
   endCity?: string;
   endCountry?: string;
+  /** Nearest airport (within ~40 km) to the departure point; null if none matched */
+  startAirport?: { iata: string; name: string } | null;
+  /** Nearest airport (within ~40 km) to the arrival point; null if none matched */
+  endAirport?: { iata: string; name: string } | null;
+  /** Estimated kg CO2e for this flight (great-circle distance + detour, DEFRA-style factor by haul, RF-adjusted) */
+  co2Kg?: number;
 }
 
 export interface Visit {

@@ -504,8 +504,8 @@ function FlightList({ flights }: { flights: Flight[] }) {
                   {f.date}{' '}
                   <span className="text-gray-500" title="Local departure time">{f.startTime.slice(11, 16)}</span>
                 </td>
-                <FlightEndCell city={f.startCity} country={f.startCountry} lat={f.startLat} lng={f.startLng} />
-                <FlightEndCell city={f.endCity} country={f.endCountry} lat={f.endLat} lng={f.endLng} />
+                <FlightEndCell city={f.startCity} country={f.startCountry} lat={f.startLat} lng={f.startLng} airport={f.startAirport} />
+                <FlightEndCell city={f.endCity} country={f.endCountry} lat={f.endLat} lng={f.endLng} airport={f.endAirport} />
                 <td className="px-4 py-2 text-gray-300 whitespace-nowrap">{f.distanceKm.toLocaleString()} km</td>
                 <td className="px-4 py-2 text-gray-300 whitespace-nowrap">{formatDuration(f.durationMin)}</td>
               </tr>
@@ -522,15 +522,22 @@ function FlightEndCell({
   country,
   lat,
   lng,
+  airport,
 }: {
   city?: string;
   country?: string;
   lat: number;
   lng: number;
+  airport?: Flight['startAirport'];
 }) {
   return (
     <td className="px-4 py-2">
-      {city ? (
+      {airport ? (
+        <>
+          <span className="text-gray-200 font-medium" title={airport.name}>{airport.iata}</span>
+          {city && <span className="text-gray-500"> · {city}{country ? `, ${country}` : ''}</span>}
+        </>
+      ) : city ? (
         <>
           <span className="text-gray-200">{city}</span>
           {country && <span className="text-gray-500">, {country}</span>}

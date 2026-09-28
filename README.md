@@ -39,10 +39,12 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ### ✈️ Flights
 - Full log of every flight detected in the selected range, dated by local departure date
-- Sortable table by date, distance, or duration
+- Sortable table by date, distance, duration, or CO₂
+- **Route column** shows the nearest-airport IATA codes, e.g. "AMS → SFO" (full airport name on hover), falling back to resolved city names when a flight endpoint has no nearby airport match (see [Airport Data](#airport-data))
+- **Estimated CO₂ per flight and range total**, with a subtitle comparing the range total to the average EU per-capita annual footprint (~7 t/yr) — see [CO2 Estimate](#co2-estimate) for the model and factors
 - Interactive world map with **great-circle arcs** for each flight route
-- Origin/destination coordinate markers with resolved city names
-- Summary stats: total flights, total distance, most repeated route, average duration
+- Origin/destination coordinate markers with resolved city names and IATA codes in the tooltip
+- Summary stats: total flights, total distance, most repeated route, average duration, estimated CO₂
 
 ### 🌙 Nights Away from Home
 - **Multi-home support** — "home" is wherever you lived at the time. Home periods are detected automatically (see [Home Periods](#home-periods)), so after a move your new place counts as home and the old one becomes a destination like any other
@@ -60,7 +62,7 @@ Everything you can currently see and do with the tool, page by page. Planned add
 - **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home; the legend lists the distance covered per mode
 - **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
 - **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
-- **Flights** taken during the trip, in order, with local departure time, cities, distance, and duration
+- **Flights** taken during the trip, in order, with local departure time, IATA route labels (city as a sub-label), distance, and duration
 - Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
 
 ### 🗺️ Travel Map
@@ -120,7 +122,7 @@ The export writes all its timestamps in your phone's time zone, so a flight leav
 | File | Description |
 |---|---|
 | `home.json` | Detected home periods, oldest first: `{start, end, lat, lng, city, country}[]`, where `start`/`end` are the first/last night slept there and `end` is `null` for the current home (see [Home Periods](#home-periods)) |
-| `flights.json` | All flight segments with coordinates, distance, duration, and path |
+| `flights.json` | All flight segments with coordinates, distance, duration, and path, plus the nearest-airport match at each end (`startAirport`/`endAirport: {iata, name} \| null`, see [Airport Data](#airport-data)) and an estimated `co2Kg` (see [CO2 Estimate](#co2-estimate)) |
 | `visits.json` | Deduplicated places with visit counts, total time spent, resolved city/country name, and every dated stay (`stays: [date, seconds][]`) |
 | `nights-away.json` | Per-night home/away classification (each night keyed by the local date of its evening), with distance from the home of that night's period |
 | `geography.json` | Countries merged by ISO alpha-3 code (`countries: {country, iso3}[]`), the cities away nights resolved to (`cities`, each pointing at its country), the city of every away night (`nights: {date, city}[]`), and the countries present on every date (`presence: [date, countryIndices][]`) |
@@ -153,6 +155,35 @@ npx mapshaper ne_50m_admin_0_countries.geojson -simplify 12% weighted keep-shape
 Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The preprocessor matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `scripts/preprocess.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and warns about any country it can't place on the map.
 
 Days present counts every local calendar day with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries. `geography.json` stores which countries were present on each date, so the map and the Geography table count days present for whatever time range is selected.
+
+### Airport Data
+
+`scripts/data/airports.json` (~570 KB, committed) is a trimmed, vendored copy of [OurAirports](https://ourairports.com/data/)' `airports.csv` export (public domain / Unlicense), used to name each flight's nearest airport. It keeps only `large_airport` and `medium_airport` rows that have an IATA code, and only the fields the app needs: `iata`, `name`, `lat`, `lng`, `municipality`, and `size` (`large`/`medium`, used to break near-ties — see below). Like the offline city database and the world country geometry, it's read from disk only: no network fetch at preprocess or app runtime.
+
+Regenerate it (a one-off, manual step — not part of `npm run preprocess`) with:
+
+```bash
+npx tsx scripts/generate-airports.ts
+```
+
+That script downloads the current `airports.csv` from OurAirports, so it's the one place in this project that makes a network request; see its header comment for details.
+
+For each flight, preprocess finds the nearest airport to its start/end coordinates within 40 km, preferring a `large` airport over a `medium` one on a near-tie (a large airport gets a 5 km "discount" when scoring candidates, so a major hub a few km farther away still wins over a closer small field). A flight endpoint with no airport within 40 km gets `null` and the frontend falls back to the resolved city name.
+
+### CO2 Estimate
+
+Each flight in `flights.json` gets an estimated `co2Kg`: kg CO2e (economy class, per passenger), computed in `scripts/preprocess.ts` (`estimateFlightCo2Kg`) as:
+
+1. **Flown distance** = great-circle distance between the flight's endpoints + a fixed **95 km detour correction** (real routes aren't great circles — airway routing, holding, weather).
+2. A **per-km factor** (kg CO2/km, excluding radiative forcing) by haul, bucketed on the *raw* great-circle distance:
+   - short (< 1,500 km): **0.15100** kg/km
+   - medium (1,500–4,000 km): **0.13402** kg/km
+   - long (> 4,000 km): **0.11704** kg/km
+
+   The short and long figures are UK DEFRA/DESNZ's 2024 "Government greenhouse gas conversion factors for company reporting" economy-class passenger-flight factors (excl. RF) for international short-haul (< 3,700 km) and long-haul (> 3,700 km) respectively. DEFRA doesn't publish a medium-haul band; the medium figure here is the midpoint of the other two, as a simple model of the gradual efficiency gain from a longer cruise phase.
+3. Multiply by a **radiative-forcing multiplier of 1.9** (DEFRA's own RF uplift, ~1.891, commonly rounded to 1.9) to account for aviation's non-CO2 warming effects (contrails, NOx, cirrus formation).
+
+This is a simple distance-based estimate, not a per-aircraft/load-factor model — treat it as indicative. Source: DEFRA/DESNZ "2024 Government greenhouse gas conversion factors for company reporting", Passenger flights table.
 
 ### Offline City Database
 
@@ -250,8 +281,10 @@ The production build in `dist/` is a static site deployable to any static host �
 timeline-visualizer/
 ├── scripts/
 │   ├── preprocess.ts          # Data pipeline: Timeline.json → derived JSONs
+│   ├── generate-airports.ts   # One-off: regenerates scripts/data/airports.json from OurAirports
 │   └── data/
-│       └── offline-city-db.json # Committed offline city/country resolver DB
+│       ├── offline-city-db.json # Committed offline city/country resolver DB
+│       └── airports.json      # Committed, trimmed OurAirports data (nearest-airport matching)
 ├── public/
 │   ├── world-countries.geo.json # Vendored country shapes for the world map (Natural Earth)
 │   └── data/                  # Generated data files (gitignored)
@@ -300,7 +333,6 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
 - **Family-home option** — mark a place (e.g. a family home you visit every year) as never "away", so recurring stays there don't count as trips; complements home periods
-- **Flight extras** — nearest-airport naming (OurAirports data) and CO₂ estimates
 - **Animated playback** — scrub through time and watch your travel history draw itself
 - **Year-vs-year comparison** view
 - Tests (Vitest) for the preprocessing pipeline's pure helpers, plus CI

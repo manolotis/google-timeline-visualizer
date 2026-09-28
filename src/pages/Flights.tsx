@@ -16,21 +16,31 @@ import NoDataInRange from '../components/NoDataInRange';
 import { summarizeActivities } from '../aggregate';
 import { greatCircleArc, formatDuration } from '../flight';
 import { useTimeRange, inRange } from '../timeRange';
+import type { Flight } from '../types';
 import 'leaflet/dist/leaflet.css';
 
-type SortField = 'date' | 'distance' | 'duration';
+type SortField = 'date' | 'distance' | 'duration' | 'co2';
 type SortDir = 'asc' | 'desc';
 
 /**
- * The table's sort order lives in the URL: `sort=distance|duration` and
+ * The table's sort order lives in the URL: `sort=distance|duration|co2` and
  * `dir=asc`, each omitted at its default (newest first).
  */
 function sortFromParams(params: RouteParams): { field: SortField; dir: SortDir } {
   const { sort, dir } = params;
   return {
-    field: sort === 'distance' || sort === 'duration' ? sort : 'date',
+    field: sort === 'distance' || sort === 'duration' || sort === 'co2' ? sort : 'date',
     dir: dir === 'asc' ? 'asc' : 'desc',
   };
+}
+
+/** Average EU per-capita annual carbon footprint, for the CO2 stat card's subtitle. */
+const EU_PER_CAPITA_ANNUAL_CO2_TONNES = 7;
+
+/** Map marker tooltip text for one flight endpoint: IATA code (if matched), city, date. */
+function endpointTooltip(airport: Flight['startAirport'], city: string | undefined, date: string): string {
+  const place = [airport?.iata, city].filter(Boolean).join(' · ');
+  return place ? `${place} · ${date}` : date;
 }
 
 export default function Flights() {
@@ -51,7 +61,8 @@ export default function Flights() {
       const cmp =
         sortField === 'date' ? a.date.localeCompare(b.date)
         : sortField === 'distance' ? a.distanceKm - b.distanceKm
-        : a.durationMin - b.durationMin;
+        : sortField === 'duration' ? a.durationMin - b.durationMin
+        : (a.co2Kg ?? 0) - (b.co2Kg ?? 0);
       return sortDir === 'asc' ? cmp : -cmp;
     });
     return f;
@@ -61,6 +72,11 @@ export default function Flights() {
   const flightKm = useMemo(
     () => (stats ? summarizeActivities(stats, range).distanceByMode.FLYING ?? 0 : 0),
     [stats, range],
+  );
+
+  const co2Tonnes = useMemo(
+    () => inRangeFlights.reduce((sum, f) => sum + (f.co2Kg ?? 0), 0) / 1000,
+    [inRangeFlights],
   );
 
   if (loading || sl) return <Loader />;
@@ -103,7 +119,7 @@ export default function Flights() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {header}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard icon="✈️" label="Total Flights" value={inRangeFlights.length} />
         <StatCard
           icon="📏"
@@ -119,6 +135,16 @@ export default function Flights() {
           icon="⏱️"
           label="Avg Duration"
           value={`${avgDuration} min`}
+        />
+        <StatCard
+          icon="☁️"
+          label="Estimated CO₂"
+          value={`${co2Tonnes.toLocaleString(undefined, { maximumFractionDigits: 1 })} t`}
+          sub={
+            co2Tonnes >= EU_PER_CAPITA_ANNUAL_CO2_TONNES
+              ? `${(co2Tonnes / EU_PER_CAPITA_ANNUAL_CO2_TONNES).toLocaleString(undefined, { maximumFractionDigits: 1 })}× avg. EU annual footprint (~${EU_PER_CAPITA_ANNUAL_CO2_TONNES} t/yr)`
+              : `${Math.round((co2Tonnes / EU_PER_CAPITA_ANNUAL_CO2_TONNES) * 100)}% of avg. EU annual footprint (~${EU_PER_CAPITA_ANNUAL_CO2_TONNES} t/yr)`
+          }
         />
       </div>
 
@@ -148,7 +174,7 @@ export default function Flights() {
               radius={3}
               pathOptions={{ color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.8 }}
             >
-              <Tooltip>{f.startCity ? `${f.startCity} · ${f.date}` : f.date}</Tooltip>
+              <Tooltip>{endpointTooltip(f.startAirport, f.startCity, f.date)}</Tooltip>
             </CircleMarker>
           ))}
           {sorted.map((f, i) => (
@@ -158,7 +184,7 @@ export default function Flights() {
               radius={3}
               pathOptions={{ color: '#fb923c', fillColor: '#fb923c', fillOpacity: 0.8 }}
             >
-              <Tooltip>{f.endCity ? `${f.endCity} · ${f.date}` : f.date}</Tooltip>
+              <Tooltip>{endpointTooltip(f.endAirport, f.endCity, f.date)}</Tooltip>
             </CircleMarker>
           ))}
         </MapContainer>
@@ -173,42 +199,30 @@ export default function Flights() {
                 <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggle('date')}>
                   Date{sortIcon('date')}
                 </th>
-                <th className="px-4 py-3">From</th>
-                <th className="px-4 py-3">To</th>
+                <th className="px-4 py-3">Route</th>
                 <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggle('distance')}>
                   Distance{sortIcon('distance')}
                 </th>
                 <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggle('duration')}>
                   Duration{sortIcon('duration')}
                 </th>
+                <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggle('co2')}>
+                  CO₂{sortIcon('co2')}
+                </th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((f, i) => (
                 <tr key={i} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                  <td className="px-4 py-2.5 text-gray-200">{f.date}</td>
+                  <td className="px-4 py-2.5 text-gray-200 whitespace-nowrap">{f.date}</td>
                   <td className="px-4 py-2.5">
-                    {f.startCity ? (
-                      <>
-                        <span className="text-gray-200">{f.startCity}, {f.startCountry}</span>
-                        <span className="block text-[10px] text-gray-500 font-mono">{f.startLat.toFixed(2)}, {f.startLng.toFixed(2)}</span>
-                      </>
-                    ) : (
-                      <span className="text-gray-400 font-mono text-xs">{f.startLat.toFixed(2)}, {f.startLng.toFixed(2)}</span>
-                    )}
+                    <RouteCell flight={f} />
                   </td>
-                  <td className="px-4 py-2.5">
-                    {f.endCity ? (
-                      <>
-                        <span className="text-gray-200">{f.endCity}, {f.endCountry}</span>
-                        <span className="block text-[10px] text-gray-500 font-mono">{f.endLat.toFixed(2)}, {f.endLng.toFixed(2)}</span>
-                      </>
-                    ) : (
-                      <span className="text-gray-400 font-mono text-xs">{f.endLat.toFixed(2)}, {f.endLng.toFixed(2)}</span>
-                    )}
+                  <td className="px-4 py-2.5 text-gray-300 whitespace-nowrap">{f.distanceKm.toLocaleString()} km</td>
+                  <td className="px-4 py-2.5 text-gray-300 whitespace-nowrap">{formatDuration(f.durationMin)}</td>
+                  <td className="px-4 py-2.5 text-gray-300 whitespace-nowrap">
+                    {f.co2Kg != null ? `${Math.round(f.co2Kg).toLocaleString()} kg` : '—'}
                   </td>
-                  <td className="px-4 py-2.5 text-gray-300">{f.distanceKm.toLocaleString()} km</td>
-                  <td className="px-4 py-2.5 text-gray-300">{formatDuration(f.durationMin)}</td>
                 </tr>
               ))}
             </tbody>
@@ -216,5 +230,64 @@ export default function Flights() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Route cell: "AMS → SFO" (IATA, full name on hover) when both endpoints
+// matched an airport; falls back to city names, then raw coordinates.
+// ---------------------------------------------------------------------------
+
+function RouteCell({ flight }: { flight: Flight }) {
+  if (flight.startAirport && flight.endAirport) {
+    return (
+      <div>
+        <span className="text-gray-200 font-medium" title={flight.startAirport.name}>
+          {flight.startAirport.iata}
+        </span>
+        <span className="text-gray-500"> → </span>
+        <span className="text-gray-200 font-medium" title={flight.endAirport.name}>
+          {flight.endAirport.iata}
+        </span>
+        {(flight.startCity || flight.endCity) && (
+          <span className="block text-[10px] text-gray-500">
+            {flight.startCity ?? '?'} → {flight.endCity ?? '?'}
+          </span>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1.5">
+      <EndpointLabel city={flight.startCity} country={flight.startCountry} lat={flight.startLat} lng={flight.startLng} />
+      <span className="text-gray-500">→</span>
+      <EndpointLabel city={flight.endCity} country={flight.endCountry} lat={flight.endLat} lng={flight.endLng} />
+    </div>
+  );
+}
+
+function EndpointLabel({
+  city,
+  country,
+  lat,
+  lng,
+}: {
+  city?: string;
+  country?: string;
+  lat: number;
+  lng: number;
+}) {
+  if (city) {
+    return (
+      <span className="text-gray-200">
+        {city}
+        {country && <span className="text-gray-500">, {country}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="text-gray-400 font-mono text-xs">
+      {lat.toFixed(2)}, {lng.toFixed(2)}
+    </span>
   );
 }

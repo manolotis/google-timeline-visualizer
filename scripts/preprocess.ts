@@ -90,6 +90,114 @@ function haversineDist(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// ---------------------------------------------------------------------------
+// Airport data (flights): nearest-airport naming
+// ---------------------------------------------------------------------------
+// Vendored from OurAirports (public domain / Unlicense, see
+// https://ourairports.com/data/), trimmed by scripts/generate-airports.ts to
+// large_airport + medium_airport rows with an IATA code (that script also
+// documents the exact source URL and how to regenerate the file). Committed
+// at scripts/data/airports.json; this is the only place it's read — no
+// network fetch at preprocess or app runtime (see CLAUDE.md).
+interface AirportEntry {
+  iata: string;
+  name: string;
+  lat: number;
+  lng: number;
+  municipality: string;
+  size: 'large' | 'medium';
+}
+
+function loadAirports(filePath: string): AirportEntry[] {
+  if (!fs.existsSync(filePath)) {
+    console.warn(
+      `  Airport data not found at ${filePath}; flights won't get airport names/CO2. ` +
+        'Run: npx tsx scripts/generate-airports.ts',
+    );
+    return [];
+  }
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AirportEntry[];
+}
+
+/** A flight endpoint counts as "at" an airport within this radius. */
+const AIRPORT_MATCH_RADIUS_KM = 40;
+/** Effective-distance discount for a large airport: lets a major hub win a
+ *  near-tie against a closer small/medium field a few km nearer. */
+const AIRPORT_LARGE_BONUS_KM = 5;
+
+interface MatchedAirport {
+  iata: string;
+  name: string;
+}
+
+/** Nearest airport within AIRPORT_MATCH_RADIUS_KM; large airports favored on near-ties. */
+function findNearestAirport(
+  lat: number,
+  lng: number,
+  airports: AirportEntry[],
+): MatchedAirport | null {
+  let best: AirportEntry | null = null;
+  let bestScore = Infinity;
+  for (const a of airports) {
+    const dist = haversineDist(lat, lng, a.lat, a.lng);
+    if (dist > AIRPORT_MATCH_RADIUS_KM) continue;
+    const score = dist - (a.size === 'large' ? AIRPORT_LARGE_BONUS_KM : 0);
+    if (score < bestScore) {
+      bestScore = score;
+      best = a;
+    }
+  }
+  return best ? { iata: best.iata, name: best.name } : null;
+}
+
+// ---------------------------------------------------------------------------
+// CO2 estimate (flights)
+// ---------------------------------------------------------------------------
+// Simple distance-based model, DEFRA-style:
+//
+//   1. Flown distance = great-circle distance between the flight's endpoints
+//      + a fixed 95 km detour correction (real routes aren't great circles —
+//      airway routing, holding, weather; ~95 km is a standard correction for
+//      indirect routing used by DEFRA/ICAO-style methodologies).
+//   2. A per-km emission factor (kg CO2 per passenger-km, economy class,
+//      *excluding* radiative forcing) by haul, bucketed on the *raw*
+//      great-circle distance:
+//        - short  (< 1,500 km):        0.15100 kg/km
+//        - medium (1,500–4,000 km):    0.13402 kg/km
+//        - long   (> 4,000 km):        0.11704 kg/km
+//      The short and long figures are UK DEFRA/DESNZ's 2024 "Government
+//      greenhouse gas conversion factors for company reporting" economy-class
+//      passenger-flight factors (excl. RF) for international short-haul
+//      (< 3,700 km) and long-haul (> 3,700 km) respectively. DEFRA doesn't
+//      publish a medium-haul band; ours is the midpoint of those two, as a
+//      simple model of the gradual efficiency gain from a longer cruise
+//      phase between the short- and long-haul figures.
+//      Source: DEFRA/DESNZ "2024 Government greenhouse gas conversion
+//      factors for company reporting", Passenger flights table
+//      (assets.publishing.service.gov.uk/media/66a9fe4ca3c2a28abb50da4a/
+//      2024-greenhouse-gas-conversion-factors-methodology.pdf).
+//   3. Multiply by a radiative-forcing multiplier of 1.9 (DEFRA's own RF
+//      uplift, ~1.891, commonly rounded to 1.9) to account for aviation's
+//      non-CO2 warming effects (contrails, NOx, cirrus formation), giving a
+//      CO2e ("CO2 equivalent") figure.
+const CO2_DETOUR_KM = 95;
+const CO2_RF_MULTIPLIER = 1.9;
+const CO2_FACTOR_SHORT_KG_PER_KM = 0.151;
+const CO2_FACTOR_MEDIUM_KG_PER_KM = 0.13402;
+const CO2_FACTOR_LONG_KG_PER_KM = 0.11704;
+const CO2_SHORT_MAX_KM = 1500;
+const CO2_MEDIUM_MAX_KM = 4000;
+
+/** kg CO2e for a flight, from the great-circle distance (km) between its endpoints. */
+function estimateFlightCo2Kg(greatCircleKm: number): number {
+  const factor =
+    greatCircleKm < CO2_SHORT_MAX_KM ? CO2_FACTOR_SHORT_KG_PER_KM
+    : greatCircleKm <= CO2_MEDIUM_MAX_KM ? CO2_FACTOR_MEDIUM_KG_PER_KM
+    : CO2_FACTOR_LONG_KG_PER_KM;
+  const flownKm = greatCircleKm + CO2_DETOUR_KM;
+  return Math.round(flownKm * factor * CO2_RF_MULTIPLIER * 10) / 10;
+}
+
 function durationMin(start: string, end: string): number {
   return (new Date(end).getTime() - new Date(start).getTime()) / 60000;
 }
@@ -925,6 +1033,7 @@ async function main() {
   const OUT = path.join(ROOT, 'public', 'data');
   const CITY_DB_PATH = path.join(ROOT, 'scripts', 'data', 'offline-city-db.json');
   const WORLD_GEO_PATH = path.join(ROOT, 'public', 'world-countries.geo.json');
+  const AIRPORTS_PATH = path.join(ROOT, 'scripts', 'data', 'airports.json');
 
   const CITY_BUCKET_DEG = Number(ENV.CITY_DB_BUCKET_DEG ?? '0.1');
   const CITY_ONLINE_ENABLED = (ENV.CITY_DB_ENABLE_ONLINE ?? '1') !== '0';
@@ -1077,6 +1186,8 @@ async function main() {
   // 3. Extract flights
   // ========================================================================
   console.log('Extracting flights…');
+  const airports = loadAirports(AIRPORTS_PATH);
+  console.log(`  ${airports.length} airports loaded for nearest-airport matching`);
   interface Flight {
     /** Local departure date */
     date: string;
@@ -1165,6 +1276,10 @@ async function main() {
     startCountry?: string;
     endCity?: string;
     endCountry?: string;
+    startAirport: MatchedAirport | null;
+    endAirport: MatchedAirport | null;
+    /** Estimated kg CO2e for this flight, see estimateFlightCo2Kg */
+    co2Kg: number;
   }
 
   const enrichedFlights: EnrichedFlight[] = [];
@@ -1181,6 +1296,10 @@ async function main() {
     const startCity = await cityResolver.resolve(flight.startLat, flight.startLng);
     const endCity = await cityResolver.resolve(flight.endLat, flight.endLng);
 
+    const startAirport = findNearestAirport(flight.startLat, flight.startLng, airports);
+    const endAirport = findNearestAirport(flight.endLat, flight.endLng, airports);
+    const greatCircleKm = haversineDist(flight.startLat, flight.startLng, flight.endLat, flight.endLng);
+
     enrichedFlights.push({
       ...flight,
       originPlaceId: origin?.placeId,
@@ -1189,10 +1308,34 @@ async function main() {
       startCountry: startCity?.country,
       endCity: endCity?.name,
       endCountry: endCity?.country,
+      startAirport,
+      endAirport,
+      co2Kg: estimateFlightCo2Kg(greatCircleKm),
     });
   }
 
   console.log(`  ${enrichedFlights.length} flights found`);
+
+  const fullyMatched = enrichedFlights.filter((f) => f.startAirport && f.endAirport);
+  const unmatchedFlights = enrichedFlights.filter((f) => !f.startAirport || !f.endAirport);
+  console.log(
+    `  Airport match: ${fullyMatched.length}/${enrichedFlights.length} flights matched at both ends ` +
+      `(${Math.round((fullyMatched.length / (enrichedFlights.length || 1)) * 100)}%)`,
+  );
+  if (unmatchedFlights.length > 0) {
+    console.log('  Unmatched flight endpoints:');
+    for (const f of unmatchedFlights) {
+      const endpoint = (airport: MatchedAirport | null, lat: number, lng: number) =>
+        airport ? airport.iata : `no match (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+      console.log(
+        `    ${f.date}: ${endpoint(f.startAirport, f.startLat, f.startLng)} → ` +
+          `${endpoint(f.endAirport, f.endLat, f.endLng)}`,
+      );
+    }
+  }
+  const totalCo2Kg = enrichedFlights.reduce((sum, f) => sum + f.co2Kg, 0);
+  console.log(`  Total estimated CO2 (all flights, all time): ${(totalCo2Kg / 1000).toFixed(1)} t`);
+
   fs.writeFileSync(
     path.join(OUT, 'flights.json'),
     JSON.stringify(enrichedFlights),
