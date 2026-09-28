@@ -9,7 +9,9 @@
  *   - flights.json     — Flight segments with coords, distance, duration, and paths
  *   - visits.json      — Deduplicated place visits with counts and time spent
  *   - nights-away.json — Per-date home/away classification
- *   - geography.json   — Countries/cities ranked by away nights spent there
+ *   - geography.json   — Countries/cities ranked by away nights spent there, plus
+ *                        per-country days present (incl. home) and ISO codes
+ *                        matched against public/world-countries.geo.json
  *   - trips.json       — Consecutive away-nights grouped into trips
  *   - routes.json      — All activity segments with polyline paths (downsampled)
  *   - stats.json       — Aggregate statistics, yearly trends, and top places
@@ -495,6 +497,11 @@ class CityResolver {
     }
   }
 
+  /** Cached entry for a coordinate's bucket, without any lookup or refresh. */
+  peek(lat: number, lng: number): ResolvedCity | undefined {
+    return this.cityDb.get(coordKey(lat, lng, this.bucketDeg));
+  }
+
   getDb(): Map<string, ResolvedCity> {
     return this.cityDb;
   }
@@ -511,6 +518,90 @@ class CityResolver {
 }
 
 // ---------------------------------------------------------------------------
+// Country matching: geocoder country names → ISO 3166-1 alpha-3 codes, via the
+// name fields of the vendored world geometry the frontend map draws
+// (public/world-countries.geo.json), so every emitted code has a shape.
+// ---------------------------------------------------------------------------
+interface WorldCountryFeature {
+  properties: { iso3: string; name: string; names?: string[] };
+}
+
+interface CountryMatch {
+  iso3: string;
+  name: string;
+}
+
+/**
+ * Country names used by the seed city list or returned by Nominatim that
+ * don't appear in Natural Earth's name fields, mapped to a name that does.
+ */
+const COUNTRY_ALIASES: Record<string, string> = {
+  USA: 'United States',
+  US: 'United States',
+  UK: 'United Kingdom',
+  'Great Britain': 'United Kingdom',
+  England: 'United Kingdom',
+  Scotland: 'United Kingdom',
+  Wales: 'United Kingdom',
+  'Northern Ireland': 'United Kingdom',
+  UAE: 'United Arab Emirates',
+  Bosnia: 'Bosnia and Herzegovina',
+  Türkiye: 'Turkey',
+  'Palestinian Territories': 'Palestine',
+  'Palestinian Territory': 'Palestine',
+  'State of Palestine': 'Palestine',
+  'Congo-Kinshasa': 'Democratic Republic of the Congo',
+  'Congo-Brazzaville': 'Republic of the Congo',
+  Swaziland: 'Eswatini',
+  Burma: 'Myanmar',
+  Macedonia: 'North Macedonia',
+  'Holy See': 'Vatican City',
+};
+
+/** "Côte d'Ivoire" → "cote d ivoire", "The Bahamas" → "bahamas" */
+function normalizeCountryName(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/^the /, '');
+}
+
+/** Normalized country name → ISO code + display name, from the world geometry. */
+function loadCountryIndex(geoPath: string): Map<string, CountryMatch> {
+  const index = new Map<string, CountryMatch>();
+  if (!fs.existsSync(geoPath)) {
+    console.warn(`  World geometry not found at ${geoPath}; countries get no ISO codes.`);
+    return index;
+  }
+  const { features } = JSON.parse(fs.readFileSync(geoPath, 'utf-8')) as {
+    features: WorldCountryFeature[];
+  };
+  const nameLists = features.map((f) => [f.properties.name, ...(f.properties.names ?? [])]);
+  // Register rank by rank so a country's primary name always wins over
+  // another country's alternate name.
+  const maxRank = Math.max(0, ...nameLists.map((l) => l.length));
+  for (let rank = 0; rank < maxRank; rank++) {
+    features.forEach((f, i) => {
+      const name = nameLists[i][rank];
+      const key = name ? normalizeCountryName(name) : '';
+      if (key && !index.has(key)) {
+        index.set(key, { iso3: f.properties.iso3, name: f.properties.name });
+      }
+    });
+  }
+  for (const [alias, target] of Object.entries(COUNTRY_ALIASES)) {
+    const match = index.get(normalizeCountryName(target));
+    const key = normalizeCountryName(alias);
+    if (match && !index.has(key)) index.set(key, match);
+  }
+  return index;
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 async function main() {
@@ -518,6 +609,7 @@ async function main() {
   const RAW = path.join(ROOT, 'Timeline.json');
   const OUT = path.join(ROOT, 'public', 'data');
   const CITY_DB_PATH = path.join(ROOT, 'scripts', 'data', 'offline-city-db.json');
+  const WORLD_GEO_PATH = path.join(ROOT, 'public', 'world-countries.geo.json');
 
   const CITY_BUCKET_DEG = Number(ENV.CITY_DB_BUCKET_DEG ?? '0.1');
   const CITY_ONLINE_ENABLED = (ENV.CITY_DB_ENABLE_ONLINE ?? '1') !== '0';
@@ -906,8 +998,13 @@ async function main() {
 
   interface GeographyCountry {
     country: string;
+    /** ISO 3166-1 alpha-3 of the matching world-countries.geo.json feature; null if unmatched */
+    iso3: string | null;
+    /** Nights away from home spent in the country */
     days: number;
     shareOfAwayDays: number;
+    /** Distinct (UTC) dates with at least one visit in the country, home time included */
+    totalDays: number;
   }
 
   interface GeographyCity {
@@ -919,7 +1016,24 @@ async function main() {
     shareOfAwayDays: number;
   }
 
-  const countryDays = new Map<string, number>();
+  // Geocoder names vary ("USA" vs "United States"), so countries are grouped
+  // by ISO code and named after the world geometry when they match.
+  const countryIndex = loadCountryIndex(WORLD_GEO_PATH);
+  const countryAgg = new Map<
+    string,
+    { country: string; iso3: string | null; days: number; dates: Set<number> }
+  >();
+  function getCountry(rawName: string) {
+    const match = countryIndex.get(normalizeCountryName(rawName));
+    const key = match ? match.iso3 : `?${rawName}`;
+    let agg = countryAgg.get(key);
+    if (!agg) {
+      agg = { country: match?.name ?? rawName, iso3: match?.iso3 ?? null, days: 0, dates: new Set() };
+      countryAgg.set(key, agg);
+    }
+    return agg;
+  }
+
   const cityDays = new Map<
     string,
     { city: string; country: string; lat: number; lng: number; days: number }
@@ -937,19 +1051,17 @@ async function main() {
       continue;
     }
 
-    countryDays.set(
-      cityMatch.country,
-      (countryDays.get(cityMatch.country) ?? 0) + 1,
-    );
+    const country = getCountry(cityMatch.country);
+    country.days++;
 
-    const cityKey = `${cityMatch.name}::${cityMatch.country}`;
+    const cityKey = `${cityMatch.name}::${country.country}`;
     const existingCity = cityDays.get(cityKey);
     if (existingCity) {
       existingCity.days++;
     } else {
       cityDays.set(cityKey, {
         city: cityMatch.name,
-        country: cityMatch.country,
+        country: country.country,
         lat: cityMatch.lat,
         lng: cityMatch.lng,
         days: 1,
@@ -957,13 +1069,41 @@ async function main() {
     }
   }
 
-  const countries: GeographyCountry[] = [...countryDays.entries()]
-    .map(([country, days]) => ({
-      country,
-      days,
-      shareOfAwayDays: totalAway ? Math.round((days / totalAway) * 1000) / 10 : 0,
+  // Days present: every UTC date a visit was recorded in the country. Unlike
+  // away nights this includes home time, day trips and layovers; a travel day
+  // counts for both countries. Visit coordinates are already in the city DB
+  // from the prefill, so resolve() only runs for rare placeId-less visits.
+  const DAY_MS = 86_400_000;
+  for (const v of visitSegments) {
+    const city = cityResolver.peek(v.lat, v.lng) ?? (await cityResolver.resolve(v.lat, v.lng));
+    if (!city) continue;
+    const { dates } = getCountry(city.country);
+    for (let day = Math.floor(v.start / DAY_MS); day * DAY_MS <= v.end; day++) {
+      dates.add(day);
+    }
+  }
+
+  const countries: GeographyCountry[] = [...countryAgg.values()]
+    .map((c) => ({
+      country: c.country,
+      iso3: c.iso3,
+      days: c.days,
+      shareOfAwayDays: totalAway ? Math.round((c.days / totalAway) * 1000) / 10 : 0,
+      totalDays: c.dates.size,
     }))
-    .sort((a, b) => b.days - a.days || a.country.localeCompare(b.country));
+    .sort(
+      (a, b) =>
+        b.days - a.days ||
+        b.totalDays - a.totalDays ||
+        a.country.localeCompare(b.country),
+    );
+
+  const unmappedCountries = countries.filter((c) => !c.iso3).map((c) => c.country);
+  if (unmappedCountries.length > 0) {
+    console.warn(
+      `  No map geometry for: ${unmappedCountries.join(', ')} (add them to COUNTRY_ALIASES)`,
+    );
+  }
 
   const cities: GeographyCity[] = [...cityDays.values()]
     .map((city) => ({
@@ -994,7 +1134,8 @@ async function main() {
   };
 
   console.log(
-    `  ${geography.summary.totalCountries} countries, ${geography.summary.totalCities} cities matched`,
+    `  ${geography.summary.totalCountries} countries (${geography.summary.totalCountries - unmappedCountries.length} on the map), ` +
+      `${geography.summary.totalCities} cities matched`,
   );
   fs.writeFileSync(
     path.join(OUT, 'geography.json'),

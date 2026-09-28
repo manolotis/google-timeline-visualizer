@@ -9,6 +9,11 @@ Everything you can currently see and do with the tool, page by page. Planned add
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
 - "Times around the Earth" distance comparison
+- **Visited-countries world map** — choropleth with every visited country highlighted, colored by days present (home time, day trips and layovers included) on a **quantile scale**, so a weekend trip stays clearly visible next to countries you've lived in for years
+  - Hover a country for its name, days present, and nights away from home; non-visited countries show as neutral gray
+  - Compact legend with the day range of each color class; zoom in to explore dense regions like Europe (scroll-wheel zoom is off so the page still scrolls)
+  - Countries too small to see at world zoom (e.g. Andorra) also get a dot
+  - Country borders are bundled with the app (no extra network requests)
 - Yearly bar charts for flights taken and nights spent away
 - Transport mode pie chart and distance breakdown
 - Longest and furthest trip highlights
@@ -44,6 +49,8 @@ Everything you can currently see and do with the tool, page by page. Planned add
 
 ### 🧭 Geography
 - Countries and cities ranked by total away-days, with summary cards and full share-of-total tables
+- Country table also lists **days present** (home time included), the measure behind the Overview world map
+- Country name variants from different sources ("USA" / "United States", "Czechia" / "Czech Republic") are merged by ISO code
 - Uses a self-updating offline city database so known locations are reused offline
 
 ## Architecture
@@ -71,10 +78,23 @@ Timeline.json (raw Google export)
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
 | `visits.json` | Deduplicated places with visit counts and total time spent |
 | `nights-away.json` | Per-date home/away classification with distance from home |
-| `geography.json` | Countries/cities ranked by away-days spent there |
+| `geography.json` | Countries/cities ranked by away-days spent there; each country also carries its ISO alpha-3 code and total days present (home included) |
 | `trips.json` | Consecutive away-nights grouped into trips |
 | `routes.json` | All movement segments with polyline points and transport mode |
 | `stats.json` | Pre-computed aggregates: yearly trends, distance by mode, top places, activity patterns |
+
+### World Country Geometry
+
+`public/world-countries.geo.json` (~240 KB, committed) holds the country shapes for the Overview world map. It is [Natural Earth](https://www.naturalearthdata.com/) 1:50m admin-0 countries (public domain) — used instead of 1:110m so microstates like Andorra exist — simplified to roughly 1:110m detail:
+
+```bash
+npx mapshaper ne_50m_admin_0_countries.geojson -simplify 12% weighted keep-shapes \
+  -o format=geojson precision=0.01
+```
+
+Each feature keeps only `iso3` (ISO 3166-1 alpha-3), a display `name`, and alternative `names`. The preprocessor matches geocoder country names against those names (plus a small alias table, `COUNTRY_ALIASES` in `scripts/preprocess.ts`, for variants like "USA" or "Türkiye") to attach ISO codes, and warns about any country it can't place on the map.
+
+Days present counts every calendar day (UTC) with at least one recorded visit in a country, so home time, day trips, and airport layovers all count, and a travel day counts for both countries.
 
 ### Offline City Database
 
@@ -174,6 +194,7 @@ timeline-visualizer/
 │   └── data/
 │       └── offline-city-db.json # Committed offline city/country resolver DB
 ├── public/
+│   ├── world-countries.geo.json # Vendored country shapes for the world map (Natural Earth)
 │   └── data/                  # Generated data files (gitignored)
 ├── src/
 │   ├── main.tsx               # App entry point, renders root component
@@ -187,7 +208,8 @@ timeline-visualizer/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
 │   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
-│   │   └── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
+│   │   ├── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
+│   │   └── VisitedCountriesMap.tsx # Visited-countries choropleth (Overview)
 │   └── pages/
 │       ├── Overview.tsx       # Dashboard home with stat cards and summary charts
 │       ├── Flights.tsx        # Flight log table + great-circle arc map
@@ -207,7 +229,6 @@ timeline-visualizer/
 
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
-- **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted, color intensity by days spent on a logarithmic (or quantile) scale so home/long-stay countries don't wash out briefly-visited ones
 - **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
 - **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
@@ -223,4 +244,4 @@ Planned improvements, roughly in priority order. When one is implemented, remove
 
 ## Privacy
 
-All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited). Your timeline data is never uploaded anywhere. `Timeline.json` and `public/data/` are gitignored so your location history can't be committed accidentally.
+All data processing happens locally on your machine. The only external requests are for map tiles (CARTO dark basemap) and optional Nominatim reverse geocoding during preprocessing (coordinates only, rate-limited); the world map's country borders ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json` and `public/data/` are gitignored so your location history can't be committed accidentally.

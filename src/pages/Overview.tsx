@@ -2,14 +2,15 @@
  * Overview dashboard page — the landing view of the app.
  *
  * Displays summary stat cards (flights, nights away, places, distance,
- * walking, cycling, flight distance, trips), yearly bar charts for flights
- * and nights away, a transport mode pie chart with distance breakdown,
- * and record highlights (longest trip, furthest trip).
+ * walking, cycling, flight distance, trips), a visited-countries world map,
+ * yearly bar charts for flights and nights away, a transport mode pie chart
+ * with distance breakdown, and record highlights (longest trip, furthest trip).
  */
 import { useStats, useFlights, useVisits } from '../hooks/useData';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
+import VisitedCountriesMap from '../components/VisitedCountriesMap';
 import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR, CHART_TOOLTIP_STYLE } from '../constants';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -74,6 +75,9 @@ export default function Overview() {
         <StatCard icon="✈️" label="Flight Distance" value={`${stats.totalFlightDistanceKm.toLocaleString()} km`} />
         <StatCard icon="🧳" label="Trips" value={stats.totalTrips} />
       </div>
+
+      {/* Visited-countries choropleth (loads its own data) */}
+      <VisitedCountriesMap />
 
       {/* Yearly trends */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
