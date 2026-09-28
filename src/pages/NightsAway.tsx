@@ -4,23 +4,39 @@
  * Renders per-year calendar heatmaps showing home/away status for each
  * night, a year selector, and a list of detected trips with their dates,
  * place counts, and distance from home, restricted to the globally selected
- * time range. The home location is auto-detected during preprocessing from
- * INFERRED_HOME / HOME visit entries.
+ * time range. "Home" is wherever you lived at the time: preprocessing
+ * detects home periods (from INFERRED_HOME / HOME visits and where you slept)
+ * and measures every night against the home of its period; the header lists
+ * the homes that apply to the range.
  */
 import { useState, useMemo } from 'react';
-import { useNightsAway, useTrips } from '../hooks/useData';
+import { useNightsAway, useTrips, useHomePeriods } from '../hooks/useData';
 import CalendarHeatmap from '../components/CalendarHeatmap';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
-import { longestTrip, furthestTrip } from '../aggregate';
+import {
+  longestTrip,
+  furthestTrip,
+  isStaleHome,
+  homePeriodsInRange,
+  homePeriodYears,
+  homePlaceName,
+} from '../aggregate';
 import { useTimeRange, inRange, overlapsRange, intersectRanges, yearRange } from '../timeRange';
 
 export default function NightsAway() {
   const { data: nights, loading: nl, error } = useNightsAway();
   const { data: trips, loading: tl } = useTrips();
+  const { data: homeData } = useHomePeriods();
   const { range } = useTimeRange();
+
+  const staleHome = !!homeData && isStaleHome(homeData);
+  const rangeHomes = useMemo(
+    () => (homeData && !staleHome ? homePeriodsInRange(homeData, range) : []),
+    [homeData, staleHome, range],
+  );
 
   const rangeNights = useMemo(
     () => nights?.filter((n) => inRange(n.date, range)) ?? [],
@@ -63,7 +79,27 @@ export default function NightsAway() {
   if (nl || tl) return <Loader />;
   if (!nights || !trips) return <EmptyState error={error} />;
 
-  const header = <h1 className="text-3xl font-bold text-white">Nights Away from Home</h1>;
+  const header = (
+    <div>
+      <h1 className="text-3xl font-bold text-white">Nights Away from Home</h1>
+      {staleHome ? (
+        <p className="text-sm text-gray-400 mt-1">
+          Re-run <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
+          to detect where you lived over time.
+        </p>
+      ) : rangeHomes.length > 0 && (
+        <p className="text-gray-400 mt-1" title="Each night is measured from the home you lived in at the time">
+          🏠{' '}
+          {rangeHomes.map((h, i) => (
+            <span key={h.start}>
+              {i > 0 && ' → '}
+              <span className="text-gray-200">{homePlaceName(h)}</span> ({homePeriodYears(h)})
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+  );
   if (year === undefined) {
     return (
       <div className="p-6 max-w-7xl mx-auto space-y-6">

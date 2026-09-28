@@ -4,18 +4,25 @@
  * Renders the movement segments in the globally selected time range on a
  * Leaflet map with CARTO dark tiles. Routes are color-coded by transport
  * mode (15 types). Controls include per-mode toggles and a layer of the
- * places visited in the range. Route polylines are downsampled to max 50
- * points each during preprocessing to keep the total payload manageable
- * (~3MB).
+ * places visited in the range; every home that applies to the range gets a
+ * marker labelled with the years you lived there. Route polylines are
+ * downsampled to max 50 points each during preprocessing to keep the total
+ * payload manageable (~3MB).
  */
 import { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
-import { useRoutes, useVisits, useHome } from '../hooks/useData';
+import { useRoutes, useVisits, useHomePeriods } from '../hooks/useData';
 import Loader from '../components/Loader';
 import EmptyState from '../components/EmptyState';
 import NoDataInRange from '../components/NoDataInRange';
 import { MODE_COLORS, MODE_LABELS, FALLBACK_MODE_COLOR } from '../constants';
-import { summarizeVisits, isHomePlace } from '../aggregate';
+import {
+  summarizeVisits,
+  isHomePlace,
+  isStaleHome,
+  homePeriodsInRange,
+  homePeriodYears,
+} from '../aggregate';
 import { useTimeRange, inRange } from '../timeRange';
 import 'leaflet/dist/leaflet.css';
 
@@ -38,8 +45,24 @@ function FitBounds({ coords }: { coords: [number, number][] }) {
 export default function TravelMap() {
   const { data: routes, loading: rl, error } = useRoutes();
   const { data: visits, loading: vl } = useVisits();
-  const { data: home } = useHome();
+  const { data: homeData } = useHomePeriods();
   const { range } = useTimeRange();
+
+  // One marker per home place that applies to the range; a place lived in
+  // more than once (A → B → A) lists every stretch on the same marker
+  const staleHome = !!homeData && isStaleHome(homeData);
+  const homes = useMemo(() => {
+    if (!homeData || staleHome) return [];
+    const byPlace = new Map<string, { lat: number; lng: number; years: string[] }>();
+    for (const p of homePeriodsInRange(homeData, range)) {
+      const key = `${p.lat},${p.lng}`;
+      const place = byPlace.get(key);
+      if (place) place.years.push(homePeriodYears(p));
+      else byPlace.set(key, { lat: p.lat, lng: p.lng, years: [homePeriodYears(p)] });
+    }
+    return [...byPlace.values()];
+  }, [homeData, staleHome, range]);
+  const latestHome = homes.at(-1);
 
   const allModes = useMemo(() => {
     if (!routes) return [];
@@ -85,18 +108,18 @@ export default function TravelMap() {
     [rangePlaces, showVisits],
   );
 
-  // Gather some bounds points from filtered data
+  // Gather some bounds points from filtered data; only fitted when there are routes
   const boundsCoords = useMemo((): [number, number][] => {
-    if (!home) return [];
-    const pts: [number, number][] = [[home.lat, home.lng]];
+    const pts: [number, number][] = [];
     for (const r of filteredRoutes.slice(0, 200)) {
       if (r.points.length > 0) {
         pts.push(r.points[0]);
         pts.push(r.points[r.points.length - 1]);
       }
     }
-    return pts;
-  }, [filteredRoutes, home]);
+    if (pts.length === 0) return pts;
+    return [...homes.map((h): [number, number] => [h.lat, h.lng]), ...pts];
+  }, [filteredRoutes, homes]);
 
   if (rl || vl) return <Loader />;
   if (!routes) return <EmptyState error={error} />;
@@ -145,6 +168,13 @@ export default function TravelMap() {
           📍 Places
         </button>
 
+        {staleHome && (
+          <span className="text-xs text-gray-400">
+            Re-run <code className="bg-gray-800 text-orange-400 px-1.5 py-0.5 rounded">npm run preprocess</code>{' '}
+            to show your homes
+          </span>
+        )}
+
         <span className="text-xs text-gray-500 ml-auto">
           {filteredRoutes.length} segments
         </span>
@@ -160,7 +190,7 @@ export default function TravelMap() {
         /* Map ("isolate" keeps Leaflet's z-indexed panes below the sticky nav) */
         <div className="flex-1 isolate">
           <MapContainer
-            center={home ? [home.lat, home.lng] : [30, 0]}
+            center={latestHome ? [latestHome.lat, latestHome.lng] : [30, 0]}
             zoom={5}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={true}
@@ -169,20 +199,21 @@ export default function TravelMap() {
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
-            {boundsCoords.length > 2 && <FitBounds coords={boundsCoords} />}
+            {boundsCoords.length > 0 && <FitBounds coords={boundsCoords} />}
 
-            {/* Home marker */}
-            {home && (
+            {/* Home markers, one per home place in the range */}
+            {homes.map((h) => (
               <CircleMarker
-                center={[home.lat, home.lng]}
+                key={`${h.lat},${h.lng}`}
+                center={[h.lat, h.lng]}
                 radius={6}
                 pathOptions={{ color: '#22c55e', fillColor: '#22c55e', fillOpacity: 0.8, weight: 2 }}
               >
                 <Tooltip permanent className="!bg-gray-900 !text-green-400 !border-green-800 !text-xs">
-                  🏠 Home
+                  🏠 Home {h.years.join(', ')}
                 </Tooltip>
               </CircleMarker>
-            )}
+            ))}
 
             {/* Route polylines */}
             {filteredRoutes.map((r, i) => (

@@ -6,8 +6,18 @@
  * run in record order and round the same way preprocess used to round its
  * all-time totals, so the unfiltered numbers match exactly.
  */
-import type { Stats, Visit, Trip, GeographyData } from './types';
-import { inRange, dayOfWeek, periodKey, periodLabel, type DateRange, type Periods } from './timeRange';
+import type { Stats, Visit, Trip, GeographyData, HomePeriod } from './types';
+import {
+  inRange,
+  overlapsRange,
+  dayOfWeek,
+  dayNumber,
+  addDays,
+  periodKey,
+  periodLabel,
+  type DateRange,
+  type Periods,
+} from './timeRange';
 
 // ---------------------------------------------------------------------------
 // Activities (stats.json)
@@ -147,6 +157,47 @@ export function summarizeVisits(visits: Visit[], range: DateRange, periods?: Per
   // Stable sort: ties keep visits.json order (itself sorted by all-time visits)
   places.sort((a, b) => b.visitCount - a.visitCount);
   return { places, placesByPeriod };
+}
+
+// ---------------------------------------------------------------------------
+// Home periods (home.json)
+// ---------------------------------------------------------------------------
+
+/** Whether a home.json predates home periods (it used to be a single {lat, lng}). */
+export function isStaleHome(home: HomePeriod[]): boolean {
+  return !Array.isArray(home) || home.some((p) => typeof p?.start !== 'string');
+}
+
+/**
+ * The home periods that apply to some night in the range, oldest first.
+ * Mirrors preprocess: a night outside every period belongs to the nearest
+ * one in time (ties to the earlier), so a period reaches halfway into the
+ * gaps around it, and the first and last periods extend indefinitely.
+ */
+export function homePeriodsInRange(periods: HomePeriod[], range: DateRange): HomePeriod[] {
+  const reach = (end: string, nextStart: string) =>
+    Math.floor((dayNumber(nextStart) - dayNumber(end)) / 2);
+  return periods.filter((p, i) => {
+    const prev = periods[i - 1];
+    const next = periods[i + 1];
+    const from = prev?.end ? addDays(prev.end, reach(prev.end, p.start) + 1) : '0000-01-01';
+    const to = next && p.end ? addDays(p.end, reach(p.end, next.start)) : '9999-12-31';
+    return overlapsRange(from, to, range);
+  });
+}
+
+/** "2014–2026", "since 2026", or just "2024" within a single year. */
+export function homePeriodYears(period: HomePeriod): string {
+  const from = period.start.slice(0, 4);
+  if (period.end === null) return `since ${from}`;
+  const to = period.end.slice(0, 4);
+  return from === to ? from : `${from}–${to}`;
+}
+
+/** "Eindhoven, Netherlands", falling back to coordinates. */
+export function homePlaceName(period: HomePeriod): string {
+  if (period.city) return period.country ? `${period.city}, ${period.country}` : period.city;
+  return `${period.lat.toFixed(4)}, ${period.lng.toFixed(4)}`;
 }
 
 // ---------------------------------------------------------------------------

@@ -5,10 +5,12 @@
  * files in public/data/ that the frontend dashboard consumes.
  *
  * Generated files:
- *   - home.json        — Auto-detected home location (median of INFERRED_HOME coords)
+ *   - home.json        — Home periods over time (where you lived, and when),
+ *                        detected from HOME / INFERRED_HOME visits and nights
  *   - flights.json     — Flight segments with coords, distance, duration, and paths
  *   - visits.json      — Deduplicated places with counts, time spent, and dated stays
- *   - nights-away.json — Per-date home/away classification
+ *   - nights-away.json — Per-date home/away classification against the home
+ *                        period active that night
  *   - geography.json   — Countries (with ISO codes matched against
  *                        public/world-countries.geo.json), the city of every
  *                        away night, and the countries present on every date
@@ -98,6 +100,247 @@ function durationSec(start: string, end: string): number {
 
 function dateStr(iso: string): string {
   return iso.slice(0, 10);
+}
+
+const DAY_MS = 86_400_000;
+
+/** Days since 1970-01-01 for a 'YYYY-MM-DD' key (calendar arithmetic, no timezone). */
+function dayNumber(date: string): number {
+  return Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10)) / DAY_MS;
+}
+
+function median(values: number[]): number {
+  return [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
+}
+
+// ---------------------------------------------------------------------------
+// Home periods
+// ---------------------------------------------------------------------------
+// People move, so "home" is a list of periods rather than one place. Google's
+// HOME / INFERRED_HOME labels say *which* places were homes, but they are too
+// sparse and inconsistent to say *when* (whole months go unlabelled, and a
+// family home you stay at over Christmas gets labelled INFERRED_HOME too). So
+// the labels only nominate candidate homes; the timeline comes from where
+// you actually slept each night:
+//
+//   1. Cluster the labelled visits into candidate homes (HOME_RADIUS_KM).
+//   2. Label each month with the candidate you slept at most that month
+//      (strict plurality; months without such nights, or tied, stay unlabelled).
+//   3. Consecutive months with the same label form segments. Repeatedly drop
+//      the weakest segment whose support (months) is below the minimum; when
+//      a dropped segment sat between two segments of the same home they merge,
+//      and the merged support is net of the dropped months. Christmas at your
+//      parents' or a three-month stint abroad thus stays a trip, and patchy
+//      early data that alternates between two places can't add up to a home.
+//   4. Turn the surviving segments into dated periods: a period ends on the
+//      last night slept at its home up to the next home's first month, and the
+//      next starts on the first night at the new home after that. The first
+//      period starts on the first night at its home; the last is ongoing.
+//
+// Nights outside every period (before the first one, or in the gap between
+// two periods) belong to the nearest period in time, ties going to the
+// earlier one (see periodIndexForDate).
+
+/** Within this distance of a home you are at home; also the clustering radius. */
+const HOME_RADIUS_KM = 1;
+
+/** A HOME / INFERRED_HOME visit */
+interface HomeSample {
+  lat: number;
+  lng: number;
+  /** Raw "lat°, lng°" string, used to group identical coordinates */
+  latLng: string;
+  /** Event-local start date */
+  date: string;
+}
+
+/** A candidate home: labelled visits within HOME_RADIUS_KM of each other. */
+interface HomeCluster {
+  /** Median of the member samples */
+  lat: number;
+  lng: number;
+  samples: HomeSample[];
+  /** Coordinate of the most common member sample (always a real visit spot) */
+  seedLat: number;
+  seedLng: number;
+}
+
+/**
+ * Leader clustering, most-labelled coordinate first: each coordinate joins the
+ * nearest cluster seed within radiusKm, else seeds a new cluster. Distance-
+ * based on purpose; a fixed grid (like the city DB's 0.1° buckets) can split
+ * one home in two when it sits on a bucket edge.
+ */
+function clusterHomeSamples(samples: HomeSample[], radiusKm: number): HomeCluster[] {
+  const byCoord = new Map<string, HomeSample[]>();
+  for (const s of samples) {
+    const group = byCoord.get(s.latLng);
+    if (group) group.push(s);
+    else byCoord.set(s.latLng, [s]);
+  }
+  const groups = [...byCoord.values()].sort(
+    (a, b) => b.length - a.length || a[0].latLng.localeCompare(b[0].latLng),
+  );
+
+  const seeds: { lat: number; lng: number; samples: HomeSample[] }[] = [];
+  for (const group of groups) {
+    const { lat, lng } = group[0];
+    let nearest: (typeof seeds)[number] | null = null;
+    let nearestDist = Infinity;
+    for (const seed of seeds) {
+      const d = haversineDist(seed.lat, seed.lng, lat, lng);
+      if (d <= radiusKm && d < nearestDist) {
+        nearest = seed;
+        nearestDist = d;
+      }
+    }
+    if (nearest) nearest.samples.push(...group);
+    else seeds.push({ lat, lng, samples: [...group] });
+  }
+
+  return seeds.map((seed) => ({
+    lat: median(seed.samples.map((s) => s.lat)),
+    lng: median(seed.samples.map((s) => s.lng)),
+    samples: seed.samples,
+    seedLat: seed.lat,
+    seedLng: seed.lng,
+  }));
+}
+
+/** Where a night was spent: the visit overlapping the night window most, if any. */
+interface NightLocation {
+  date: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+interface DetectedHomePeriod {
+  /** Index into the clusters */
+  cluster: number;
+  /** First night at this home (night key) */
+  start: string;
+  /** Last night at this home; null for the latest (ongoing) period */
+  end: string | null;
+  /** Months this home was where you slept most, net of other homes' months inside the period */
+  supportMonths: number;
+}
+
+function detectHomePeriods(
+  nights: NightLocation[],
+  clusters: HomeCluster[],
+  minMonths: number,
+): DetectedHomePeriod[] {
+  // Which candidate home (if any) each night was spent at
+  const nightHome = nights.map((n) => {
+    if (n.lat === null || n.lng === null) return -1;
+    let best = -1;
+    let bestDist = Infinity;
+    clusters.forEach((c, i) => {
+      const d = haversineDist(c.lat, c.lng, n.lat!, n.lng!);
+      if (d < HOME_RADIUS_KM && d < bestDist) {
+        best = i;
+        bestDist = d;
+      }
+    });
+    return best;
+  });
+
+  // Label each month with the home slept at most (nights are in date order)
+  const months: string[] = [];
+  const counts: Map<number, number>[] = [];
+  nights.forEach((n, i) => {
+    const month = n.date.slice(0, 7);
+    if (months.at(-1) !== month) {
+      months.push(month);
+      counts.push(new Map());
+    }
+    const home = nightHome[i];
+    if (home !== -1) counts[counts.length - 1].set(home, (counts[counts.length - 1].get(home) ?? 0) + 1);
+  });
+  const labels = counts.map((c) => {
+    let best = -1;
+    let bestCount = 0;
+    let tied = false;
+    for (const [home, count] of c) {
+      if (count > bestCount) {
+        best = home;
+        bestCount = count;
+        tied = false;
+      } else if (count === bestCount) {
+        tied = true;
+      }
+    }
+    return tied ? -1 : best;
+  });
+
+  // Segments of consecutive labelled months (unlabelled months don't break them)
+  interface Segment { cluster: number; support: number; firstMonth: number }
+  const segments: Segment[] = [];
+  labels.forEach((home, m) => {
+    if (home === -1) return;
+    const last = segments.at(-1);
+    if (last?.cluster === home) last.support++;
+    else segments.push({ cluster: home, support: 1, firstMonth: m });
+  });
+
+  // Drop the weakest short segment until every segment is long enough (or
+  // only one is left); a drop between two segments of the same home merges them
+  while (segments.length > 1) {
+    let weakest = -1;
+    segments.forEach((s, i) => {
+      if (s.support < minMonths && (weakest === -1 || s.support < segments[weakest].support)) {
+        weakest = i;
+      }
+    });
+    if (weakest === -1) break;
+    const prev = segments[weakest - 1];
+    const next = segments[weakest + 1];
+    if (prev && next && prev.cluster === next.cluster) {
+      prev.support += next.support - segments[weakest].support;
+      segments.splice(weakest, 2);
+    } else {
+      segments.splice(weakest, 1);
+    }
+  }
+
+  // Dated periods
+  const periods: DetectedHomePeriod[] = [];
+  segments.forEach((seg, k) => {
+    const prevEnd = periods.at(-1)?.end ?? '';
+    const startIdx = nights.findIndex((n, i) => n.date > prevEnd && nightHome[i] === seg.cluster);
+    const start = startIdx === -1 ? nights[0].date : nights[startIdx].date;
+    let end: string | null = null;
+    const next = segments[k + 1];
+    if (next) {
+      // Moving mid-month is common, so the new home's first month still counts
+      const lastMonth = months[next.firstMonth];
+      for (let i = 0; i < nights.length && nights[i].date.slice(0, 7) <= lastMonth; i++) {
+        if (nightHome[i] === seg.cluster) end = nights[i].date;
+      }
+      if (end === null || end < start) end = start;
+    }
+    periods.push({ cluster: seg.cluster, start, end, supportMonths: seg.support });
+  });
+  return periods;
+}
+
+/**
+ * Index of the period whose home applies to a night: the period containing
+ * it, else the nearest one in time (before the first period → the first; in
+ * a gap between two periods → the closer one, ties to the earlier).
+ */
+function periodIndexForDate(periods: { start: string; end: string | null }[], date: string): number {
+  for (let i = 0; i < periods.length; i++) {
+    const p = periods[i];
+    if (date < p.start) {
+      if (i === 0) return 0;
+      const prevEnd = periods[i - 1].end!;
+      const day = dayNumber(date);
+      return day - dayNumber(prevEnd) <= dayNumber(p.start) - day ? i - 1 : i;
+    }
+    if (p.end === null || date <= p.end) return i;
+  }
+  return periods.length - 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -633,6 +876,11 @@ async function main() {
   const CITY_USER_AGENT =
     ENV.CITY_DB_USER_AGENT ??
     'timeline-visualizer/1.0 (offline-db-auto-update)';
+  // A home must be where you slept most for this many months (net, see
+  // detectHomePeriods) — longer than a summer at family or a research stint
+  // abroad, short enough that a move shows up within half a year.
+  const envMinMonths = parseInt(ENV.HOME_MIN_PERIOD_MONTHS ?? '', 10);
+  const HOME_MIN_PERIOD_MONTHS = envMinMonths >= 1 ? envMinMonths : 5;
 
   fs.mkdirSync(OUT, { recursive: true });
 
@@ -642,35 +890,18 @@ async function main() {
   console.log(`  ${segments.length} segments loaded`);
 
   // ========================================================================
-  // 1. Detect home
+  // 1. Collect home samples (home periods are detected with the nights, §4)
   // ========================================================================
-  console.log('Detecting home…');
-  const homeCandidates: [number, number][] = [];
+  const homeSamples: HomeSample[] = [];
   for (const s of segments) {
     const st = s.visit?.topCandidate?.semanticType;
-    if (
-      (st === 'INFERRED_HOME' || st === 'HOME') &&
-      s.visit?.topCandidate?.placeLocation?.latLng
-    ) {
-      homeCandidates.push(
-        parseLatLng(s.visit.topCandidate.placeLocation.latLng),
-      );
+    const latLng = s.visit?.topCandidate?.placeLocation?.latLng;
+    if ((st === 'INFERRED_HOME' || st === 'HOME') && latLng) {
+      const [lat, lng] = parseLatLng(latLng);
+      homeSamples.push({ lat, lng, latLng, date: dateStr(s.startTime) });
     }
   }
-
-  // Cluster home candidates (simple: pick median)
-  const homeLat =
-    homeCandidates
-      .map((c) => c[0])
-      .sort((a, b) => a - b)[Math.floor(homeCandidates.length / 2)] ?? 0;
-  const homeLng =
-    homeCandidates
-      .map((c) => c[1])
-      .sort((a, b) => a - b)[Math.floor(homeCandidates.length / 2)] ?? 0;
-
-  const home = { lat: homeLat, lng: homeLng };
-  console.log(`  Home: ${home.lat.toFixed(4)}, ${home.lng.toFixed(4)} (from ${homeCandidates.length} samples)`);
-  fs.writeFileSync(path.join(OUT, 'home.json'), JSON.stringify(home));
+  console.log(`  ${homeSamples.length} HOME / INFERRED_HOME visits`);
 
   // ========================================================================
   // 2. Extract visits
@@ -901,13 +1132,12 @@ async function main() {
   );
 
   // ========================================================================
-  // 4. Nights away from home
+  // 4. Home periods and nights away from home
   // ========================================================================
-  console.log('Computing nights away…');
-  // For each calendar date, find the visit overlapping midnight (or nearest)
-  // and check if it's >1km from home
-
-  const HOME_THRESHOLD_KM = 1;
+  console.log('Locating nights…');
+  // For each calendar date, find the visit overlapping midnight (or nearest);
+  // home periods are detected from these, then each night is checked against
+  // the home of its period (>HOME_RADIUS_KM away = a night away)
 
   // Build a sorted list of visit segments with coordinates
   interface NightVisit {
@@ -947,16 +1177,7 @@ async function main() {
     lastDate.getDate(),
   );
 
-  interface NightEntry {
-    date: string;
-    isHome: boolean;
-    lat?: number;
-    lng?: number;
-    distKm?: number;
-    placeId?: string;
-  }
-
-  const nightsAway: NightEntry[] = [];
+  const nightVisits: { date: string; visit: NightVisit | null }[] = [];
   let visitIdx = 0;
 
   for (
@@ -998,26 +1219,86 @@ async function main() {
       }
     }
 
-    if (bestVisit && bestOverlap > 0) {
-      const dist = haversineDist(
-        home.lat,
-        home.lng,
-        bestVisit.lat,
-        bestVisit.lng,
-      );
-      nightsAway.push({
-        date: dateString,
-        isHome: dist < HOME_THRESHOLD_KM,
-        lat: bestVisit.lat,
-        lng: bestVisit.lng,
-        distKm: Math.round(dist * 10) / 10,
-        placeId: bestVisit.placeId,
-      });
-    } else {
-      // No visit data for this date — mark unknown (treat as home)
-      nightsAway.push({ date: dateString, isHome: true });
-    }
+    nightVisits.push({ date: dateString, visit: bestVisit && bestOverlap > 0 ? bestVisit : null });
   }
+
+  console.log('Detecting home periods…');
+  // Geocoder names vary ("USA" vs "United States"), so countries are named
+  // after the world geometry when they match (here and in geography.json)
+  const countryIndex = loadCountryIndex(WORLD_GEO_PATH);
+
+  interface HomePeriod {
+    start: string;
+    end: string | null;
+    lat: number;
+    lng: number;
+    city: string | null;
+    country: string | null;
+  }
+
+  const homeClusters = clusterHomeSamples(homeSamples, HOME_RADIUS_KM);
+  const detected = detectHomePeriods(
+    nightVisits.map(({ date, visit }) => ({ date, lat: visit?.lat ?? null, lng: visit?.lng ?? null })),
+    homeClusters,
+    HOME_MIN_PERIOD_MONTHS,
+  );
+  const homePeriods: HomePeriod[] = detected.map(({ cluster, start, end }) => {
+    const c = homeClusters[cluster];
+    // Cache hits only: the prefill covered every visit coordinate, and the
+    // seed is one, should the median land in a bucket without visits
+    const place = cityResolver.peek(c.lat, c.lng) ?? cityResolver.peek(c.seedLat, c.seedLng);
+    return {
+      start,
+      end,
+      lat: c.lat,
+      lng: c.lng,
+      city: place?.name ?? null,
+      country: place ? (countryIndex.get(normalizeCountryName(place.country))?.name ?? place.country) : null,
+    };
+  });
+
+  detected.forEach((d, i) => {
+    const p = homePeriods[i];
+    const inPeriod = (date: string) => date >= p.start && (p.end === null || date <= p.end);
+    const samples = homeClusters[d.cluster].samples.filter((s) => inPeriod(s.date)).length;
+    const nightsThere = nightVisits.filter(
+      (n) => n.visit && inPeriod(n.date) && haversineDist(p.lat, p.lng, n.visit.lat, n.visit.lng) < HOME_RADIUS_KM,
+    ).length;
+    console.log(
+      `  ${p.start} → ${p.end ?? 'ongoing'}: ${p.city ?? '?'}, ${p.country ?? '?'} ` +
+        `(${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}) · ${d.supportMonths} months net, ` +
+        `${nightsThere} nights there, ${samples} home-labelled visits`,
+    );
+  });
+  if (homePeriods.length === 0) {
+    console.warn('  No HOME / INFERRED_HOME visits found: every night counts as home.');
+  }
+  fs.writeFileSync(path.join(OUT, 'home.json'), JSON.stringify(homePeriods));
+
+  interface NightEntry {
+    date: string;
+    isHome: boolean;
+    lat?: number;
+    lng?: number;
+    /** Distance from the home of the period this night belongs to */
+    distKm?: number;
+    placeId?: string;
+  }
+
+  const nightsAway: NightEntry[] = nightVisits.map(({ date, visit }) => {
+    // No visit data for this date (or no home at all) — unknown, treat as home
+    if (!visit || homePeriods.length === 0) return { date, isHome: true };
+    const home = homePeriods[periodIndexForDate(homePeriods, date)];
+    const dist = haversineDist(home.lat, home.lng, visit.lat, visit.lng);
+    return {
+      date,
+      isHome: dist < HOME_RADIUS_KM,
+      lat: visit.lat,
+      lng: visit.lng,
+      distKm: Math.round(dist * 10) / 10,
+      placeId: visit.placeId,
+    };
+  });
 
   const totalAway = nightsAway.filter((n) => !n.isHome).length;
   console.log(
@@ -1056,9 +1337,8 @@ async function main() {
     city: number | null;
   }
 
-  // Geocoder names vary ("USA" vs "United States"), so countries are keyed
-  // by ISO code and named after the world geometry when they match.
-  const countryIndex = loadCountryIndex(WORLD_GEO_PATH);
+  // Countries are keyed by ISO code (countryIndex, loaded in §4) so name
+  // variants merge, and named after the world geometry when they match.
   const geoCountries: GeographyCountry[] = [];
   const geoCountryIndex = new Map<string, number>();
   function countryId(rawName: string): number {
@@ -1107,7 +1387,6 @@ async function main() {
   // away nights this includes home time, day trips and layovers; a travel day
   // counts for both countries. Visit coordinates are already in the city DB
   // from the prefill, so resolve() only runs for rare placeId-less visits.
-  const DAY_MS = 86_400_000;
   const countriesByDay = new Map<number, Set<number>>();
   for (const v of visitSegments) {
     const city = cityResolver.peek(v.lat, v.lng) ?? (await cityResolver.resolve(v.lat, v.lng));
