@@ -9,7 +9,8 @@
  * not apply here, the trip is always shown whole.
  */
 import { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
+import { MapContainer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
+import DarkBasemap from '../components/DarkBasemap';
 import type { FitBoundsOptions, LatLngTuple } from 'leaflet';
 import {
   useTrips,
@@ -226,10 +227,7 @@ function TripMap({ tripKey, summary }: { tripKey: string; summary: TripSummary }
           style={{ height: '100%', width: '100%' }}
           scrollWheelZoom={true}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          />
+          <DarkBasemap />
 
           {routes.map((r, i) => (
             <Polyline

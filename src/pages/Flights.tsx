@@ -6,7 +6,8 @@
  * flight route (see flight.ts).
  */
 import { useMemo } from 'react';
-import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
+import { MapContainer, Polyline, CircleMarker, Tooltip } from 'react-leaflet';
+import DarkBasemap from '../components/DarkBasemap';
 import { useFlights, useStats } from '../hooks/useData';
 import { setParams, useRoute, type RouteParams } from '../route';
 import Loader from '../components/Loader';
@@ -156,10 +157,7 @@ export default function Flights() {
           style={{ height: '100%', width: '100%' }}
           scrollWheelZoom={true}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          />
+          <DarkBasemap />
           {sorted.map((f, i) => (
             <Polyline
               key={i}

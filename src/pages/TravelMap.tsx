@@ -19,7 +19,8 @@
  * state, not the URL), so the page doesn't re-render every frame.
  */
 import { memo, useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import DarkBasemap from '../components/DarkBasemap';
 import type { LatLngTuple, PathOptions } from 'leaflet';
 import { useRoutes, useVisits, useHomePeriods, useFamilyHomes, useNightsAway } from '../hooks/useData';
 import { setParams, useRoute } from '../route';
@@ -455,10 +456,7 @@ export default function TravelMap() {
             scrollWheelZoom={true}
             preferCanvas={true}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            />
+            <DarkBasemap />
             {boundsCoords.length > 0 && <FitBounds coords={boundsCoords} />}
 
             {/* Family-home rings, one per family home stayed at in the range. Drawn

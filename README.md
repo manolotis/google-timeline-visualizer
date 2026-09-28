@@ -73,7 +73,7 @@ Everything you can currently see and do with the tool, page by page.
 ### 🧳 Trip Detail
 - One page per trip, opened from the Nights Away trip list or the Overview highlights, with its own shareable URL (`#/trip?start=2024-03-14`); browser back returns to where you came from, and **← Trips in 2024** goes to that year's trip list
 - Header with the dates, nights away, return day, farthest distance from home (and where), cities, countries, places visited, total distance traveled, and flights taken
-- **Trip map** (dark CARTO basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home (or the family home the trip left from); the legend lists the distance covered per mode
+- **Trip map** (dark Esri basemap, fitted to the trip): ground routes color-coded by transport mode, flights as great-circle arcs, where each night was spent (sized by nights), the other places visited, and home (or the family home the trip left from); the legend lists the distance covered per mode
 - A trip that ends at a family home says so ("then 🏡 Tres Cantos from …") instead of "back home"
 - **Night by night**: a square per night colored by distance from home (hover for the city and distance), then the nights grouped into stops, e.g. "Samokov, Bulgaria · 3 nights"
 - **Cities & countries** with nights spent in each and days present, plus the countries passed through without staying the night (layovers, day trips)
@@ -81,7 +81,7 @@ Everything you can currently see and do with the tool, page by page.
 - Always shows the whole trip, whatever the global time range (the picker stays usable and a small note says so); everything is computed from the trip's dates, from its departure day to the day it got back
 
 ### 🗺️ Travel Map
-- Full-screen interactive Leaflet map with dark CARTO basemap
+- Full-screen interactive Leaflet map with dark Esri basemap
 - Thousands of route segments drawn on a canvas, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
 - Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range, with tooltips showing the resolved city/country name (via the offline city database) instead of raw place IDs
@@ -480,4 +480,4 @@ timeline-visualizer/
 
 ## Privacy
 
-All data processing happens locally on your machine. The in-browser import reads your file and processes it inside your browser (a Web Worker); the result is stored in your browser's IndexedDB, for this site only, until you use **Clear imported data** (or clear the site's data in your browser). It never looks places up online. The only external requests are for map tiles (CARTO dark basemap) and, with the command-line `npm run preprocess` only, optional Nominatim reverse geocoding (coordinates only, rate-limited); the world map's country borders, the city database and the airport list ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
+All data processing happens locally on your machine. The in-browser import reads your file and processes it inside your browser (a Web Worker); the result is stored in your browser's IndexedDB, for this site only, until you use **Clear imported data** (or clear the site's data in your browser). It never looks places up online. The only external requests are for map tiles (Esri dark basemap) and, with the command-line `npm run preprocess` only, optional Nominatim reverse geocoding (coordinates only, rate-limited); the world map's country borders, the city database and the airport list ship with the app. Your timeline data is never uploaded anywhere. `Timeline.json`, `public/data/`, and `timeline-config.json` (your family homes' coordinates) are gitignored so your location history can't be committed accidentally.
