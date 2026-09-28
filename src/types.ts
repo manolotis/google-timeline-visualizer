@@ -2,7 +2,12 @@
  * Shared TypeScript interfaces for all preprocessed data shapes.
  *
  * These types mirror the JSON structure produced by scripts/preprocess.ts
- * and are consumed by the React hooks in hooks/useData.ts.
+ * and are consumed by the React hooks in hooks/useData.ts. Shapes derived
+ * client-side for the selected time range live in aggregate.ts.
+ *
+ * Dates are 'YYYY-MM-DD' strings. For activities, visits, flights, and
+ * routes that is the event-local calendar date (the prefix of the export's
+ * ISO timestamp); nights use the night key from nights-away.json.
  */
 
 // Types matching the preprocessed JSON output files
@@ -40,6 +45,8 @@ export interface Visit {
   totalHours: number;
   firstVisit: string;
   lastVisit: string;
+  /** Every stay at this place: [start date, duration in seconds] */
+  stays: [string, number][];
 }
 
 export interface NightEntry {
@@ -51,37 +58,12 @@ export interface NightEntry {
   placeId?: string;
 }
 
-export interface GeographyCountry {
-  country: string;
-  days: number;
-  shareOfAwayDays: number;
-}
-
-export interface GeographyCity {
-  city: string;
-  country: string;
-  lat: number;
-  lng: number;
-  days: number;
-  shareOfAwayDays: number;
-}
-
-export interface GeographySummary {
-  totalAwayDays: number;
-  totalCountries: number;
-  totalCities: number;
-  matchedCountryDays: number;
-  matchedCityDays: number;
-  unmatchedCountryDays: number;
-  unmatchedCityDays: number;
-  topCountry: GeographyCountry | null;
-  topCity: GeographyCity | null;
-}
-
-export interface GeographyStats {
-  summary: GeographySummary;
-  countries: GeographyCountry[];
-  cities: GeographyCity[];
+/** geography.json */
+export interface GeographyData {
+  /** Distinct cities that away nights resolved to */
+  cities: { city: string; country: string; lat: number; lng: number }[];
+  /** One entry per away night; `city` indexes `cities` (null = unresolved) */
+  nights: { date: string; city: number | null }[];
 }
 
 export interface TripPlace {
@@ -105,46 +87,25 @@ export interface RouteSegment {
   points: [number, number][];
 }
 
-export interface YearStats {
-  year: number;
-  flights: number;
-  nightsAway: number;
-  totalDistKm: number;
-  uniquePlaces: number;
-}
-
-export interface TopPlace {
-  placeId: string;
-  lat: number;
-  lng: number;
-  visitCount: number;
-  totalHours: number;
-  semanticType: string;
-}
-
+/**
+ * stats.json — one row per activity (movement) segment, stored column-wise:
+ * index i of every `activities` array describes the same activity.
+ */
 export interface Stats {
-  totalSegments: number;
-  totalFlights: number;
-  totalNightsAway: number;
-  totalNightsTracked: number;
-  totalTrips: number;
-  totalUniqueVisitedPlaces: number;
-  totalDistanceKm: number;
-  totalFlightDistanceKm: number;
-  totalWalkingKm: number;
-  totalCyclingKm: number;
-  distanceByMode: Record<string, number>;
-  countByMode: Record<string, number>;
-  durationByMode: Record<string, number>;
-  totalWalkingHours: number;
-  totalCyclingHours: number;
-  yearly: YearStats[];
-  topPlaces: TopPlace[];
-  dayOfWeek: number[];
-  hourOfDay: number[];
+  /** ISO timestamps of the first segment's start and the last segment's end */
   dateRange: { start: string; end: string };
-  longestTrip: Trip | null;
-  furthestTrip: Trip | null;
+  /** Transport mode names; `activities.mode` holds indices into this list */
+  modes: string[];
+  activities: {
+    date: string[];
+    /** Event-local start hour, 0–23 */
+    hour: number[];
+    mode: number[];
+    /** Distance in meters, unrounded */
+    meters: number[];
+    /** Duration in seconds */
+    seconds: number[];
+  };
 }
 
 export type Page = 'overview' | 'flights' | 'nights' | 'map' | 'stats' | 'geography';

@@ -15,7 +15,7 @@ import type {
   Visit,
   Home,
   RouteSegment,
-  GeographyStats,
+  GeographyData,
 } from '../types';
 
 const cache = new Map<string, Promise<unknown>>();
@@ -91,5 +91,5 @@ export function useRoutes() {
 }
 
 export function useGeography() {
-  return useFetch<GeographyStats>('/data/geography.json');
+  return useFetch<GeographyData>('/data/geography.json');
 }

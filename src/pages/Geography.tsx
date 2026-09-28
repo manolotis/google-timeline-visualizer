@@ -1,14 +1,18 @@
 /**
  * Geography page — country and city stay durations derived from away nights.
  *
- * Shows ranked country and city totals, with charts and full tables for all
- * matched destinations in the dataset.
+ * Shows ranked country and city totals for the globally selected time
+ * range, with charts and full tables for all matched destinations.
  */
+import { useMemo } from 'react';
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
 import EmptyState from '../components/EmptyState';
+import NoDataInRange from '../components/NoDataInRange';
 import { CHART_TOOLTIP_STYLE } from '../constants';
 import { useGeography } from '../hooks/useData';
+import { summarizeGeography } from '../aggregate';
+import { useTimeRange } from '../timeRange';
 import {
   Bar,
   BarChart,
@@ -26,11 +30,34 @@ const CITY_COLOR = '#06b6d4';
 const tooltipStyle = CHART_TOOLTIP_STYLE;
 
 export default function Geography() {
-  const { data, loading, error } = useGeography();
+  const { data: geo, loading, error } = useGeography();
+  const { range } = useTimeRange();
+
+  const data = useMemo(() => (geo ? summarizeGeography(geo, range) : null), [geo, range]);
 
   if (loading) return <Loader />;
   if (!data) return <EmptyState error={error} />;
 
+  const header = (
+    <div>
+      <h1 className="text-3xl font-bold text-white">Geography</h1>
+      <p className="text-gray-400 mt-1">
+        Away-night totals grouped by matched country and city.
+      </p>
+    </div>
+  );
+
+  if (data.totalAwayDays === 0) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-8">
+        {header}
+        <NoDataInRange title="No nights away from home in this range" />
+      </div>
+    );
+  }
+
+  const topCountry = data.countries[0] ?? null;
+  const topCity = data.cities[0] ?? null;
   const topCountries = data.countries.slice(0, 12).map((country) => ({
     ...country,
     fill: COUNTRY_COLOR,
@@ -43,44 +70,39 @@ export default function Geography() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Geography</h1>
-        <p className="text-gray-400 mt-1">
-          Away-night totals grouped by matched country and city.
-        </p>
-      </div>
+      {header}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon="🌍"
           label="Countries Visited"
-          value={data.summary.totalCountries}
-          sub={`${data.summary.totalAwayDays.toLocaleString()} away days total`}
+          value={data.countries.length}
+          sub={`${data.totalAwayDays.toLocaleString()} away days total`}
         />
         <StatCard
           icon="🏙️"
           label="Cities Visited"
-          value={data.summary.totalCities}
-          sub={`${data.summary.matchedCityDays.toLocaleString()} matched city-days`}
+          value={data.cities.length}
+          sub={`${data.matchedDays.toLocaleString()} matched city-days`}
         />
         <StatCard
           icon="🥇"
           label="Top Country"
-          value={data.summary.topCountry?.country ?? '—'}
-          sub={data.summary.topCountry ? `${data.summary.topCountry.days} days` : 'No matched data'}
+          value={topCountry?.country ?? '—'}
+          sub={topCountry ? `${topCountry.days} days` : 'No matched data'}
         />
         <StatCard
           icon="📌"
           label="Top City"
-          value={data.summary.topCity?.city ?? '—'}
-          sub={data.summary.topCity ? `${data.summary.topCity.days} days in ${data.summary.topCity.country}` : 'No matched data'}
+          value={topCity?.city ?? '—'}
+          sub={topCity ? `${topCity.days} days in ${topCity.country}` : 'No matched data'}
         />
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
         <p className="text-sm text-gray-400">
-          {data.summary.unmatchedCityDays > 0
-            ? `${data.summary.unmatchedCityDays} away days could not be matched to a known city in the embedded dataset.`
+          {data.unmatchedDays > 0
+            ? `${data.unmatchedDays} away days could not be matched to a known city in the embedded dataset.`
             : 'All away days were matched to a city in the embedded dataset.'}
         </p>
       </div>

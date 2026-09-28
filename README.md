@@ -6,44 +6,51 @@ A personal travel dashboard that transforms your Google Maps Timeline export int
 
 Everything you can currently see and do with the tool, page by page. Planned additions live in the [Roadmap](#roadmap); when a roadmap item ships, it moves up into this list.
 
+### 📅 Global Time Range
+- One **date-range picker in the top bar**, visible on every page: pick a period once and every stat card, chart, table, heatmap, and map shows only that period
+- Presets for **All time** (the default), **Last 12 months** (up to your newest data), and **each year** in your data, plus **custom start/end dates** (leave one side empty for an open-ended range)
+- The selection persists while you switch pages; the ✕ next to the picker resets to All time
+- Trend charts adapt their granularity: per year for long ranges, **per month** for ranges up to three years
+- Day-precise: every number is recomputed from dated per-record data, so a custom range is exact rather than rounded to whole months, and All time reproduces the unfiltered totals exactly
+- A "no data in this range" hint (with a one-click reset) instead of empty charts when a period has nothing recorded
+
 ### 📊 Overview Dashboard
 - At-a-glance stat cards: total flights, nights away, unique places visited, total distance traveled, walking/cycling totals, and trip count
 - "Times around the Earth" distance comparison
-- Yearly bar charts for flights taken and nights spent away
+- Per-year (or per-month) bar charts for flights taken and nights spent away
 - Transport mode pie chart and distance breakdown
 - Longest and furthest trip highlights
 
 ### ✈️ Flights
-- Full log of every flight detected in your timeline data
-- Sortable table by date, distance, or duration with year filter
+- Full log of every flight detected in the selected range
+- Sortable table by date, distance, or duration
 - Interactive world map with **great-circle arcs** for each flight route
 - Origin/destination coordinate markers with resolved city names
 - Summary stats: total flights, total distance, most repeated route, average duration
 
 ### 🌙 Nights Away from Home
-- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away)
-- Year-by-year selector with per-year count and percentage
+- **GitHub-style calendar heatmap** — color-coded by distance from home (darker orange = further away); days outside the selected range are shown as outlines
+- Year-by-year selector (years within the selected range) with per-year count and percentage
 - Auto-detection of **home location** from Google's `INFERRED_HOME` data
-- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count
-- All-time stats: total nights away, total trips, longest trip, furthest trip
+- Automatically grouped **trip list** showing dates, number of places, distance from home, and night count (trips that overlap the range, including ones that cross into it)
+- Range stats: total nights away, total trips, longest trip, furthest trip
 
 ### 🗺️ Travel Map
 - Full-screen interactive Leaflet map with dark CARTO basemap
 - Thousands of route segments rendered as polylines, **color-coded by transport mode** (flying, walking, cycling, driving, train, bus, subway, tram, ferry, motorcycle, sailing, skiing)
 - Toggle individual transport modes on/off
-- Year range filter (derived from your data) to explore specific time periods
-- Place markers (top 500 visited locations) sized by visit frequency
+- Place markers (top 500 locations visited in the selected range) sized by visit frequency within the range
 - Home marker with permanent label
 
 ### 📈 Statistics
-- Distance and activity count by transport mode (horizontal bar charts, individually colored)
-- Yearly distance traveled (line chart) and unique places per year (bar chart)
+- Distance, time spent, and activity count by transport mode (horizontal bar charts, individually colored)
+- Distance traveled (line chart) and unique places visited (bar chart) per year, or per month for shorter ranges
 - Day-of-week radar chart showing activity distribution
 - Hour-of-day bar chart for movement patterns
-- Top 20 most visited places table with coordinates, semantic type, visit count, and hours spent
+- Top 20 most visited places in the range, with coordinates, semantic type, visit count, and hours spent
 
 ### 🧭 Geography
-- Countries and cities ranked by total away-days, with summary cards and full share-of-total tables
+- Countries and cities ranked by away-days in the selected range, with summary cards and full share-of-total tables
 - Uses a self-updating offline city database so known locations are reused offline
 
 ## Architecture
@@ -63,18 +70,20 @@ Timeline.json (raw Google export)
  React + Vite SPA        ← Static site, loads JSON via fetch
 ```
 
+Because every page respects the global time range, the preprocessor emits **dated per-record data** rather than all-time totals, and the frontend (`src/aggregate.ts`) aggregates whatever falls inside the selected range. Record dates are the event-local calendar date taken from the export's timestamps; nights use the per-night key from `nights-away.json`.
+
 ### Generated Data Files
 
 | File | Description |
 |---|---|
 | `home.json` | Auto-detected home coordinates (from `INFERRED_HOME` / `HOME` visits) |
 | `flights.json` | All flight segments with coordinates, distance, duration, and path |
-| `visits.json` | Deduplicated places with visit counts and total time spent |
+| `visits.json` | Deduplicated places with visit counts, total time spent, and every dated stay (`stays: [date, seconds][]`) |
 | `nights-away.json` | Per-date home/away classification with distance from home |
-| `geography.json` | Countries/cities ranked by away-days spent there |
+| `geography.json` | Resolved city for every away night, plus the table of cities |
 | `trips.json` | Consecutive away-nights grouped into trips |
 | `routes.json` | All movement segments with polyline points and transport mode |
-| `stats.json` | Pre-computed aggregates: yearly trends, distance by mode, top places, activity patterns |
+| `stats.json` | Column-oriented log of every activity (date, start hour, mode, distance, duration) that the statistics are computed from |
 
 ### Offline City Database
 
@@ -180,6 +189,8 @@ timeline-visualizer/
 │   ├── App.tsx                # Root component with top-bar page navigation
 │   ├── types.ts               # TypeScript interfaces for all data shapes
 │   ├── constants.ts           # Shared transport-mode colors/labels, chart styles
+│   ├── timeRange.ts           # Global time range: selection model, context, date/period helpers
+│   ├── aggregate.ts           # Range-aware aggregations (modes, places, trips, geography, series)
 │   ├── index.css              # Tailwind directives and global styles
 │   ├── hooks/
 │   │   └── useData.ts         # Cached fetch hooks for each data file
@@ -187,6 +198,9 @@ timeline-visualizer/
 │   │   ├── StatCard.tsx       # Reusable metric card (icon, value, label, subtitle)
 │   │   ├── Loader.tsx         # Animated loading spinner
 │   │   ├── EmptyState.tsx     # "Run npm run preprocess" guidance when data is missing
+│   │   ├── TimeRangeProvider.tsx # Holds the global range above the page switch
+│   │   ├── TimeRangeControl.tsx  # Top-bar range picker (presets + custom dates)
+│   │   ├── NoDataInRange.tsx  # Hint shown when the selected range is empty
 │   │   └── CalendarHeatmap.tsx # GitHub-style year calendar heatmap grid
 │   └── pages/
 │       ├── Overview.tsx       # Dashboard home with stat cards and summary charts
@@ -208,8 +222,7 @@ timeline-visualizer/
 Planned improvements, roughly in priority order. When one is implemented, remove it here and describe it in [Features](#features):
 
 - **Visited-countries world map** — choropleth on the Overview page with every visited country highlighted, color intensity by days spent on a logarithmic (or quantile) scale so home/long-stay countries don't wash out briefly-visited ones
-- **Global time-range filter** — pick a date range once and have every page's stats, charts, and maps reflect only that period
-- **URL routing & shareable state** — hash-based routing so page/year selections survive reloads and can be bookmarked
+- **URL routing & shareable state** — hash-based routing so page/time-range selections survive reloads and can be bookmarked
 - **Trip detail view** — click a trip to see its own map, cities visited, and flights taken during it
 - **Place name resolution** — show resolved city names (via the offline city DB) instead of raw place IDs in top-places tables and map tooltips
 - **In-browser import** — drag-and-drop `Timeline.json` and preprocess in a Web Worker, removing the Node step entirely (data still never leaves your machine)
