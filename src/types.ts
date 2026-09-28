@@ -5,10 +5,13 @@
  * and are consumed by the React hooks in hooks/useData.ts. Shapes derived
  * client-side for the selected time range live in aggregate.ts.
  *
- * Dates are 'YYYY-MM-DD' strings. For activities, visits, flights, and
- * routes that is the event-local calendar date (the prefix of the export's
- * ISO timestamp); nights use the night key from nights-away.json, and
- * geography presence uses UTC calendar dates.
+ * Dates are 'YYYY-MM-DD' local calendar dates: the date where the user was
+ * at the time, from the UTC offsets the export records for every visit and
+ * activity (not the phone's time zone). Timestamps are ISO strings written
+ * in that local offset (e.g. '2024-12-10T13:35:57.000-08:00'), so their
+ * 'YYYY-MM-DD' prefix is the local date and their hour the local hour;
+ * compare them with Date.parse, not as strings, since offsets differ. A
+ * night is keyed by the local date of the evening it begins.
  */
 
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
@@ -34,8 +37,11 @@ export interface HomePeriod {
 }
 
 export interface Flight {
+  /** Local departure date */
   date: string;
+  /** Local departure time (in the departure's UTC offset) */
   startTime: string;
+  /** Local arrival time (in the arrival's UTC offset) */
   endTime: string;
   startLat: number;
   startLng: number;
@@ -61,7 +67,7 @@ export interface Visit {
   totalHours: number;
   firstVisit: string;
   lastVisit: string;
-  /** Every stay at this place: [start date, duration in seconds] */
+  /** Every stay at this place: [local start date, duration in seconds] */
   stays: [string, number][];
   /** Resolved city/country name (offline city DB); absent if unresolved */
   city?: string;
@@ -69,6 +75,7 @@ export interface Visit {
 }
 
 export interface NightEntry {
+  /** The local date of the evening the night begins (20:00 → 08:00 local) */
   date: string;
   /** Within 1 km of the home of this night's period (true when the night has no location) */
   isHome: boolean;
@@ -93,8 +100,8 @@ export interface GeographyData {
   /** One entry per away night; `city` indexes `cities` (null = unresolved) */
   nights: { date: string; city: number | null }[];
   /**
-   * Days present, sorted by date: every UTC calendar date with at least one
-   * recorded visit, with the countries (indices into `countries`) visited
+   * Days present, sorted by date: every local calendar date with at least
+   * one recorded visit, with the countries (indices into `countries`) visited
    * that day. Home time, day trips and layovers count; a visit spanning
    * several dates counts for each, and a travel day lists both countries.
    */
@@ -131,6 +138,7 @@ export interface Trip {
 }
 
 export interface RouteSegment {
+  /** Local start time */
   startTime: string;
   mode: string;
   points: [number, number][];
@@ -141,13 +149,13 @@ export interface RouteSegment {
  * index i of every `activities` array describes the same activity.
  */
 export interface Stats {
-  /** ISO timestamps of the first segment's start and the last segment's end */
+  /** Local timestamps of the first segment's start and the last segment's end (the first and last nights' dates) */
   dateRange: { start: string; end: string };
   /** Transport mode names; `activities.mode` holds indices into this list */
   modes: string[];
   activities: {
     date: string[];
-    /** Event-local start hour, 0–23 */
+    /** Local start hour, 0–23 */
     hour: number[];
     mode: number[];
     /** Distance in meters, unrounded */

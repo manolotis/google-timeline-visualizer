@@ -35,12 +35,14 @@ export interface TripWindows {
 }
 
 /**
- * Preprocess keys each night by the UTC date of the local midnight it
- * spans, which east of UTC is the date of the evening the night begins. So
- * a trip leaves on the date of its first night and gets back the day after
- * its last one; the data agrees (outbound flights fall on the first night's
- * date, return flights on the day after the last). Revisit if night
- * bucketing becomes timezone-aware.
+ * Preprocess keys each night by the local date of the evening it begins,
+ * wherever you were. So a trip leaves on the date of its first night and
+ * gets back the day after its last one, and every per-record date (flights
+ * by local departure date, routes, stays, activities, presence) is a local
+ * date too. The data agrees: outbound flights fall on the first night's
+ * date, return flights on the day after the last night, or on the last
+ * night's own date for an evening departure (a night spent flying home
+ * counts as away).
  */
 export function tripWindows(trip: Trip): TripWindows {
   return {
@@ -233,9 +235,10 @@ export function summarizeTrip(trip: Trip, data: TripData): TripSummary {
   }
   const stays = [...stayById.values()].sort((a, b) => b.nights - a.nights);
 
+  // Each time is in its own place's UTC offset, so order by instant, not by string
   const flights = data.flights
     .filter((f) => inRange(f.date, windows.days))
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    .sort((a, b) => Date.parse(a.startTime) - Date.parse(b.startTime));
   const flightArcs = flights.map((f) => greatCircleArc(f.startLat, f.startLng, f.endLat, f.endLng));
 
   const routes = data.routes.filter(

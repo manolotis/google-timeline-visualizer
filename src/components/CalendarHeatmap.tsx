@@ -9,7 +9,7 @@
  */
 import { useMemo } from 'react';
 import type { NightEntry } from '../types';
-import { inRange, type DateRange } from '../timeRange';
+import { addDays, dayOfWeek, inRange, type DateRange } from '../timeRange';
 import { AWAY_NIGHT_COLORS, HOME_NIGHT_COLOR, nightColor } from '../constants';
 
 interface Props {
@@ -27,33 +27,22 @@ const EXCLUDED_STYLE = { backgroundColor: 'transparent', boxShadow: 'inset 0 0 0
 export default function CalendarHeatmap({ nights, year, range = OPEN_RANGE }: Props) {
   const grid = useMemo(() => {
     const map = new Map(nights.map(n => [n.date, n]));
-    // Build weeks for the year
-    const start = new Date(year, 0, 1);
-    const end = new Date(year, 11, 31);
-    // Adjust start to Sunday
-    const startDay = start.getDay();
-    const gridStart = new Date(start);
-    gridStart.setDate(gridStart.getDate() - startDay);
-
+    // Weeks (Sunday first) covering the year. Cells are keyed by calendar
+    // date strings built with pure date arithmetic, so the grid holds exactly
+    // the year's night keys whatever the browser's time zone
+    const first = `${year}-01-01`;
+    const last = `${year}-12-31`;
     const weeks: (NightEntry | null)[][] = [];
     let week: (NightEntry | null)[] = [];
-    const cur = new Date(gridStart);
-
-    while (cur <= end || week.length > 0) {
-      // Key by the cell's own calendar date (not toISOString, which shifts
-      // by a day east of UTC) so the grid holds exactly the year's night keys
-      const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-      const inYear = cur >= start && cur <= end;
-      week.push(inYear ? (map.get(key) ?? { date: key, isHome: true }) : null);
-
+    for (let date = addDays(first, -dayOfWeek(first)); ; date = addDays(date, 1)) {
+      const inYear = date >= first && date <= last;
+      week.push(inYear ? (map.get(date) ?? { date, isHome: true }) : null);
       if (week.length === 7) {
         weeks.push(week);
         week = [];
-        if (cur > end) break;
+        if (date >= last) break;
       }
-      cur.setDate(cur.getDate() + 1);
     }
-    if (week.length > 0) weeks.push(week);
     return weeks;
   }, [nights, year]);
 

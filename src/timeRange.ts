@@ -3,10 +3,11 @@
  * date helpers every page uses to restrict its data to the selected range.
  *
  * Dates are 'YYYY-MM-DD' strings, which compare chronologically as plain
- * strings. A null bound is open-ended, so "All time" is { start: null,
- * end: null }: it excludes nothing and reproduces the unfiltered numbers
- * exactly (nights-away.json even starts a day before the first segment
- * because of the UTC-midnight bucketing).
+ * strings. They are local calendar dates where the user was (see types.ts),
+ * so filtering is pure calendar arithmetic: nothing here depends on the
+ * browser's time zone. A null bound is open-ended, so "All time" is
+ * { start: null, end: null }: it excludes nothing and reproduces the
+ * unfiltered numbers exactly.
  *
  * The provider lives in components/TimeRangeProvider.tsx and the top-bar UI
  * in components/TimeRangeControl.tsx. The selection itself is stored in the
