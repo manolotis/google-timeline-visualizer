@@ -3,3 +3,6 @@ dist/
 Timeline.json
 public/data/*.json
 *.tsbuildinfo
+
+# Claude Code agent worktrees
+.claude/worktrees/
