@@ -1,7 +1,8 @@
 /**
  * Data-fetching hooks for the preprocessed JSON files.
  *
- * Each hook loads its corresponding file from /data/ and returns
+ * Each hook loads its corresponding file from /data/ (or, for the vendored
+ * world geometry, from the public root) and returns
  * { data, loading, error } state. Responses are cached at module level so
  * switching between pages (which unmounts them) does not refetch the
  * multi-megabyte JSON files.
@@ -16,6 +17,7 @@ import type {
   Home,
   RouteSegment,
   GeographyStats,
+  WorldCountries,
 } from '../types';
 
 const cache = new Map<string, Promise<unknown>>();
@@ -92,4 +94,8 @@ export function useRoutes() {
 
 export function useGeography() {
   return useFetch<GeographyStats>('/data/geography.json');
+}
+
+export function useWorldCountries() {
+  return useFetch<WorldCountries>('/world-countries.geo.json');
 }

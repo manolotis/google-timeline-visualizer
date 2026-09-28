@@ -2,7 +2,8 @@
  * Geography page — country and city stay durations derived from away nights.
  *
  * Shows ranked country and city totals, with charts and full tables for all
- * matched destinations in the dataset.
+ * matched destinations in the dataset. The country table also lists days
+ * present (home time included), the measure the Overview world map uses.
  */
 import Loader from '../components/Loader';
 import StatCard from '../components/StatCard';
@@ -152,8 +153,11 @@ export default function Geography() {
                 <tr className="text-left text-gray-400 border-b border-gray-800">
                   <th className="px-3 py-2">#</th>
                   <th className="px-3 py-2">Country</th>
-                  <th className="px-3 py-2">Days</th>
+                  <th className="px-3 py-2">Away days</th>
                   <th className="px-3 py-2">Share</th>
+                  <th className="px-3 py-2" title="Days with at least one recorded visit, home time included">
+                    Days present
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -163,6 +167,7 @@ export default function Geography() {
                     <td className="px-3 py-2 text-gray-200 font-medium">{country.country}</td>
                     <td className="px-3 py-2 text-gray-300">{country.days}</td>
                     <td className="px-3 py-2 text-gray-400">{country.shareOfAwayDays}%</td>
+                    <td className="px-3 py-2 text-gray-300">{country.totalDays?.toLocaleString() ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
