@@ -4,11 +4,11 @@ Rules and gotchas that matter only when you change one part of the code, kept ou
 
 ## Contents
 
-- [Import and data loading](#import-and-data-loading): `src/import/`, `src/hooks/useData.ts`
+- [Import and data loading](#import-and-data-loading): `src/import/`, `src/hooks/useData.ts`, the import UI, `vite.config.ts`'s worker settings
 - [Nights and trips](#nights-and-trips): night bucketing in `runPipeline`, `src/trip.ts`, the calendar heatmap
 - [Homes](#homes): `src/pipeline/homes.ts`, `src/pipeline/familyHomes.ts`, the home helpers in `src/aggregate.ts`
-- [Flights and airports](#flights-and-airports): `src/pipeline/airports.ts`, `scripts/data/airports.json`
-- [Travel Map](#travel-map): `src/routeCanvas.ts`, `src/routeIndex.ts`, `src/playback.ts`, `src/pages/TravelMap.tsx`
+- [Flights and airports](#flights-and-airports): `src/pipeline/airports.ts`, `scripts/data/airports.json`, `scripts/generate-airports.ts`
+- [Travel Map](#travel-map): `src/routeCanvas.ts`, `src/routeIndex.ts`, `src/playback.ts`, `src/components/PlaybackBar.tsx`, `src/pages/TravelMap.tsx`
 
 ## Import and data loading
 
