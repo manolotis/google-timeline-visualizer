@@ -407,7 +407,7 @@ The production build in `dist/` is a static site deployable to any static host. 
 
 Vitest covers the pure, environment-agnostic pieces of the app: every helper in `src/pipeline/` (coordinate/local-time math, night bucketing, home-period detection, family homes, nearest-airport matching and the CO2 estimate, country/ISO matching) plus one end-to-end `runPipeline` smoke test on a tiny synthetic export, and the frontend's pure time-range helpers (`src/timeRange.ts`). Tests are colocated as `src/**/*.test.ts` and use only small, hand-built, synthetic fixtures (obviously fake coordinates and dates) — never `Timeline.json` or real personal data, which the suite never touches. `npm run test` runs them once; `npm run test:watch` re-runs on change.
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build` on every push and pull request to `main`. `Timeline.json` and `public/data/` are gitignored, so CI never has personal data — the build succeeds without them, since `EmptyState` handles missing data at runtime.
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build` on every push and pull request to `main`, except one that changes only Markdown files. `Timeline.json` and `public/data/` are gitignored, so CI never has personal data — the build succeeds without them, since `EmptyState` handles missing data at runtime.
 
 ## Project Structure
 
