@@ -21,7 +21,8 @@ range; the URL hash is the source of truth for view state.
 
 ## How to work
 1. Read the task, then the files it names, then the relevant parts of README.md and of
-   CLAUDE.md's data flow and gotchas before writing code.
+   CLAUDE.md's data flow and gotchas (and the docs/subsystems.md section they point to)
+   before writing code.
 2. Do only what the task asks. Do not widen scope, do not "improve" unrelated files, do not
    start the next task.
 3. When code changes, run the checks that exist (`npm run typecheck`, `npm run lint`,
