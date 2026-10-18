@@ -14,4 +14,4 @@ History moved out of the live docs by housekeeping passes: kept in the repo, not
 
 | Date | Base | Mode | Files | Size before → after |
 | --- | --- | --- | --- | --- |
-| 2026-10-18 | `293c757` | full | `CLAUDE.md`, `docs/subsystems.md` (new), `.claude/agents/*.md`, `package.json` | CLAUDE.md 21.4 KB → 14.8 KB; nothing archived ([pass record](passes/2026-10-18.md)) |
+| 2026-10-18 | `293c757` | full | `CLAUDE.md`, `docs/subsystems.md` (new), `.claude/agents/*.md`, `package.json`, `package-lock.json` | CLAUDE.md 21.4 KB → 15.2 KB; nothing archived ([pass record](passes/2026-10-18.md)) |
