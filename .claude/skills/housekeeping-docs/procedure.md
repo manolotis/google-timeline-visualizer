@@ -82,10 +82,18 @@ details):
   `{"pass": "YYYY-MM-DD", "base": "<sha>", "no_pass_heading": [], "moves": [{"src": "ROADMAP.md",
   "lines": [152, 421], "dest": "docs/archive/ROADMAP.md", "stub": "- [x] T0.1 … [archive]({link})"}]}`.
   One spec per file is easiest; never mix specs built from different versions of a file.
+  A missing destination is created as an archive (an "append-only" header comment); to move
+  REFERENCE text into a new live doc, create that doc first (title, purpose, contents list) and
+  list it under `no_pass_heading`.
 - `mvfile SRC DEST` moves a whole file (git mv) and rebases its links.
+- Neither ever writes a file Claude Code loads as instructions, nor over the archive's index: a
+  destination named `CLAUDE.md` or `CLAUDE.local.md` becomes `claude-md.md` /
+  `claude-local-md.md` in the same folder, and `docs/archive/README.md` becomes
+  `docs/archive/readme-md.md` (`--archive DIR` if the archive lives elsewhere). They print a
+  note for each renamed destination; links and stubs use the new name.
 - Gates: `preserve --base SHA`, `links --baseline <work>/links-base.json`,
-  `ids --base SHA --pattern <regex>...` (patterns for the project's IDs, e.g. `D-\d{3}`,
-  `\bT\d+\.\d+\b`). Use `--exclude <glob>` for out-of-scope markdown (corpora, site content).
+  `ids --base SHA --pattern <regex> [--pattern <regex>]...` (one flag per pattern for the
+  project's IDs, e.g. `D-\d{3}`, `\bT\d+\.\d+\b`). Use `--exclude <glob>` for out-of-scope markdown (corpora, site content).
 
 ## Phase 0 — Preflight and baseline
 

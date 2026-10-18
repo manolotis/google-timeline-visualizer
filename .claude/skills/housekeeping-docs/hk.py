@@ -13,6 +13,12 @@ Run from the repository root (python3 hk.py <command> -h for details):
 Moved text is copied byte for byte except relative link targets, which are rebased
 so they still resolve from the new location; preserve ignores link targets for the
 same reason. preserve, links and ids exit 1 when they find a problem, else 0.
+
+move and mvfile never write a file that Claude Code loads as instructions, nor over
+the archive's index: a destination named CLAUDE.md or CLAUDE.local.md becomes
+claude-md.md or claude-local-md.md in the same folder, and <archive>/README.md
+becomes <archive>/readme-md.md (--archive, default docs/archive). They print a note
+when they rename a destination.
 """
 
 from __future__ import annotations
@@ -44,6 +50,9 @@ LINE_ANCHOR = re.compile(r"^L\d+(-L?\d+)?$")
 TRIVIAL = re.compile(r"^[\W_]*$")
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", "graphify-out"}
 ARCHIVE_HEADER = "<!-- Housekeeping archive of {src}: append-only, never edited. -->\n"
+# File names Claude Code loads as instructions from any folder it works in: an
+# archive named like this would be read as instructions, history and all.
+INSTRUCTION_NAMES = {"claude.md", "claude.local.md"}
 
 
 # ---------------------------------------------------------------- helpers
@@ -80,6 +89,19 @@ def base_text(base: str, path: str) -> str:
     cmd = ["git", "show", f"{base}:{path}"]
     raw = subprocess.run(cmd, check=True, capture_output=True).stdout
     return raw.decode("utf-8", errors="replace")
+
+
+def safe_dest(dest: str, archive: str) -> str:
+    """The path move and mvfile write to instead of `dest` (see the module doc)."""
+    folder, name = os.path.split(dest)
+    if name.lower() in INSTRUCTION_NAMES:
+        new = os.path.join(folder, name.lower().replace(".", "-") + ".md")
+    elif os.path.normpath(dest).lower() == os.path.normpath(os.path.join(archive, "README.md")).lower():
+        new = os.path.join(folder, "readme-md.md")
+    else:
+        return dest
+    print(f"note: {dest} -> {new} (never an instruction file or the archive's index)")
+    return new
 
 
 def read(path: str) -> str:
@@ -226,8 +248,9 @@ def cmd_move(a: argparse.Namespace) -> int:
     spec = json.loads(read(a.spec))
     base = spec["base"]
     pass_heading = f"# Pass {spec['pass']} (from {base})"
-    no_heading = set(spec.get("no_pass_heading", []))
-    moves = spec["moves"]
+    renamed = {d: safe_dest(d, a.archive) for d in dict.fromkeys(m["dest"] for m in spec["moves"])}
+    no_heading = {renamed.get(d, d) for d in spec.get("no_pass_heading", [])}
+    moves = [{**m, "dest": renamed[m["dest"]]} for m in spec["moves"]]
 
     src_lines: dict[str, list[str]] = {}
     for m in moves:
@@ -305,6 +328,7 @@ def cmd_move(a: argparse.Namespace) -> int:
 
 
 def cmd_mvfile(a: argparse.Namespace) -> int:
+    a.dest = safe_dest(a.dest, a.archive)
     if os.path.exists(a.dest):
         sys.exit(f"{a.dest} exists")
     lines = read(a.src).splitlines(keepends=True)
@@ -453,11 +477,13 @@ def main() -> int:
     s = sub.add_parser("move", help="move line ranges verbatim into archives")
     s.add_argument("spec")
     s.add_argument("--dry-run", action="store_true")
+    s.add_argument("--archive", default="docs/archive")
     s.set_defaults(fn=cmd_move)
 
     s = sub.add_parser("mvfile", help="git mv a file, rebasing its links")
     s.add_argument("src")
     s.add_argument("dest")
+    s.add_argument("--archive", default="docs/archive")
     s.set_defaults(fn=cmd_mvfile)
 
     gates = (
